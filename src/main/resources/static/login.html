@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        label { display: block; margin-top: 10px; }
+        input { width: 100%; padding: 8px; margin-top: 5px; }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background-color: #1976D2; }
+        #result { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h2>用户登录</h2>
+
+<label>用户名：</label>
+<input type="text" id="username" placeholder="请输入用户名">
+
+<label>密码：</label>
+<input type="password" id="password" placeholder="请输入密码">
+
+<button onclick="login()">登录</button>
+
+<p id="result"></p>
+
+<script>
+    function login() {
+        const data = {
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+        };
+
+        if (!data.username || !data.password) {
+            document.getElementById("result").innerText = "请填写用户名和密码";
+            return;
+        }
+
+        fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+            .then(async response => {
+                const text = await response.text();
+
+                if (response.ok && text.startsWith("ey")) {
+                    // ✅ 登录成功，保存 Token
+                    localStorage.setItem("token", text);
+                    document.getElementById("result").innerHTML = "✅ 登录成功！即将跳转...";
+
+                    // ✅ 跳转到用户主页
+                    setTimeout(() => {
+                        window.location.href = "/user.html";
+                    }, 800);
+
+                } else {
+                    document.getElementById("result").innerText = "❌ 登录失败：" + text;
+                }
+            })
+            .catch(error => {
+                document.getElementById("result").innerText = "请求失败：" + error;
+            });
+    }
+</script>
+
+</body>
+</html>

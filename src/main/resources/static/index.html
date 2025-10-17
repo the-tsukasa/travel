@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TravelGo · 探索世界，从这里开始</title>
+    <meta name="description" content="TravelGo 专业旅游平台：热门目的地、精选套餐、真实评价，助你轻松出发。">
+    <style>
+        :root{
+            --bg:#ffffff;
+            --text:#1a1a1a;
+            --muted:#6b7280;
+            --brand:#0ea5e9;
+            --brand-dark:#0284c7;
+            --card:#ffffff;
+            --shadow:0 10px 30px rgba(0,0,0,.08);
+            --radius:16px;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial; color:var(--text); background:var(--bg)}
+        a{color:inherit;text-decoration:none}
+        img{max-width:100%;display:block}
+
+        /* 顶部导航 */
+        .nav{
+            position:fixed;top:0;left:0;right:0;z-index:50;
+            display:flex;align-items:center;justify-content:space-between;
+            padding:14px 24px; transition:background .25s, box-shadow .25s;
+            background:transparent;
+        }
+        .nav.scrolled{background:rgba(255,255,255,.9); backdrop-filter:saturate(140%) blur(10px); box-shadow:0 1px 10px rgba(0,0,0,.06)}
+        .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:.3px}
+        .brand-dot{width:10px;height:10px;border-radius:50%;background:var(--brand)}
+        .nav-links{display:flex;gap:20px;align-items:center}
+        .nav-links a{color:#111827;opacity:.85}
+        .nav-cta{display:flex;gap:10px;align-items:center}
+        .btn{
+            padding:10px 16px;border-radius:12px;border:1px solid transparent;cursor:pointer;
+            background:var(--brand);color:#fff;font-weight:600;
+        }
+        .btn:hover{background:var(--brand-dark)}
+        .btn-ghost{background:transparent;border-color:#e5e7eb;color:#111827}
+        .btn-ghost:hover{background:#f3f4f6}
+        .mobile-menu{display:none}
+
+        /* 英雄大图 */
+        .hero{
+            position:relative;height:88vh;min-height:560px;display:grid;place-items:center;
+            color:#fff; text-align:center; overflow:hidden;
+        }
+        .hero::before{
+            content:"";position:absolute;inset:0;
+            background:url("https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1920&auto=format&fit=crop") center/cover no-repeat;
+            transform:scale(1.03);
+        }
+        .hero::after{
+            content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.45));
+        }
+        .hero-inner{position:relative;z-index:1;max-width:960px;padding:0 20px}
+        .hero h1{font-size: clamp(28px,5vw,56px);margin:0 0 12px;font-weight:900;line-height:1.1}
+        .hero p{margin:0 0 24px;color:#e5e7eb;font-size: clamp(14px,2.4vw,18px)}
+        .search{
+            display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;
+            background:rgba(255,255,255,.9); padding:12px; border-radius:14px;
+            box-shadow:var(--shadow)
+        }
+        .search input, .search select{
+            padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;min-width:220px;background:#fff
+        }
+        .search .btn{padding:12px 18px}
+
+        /* 主容器 */
+        .section{max-width:1160px;margin:64px auto;padding:0 20px}
+        .section h2{font-size:28px;margin:0 0 8px}
+        .section p.lead{color:var(--muted);margin:0 0 24px}
+
+        /* 卡片网格 */
+        .grid{display:grid;gap:20px}
+        .grid-4{grid-template-columns:repeat(4,1fr)}
+        .grid-3{grid-template-columns:repeat(3,1fr)}
+        @media (max-width:1024px){.grid-4{grid-template-columns:repeat(3,1fr)} .grid-3{grid-template-columns:repeat(2,1fr)}}
+        @media (max-width:720px){.grid-4{grid-template-columns:repeat(2,1fr)}}
+        @media (max-width:520px){.grid-4,.grid-3{grid-template-columns:1fr}}
+
+        .card{
+            background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+            transition:transform .2s ease, box-shadow .2s ease;
+        }
+        .card:hover{transform:translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,.08)}
+        .card-img{aspect-ratio:16/11;object-fit:cover;width:100%}
+        .card-body{padding:14px 16px}
+        .card-title{font-weight:700;margin:0 0 6px}
+        .muted{color:var(--muted);font-size:14px}
+
+        /* 套餐价格 */
+        .price{font-weight:800;font-size:20px}
+        .actions{display:flex;gap:10px;align-items:center;margin-top:10px}
+
+        /* 评价 */
+        .review{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:14px;background:#f8fafc}
+        .avatar{width:44px;height:44px;border-radius:50%;object-fit:cover}
+
+        /* 页脚 */
+        footer{margin-top:80px;background:#0b1220;color:#cbd5e1}
+        .footer-inner{max-width:1160px;margin:0 auto;padding:28px 20px;display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:center}
+        .footer-links{display:flex;gap:16px;flex-wrap:wrap}
+        .footer-links a{color:#cbd5e1;opacity:.9}
+        .footer-links a:hover{opacity:1;text-decoration:underline}
+
+        /* 小提示条 */
+        .tip{
+            position:fixed;right:18px;bottom:18px;background:#111827;color:#fff;
+            padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);font-size:13px;opacity:.92
+        }
+    </style>
+</head>
+<body>
+
+<!-- 导航 -->
+<nav class="nav" id="nav">
+    <div class="brand">
+        <span class="brand-dot"></span> TravelGo
+    </div>
+    <div class="nav-links">
+        <a href="#destinations">目的地</a>
+        <a href="#packages">套餐</a>
+        <a href="#reviews">评价</a>
+        <a href="#contact">联系我们</a>
+    </div>
+    <div class="nav-cta">
+        <a class="btn-ghost" href="/login.html">登录</a>
+        <a class="btn" href="/register.html">注册</a>
+    </div>
+    <button class="mobile-menu" aria-label="menu">☰</button>
+</nav>
+
+<!-- 英雄大图 -->
+<header class="hero">
+    <div class="hero-inner">
+        <h1>探索世界，从这里开始</h1>
+        <p>精选全球目的地 · 优价精品线路 · 安全省心出行</p>
+
+        <form class="search" onsubmit="return goSearch(event)">
+            <input id="q-dst" type="text" placeholder="想去哪里？例如：东京 / 巴黎 / 三亚" aria-label="目的地">
+            <select id="q-days" aria-label="行程天数">
+                <option value="">行程天数</option>
+                <option>3天</option><option>5天</option><option>7天</option><option>10天+</option>
+            </select>
+            <button class="btn" type="submit">搜索行程</button>
+        </form>
+    </div>
+</header>
+
+<!-- 热门目的地 -->
+<section id="destinations" class="section">
+    <h2>热门目的地</h2>
+    <p class="lead">全球精选，随心出发</p>
+    <div class="grid grid-4">
+        <a class="card" href="javascript:void(0)" onclick="quickFill('东京')">
+            <img class="card-img" src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1200&auto=format&fit=crop" alt="东京">
+            <div class="card-body">
+                <div class="card-title">日本 · 东京</div>
+                <div class="muted">打卡秋叶原/浅草寺/晴空塔</div>
+            </div>
+        </a>
+        <a class="card" href="javascript:void(0)" onclick="quickFill('巴黎')">
+            <img class="card-img" src="https://images.unsplash.com/photo-1508057198894-247b23fe5ade?q=80&w=1200&auto=format&fit=crop" alt="巴黎">
+            <div class="card-body">
+                <div class="card-title">法国 · 巴黎</div>
+                <div class="muted">埃菲尔铁塔与塞纳河的浪漫</div>
+            </div>
+        </a>
+        <a class="card" href="javascript:void(0)" onclick="quickFill('马尔代夫')">
+            <img class="card-img" src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200&auto=format&fit=crop" alt="马尔代夫">
+            <div class="card-body">
+                <div class="card-title">马尔代夫</div>
+                <div class="muted">纯净海岛 · 蜜月首选</div>
+            </div>
+        </a>
+        <a class="card" href="javascript:void(0)" onclick="quickFill('迪拜')">
+            <img class="card-img" src="https://images.unsplash.com/photo-1505506874110-6a7a69069a08?q=80&w=1200&auto=format&fit=crop" alt="迪拜">
+            <div class="card-body">
+                <div class="card-title">阿联酋 · 迪拜</div>
+                <div class="muted">沙漠风情与现代奇迹</div>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- 精选套餐 -->
+<section id="packages" class="section">
+    <h2>精选旅游套餐</h2>
+    <p class="lead">高性价比 · 无隐形消费 · 真省心</p>
+    <div class="grid grid-3">
+        <div class="card">
+            <img class="card-img" src="https://images.unsplash.com/photo-1567005232323-08c8f3f9f8e8?q=80&w=1200&auto=format&fit=crop" alt="东京套餐">
+            <div class="card-body">
+                <div class="card-title">东京 5 日自由行</div>
+                <div class="muted">含市中心四星酒店 + 机场接送</div>
+                <div class="actions">
+                    <span class="price">¥4999</span>
+                    <button class="btn" onclick="alert('请先登录以预订哦～')">立即预订</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <img class="card-img" src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop" alt="巴黎套餐">
+            <div class="card-body">
+                <div class="card-title">巴黎 浪漫双人游 7 日</div>
+                <div class="muted">卢浮宫/凡尔赛宫/塞纳河游船</div>
+                <div class="actions">
+                    <span class="price">¥8999</span>
+                    <button class="btn" onclick="alert('请先登录以预订哦～')">立即预订</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <img class="card-img" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop" alt="海岛套餐">
+            <div class="card-body">
+                <div class="card-title">马尔代夫 尊享蜜月 6 日</div>
+                <div class="muted">水屋连住 + 蜜月布置 + 出海</div>
+                <div class="actions">
+                    <span class="price">¥12999</span>
+                    <button class="btn" onclick="alert('请先登录以预订哦～')">立即预订</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 用户评价 -->
+<section id="reviews" class="section">
+    <h2>用户评价</h2>
+    <p class="lead">真实口碑，放心之选</p>
+    <div class="grid">
+        <div class="review">
+            <img class="avatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop" alt="用户头像">
+            <div>
+                <strong>Hal</strong> · 东京自由行
+                <div class="muted">“机酒衔接顺畅，客服响应很及时，玩得很尽兴！下次还会选 TravelGo。”</div>
+            </div>
+        </div>
+        <div class="review">
+            <img class="avatar" src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=200&auto=format&fit=crop" alt="用户头像">
+            <div>
+                <strong>Alice</strong> · 巴黎双人游
+                <div class="muted">“行程安排很松弛，导游专业靠谱。法餐推荐很棒～”</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 联系方式 / 页脚 -->
+<footer id="contact">
+    <div class="footer-inner">
+        <div>© 2025 TravelGo · All rights reserved.</div>
+        <div class="footer-links">
+            <a href="mailto:hello@travelgo.com">邮箱</a>
+            <a href="tel:+8613800000000">电话</a>
+            <a href="#destinations">热门目的地</a>
+        </div>
+    </div>
+</footer>
+
+<!-- 小提示 -->
+<div class="tip">已接入登录 / 注册：<a href="/login.html" style="color:#93c5fd">登录</a> · <a href="/register.html" style="color:#93c5fd">注册</a></div>
+
+<script>
+    // 导航滚动背景
+    const nav = document.getElementById('nav');
+    const toggleNavBg = ()=> nav.classList.toggle('scrolled', window.scrollY > 6);
+    toggleNavBg(); window.addEventListener('scroll', toggleNavBg);
+
+    // 搜索行为（示例）
+    function goSearch(e){
+        e.preventDefault();
+        const dst = document.getElementById('q-dst').value.trim();
+        const days = document.getElementById('q-days').value;
+        if(!dst){ alert('请输入想去的目的地'); return false; }
+        // 这里可跳转到你的搜索页或直接调用后端接口
+        alert(`搜索：${dst}${days?(' · '+days):''}`);
+        return false;
+    }
+
+    // 热门目的地快速填充
+    function quickFill(name){
+        document.getElementById('q-dst').value = name;
+        window.scrollTo({top:0,behavior:'smooth'});
+    }
+</script>
+</body>
+</html>

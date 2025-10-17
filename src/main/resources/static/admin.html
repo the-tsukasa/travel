@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员接口测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #d32f2f;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<h2>管理员接口测试</h2>
+
+<p>点击下方按钮，访问 <code>/api/admin/test</code>，只有 ADMIN 角色才能成功。</p>
+
+<button onclick="testAdmin()">测试管理员接口</button>
+
+<p id="result"></p>
+
+<script>
+    function testAdmin() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            document.getElementById("result").innerText = "❌ 未找到 Token，请先登录！";
+            return;
+        }
+
+        fetch("http://localhost:8080/api/admin/test", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+            .then(async response => {
+                const text = await response.text();
+                if (response.ok) {
+                    document.getElementById("result").innerText = "✅ 请求成功：\n" + text;
+                } else if (response.status === 403) {
+                    document.getElementById("result").innerText = "❌ 403 Forbidden：你不是管理员";
+                } else {
+                    document.getElementById("result").innerText = "❌ 请求失败：" + text;
+                }
+            })
+            .catch(error => {
+                document.getElementById("result").innerText = "请求失败：" + error;
+            });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>测试主页</title>
+</head>
+<body>
+<h1>前端测试入口</h1>
+
+<ul>
+    <li><a href="register.html">注册页面</a></li>
+    <li><a href="login.html">登录页面</a></li>
+    <li><a href="user.html">用户信息页面</a></li>
+    <li><a href="admin.html">管理员页面</a></li>
+</ul>
+
+<p>建议测试顺序：</p>
+<ol>
+    <li>先注册一个账号（默认 USER）</li>
+    <li>登录获取 Token（保存 Token）</li>
+    <li>打开 user.html 测试“当前登录用户”接口</li>
+    <li>如果登录用户是 ADMIN，再打开 admin.html 测试管理员接口</li>
+</ol>
+</body>
+</html>
