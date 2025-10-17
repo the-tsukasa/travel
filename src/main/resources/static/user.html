@@ -1,121 +1,204 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>用户主页</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>我的主页 · TravelGo</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background-color: #f8f8f8;
+        :root {
+            --brand: #3b82f6;
+            --brand-dark: #1d4ed8;
+            --bg: #f9fafb;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            --radius: 18px;
         }
-        .info-box {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-top: 20px;
+
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #eff6ff 100%);
+            color: var(--text);
+            scroll-behavior: smooth;
         }
-        .info-item {
-            margin-bottom: 10px;
+        a { color: var(--brand); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ===== 导航栏 ===== */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 24px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px) saturate(180%);
+            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        }
+        .brand {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 22px; color: var(--brand-dark);
+        }
+        .brand-dot {
+            width: 10px; height: 10px; border-radius: 50%; background: var(--brand);
+        }
+
+        /* ===== 主体内容 ===== */
+        .container {
+            max-width: 680px;
+            margin: 140px auto 60px;
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 30px 40px;
+        }
+        h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+        .welcome {
+            text-align: center;
+            color: var(--muted);
+            margin-bottom: 20px;
             font-size: 16px;
         }
-        .logout-btn {
-            margin-top: 30px;
-            padding: 12px;
-            background-color: #f44336;
-            color: white;
-            border: none;
-            width: 100%;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 5px;
+        .info-box {
+            background: #f1f5f9;
+            border-radius: 14px;
+            padding: 20px;
         }
-        .logout-btn:hover {
-            background-color: #d32f2f;
+        .info-item {
+            font-size: 16px;
+            padding: 6px 0;
+            border-bottom: 1px solid #e2e8f0;
         }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-item strong {
+            color: var(--brand-dark);
+        }
+
         #loading {
-            color: #666;
-            margin-top: 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 15px;
+            margin: 20px 0;
         }
         #error {
-            color: red;
-            margin-top: 20px;
+            color: #dc2626;
+            text-align: center;
             font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .logout-btn {
+            display: block;
+            width: 100%;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        /* ===== 页脚 ===== */
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
 
-<h2>欢迎，<span id="usernameTitle">加载中...</span> 👋</h2>
+<!-- ===== 导航栏 ===== -->
+<nav class="nav">
+    <div class="brand"><span class="brand-dot"></span> TravelGo</div>
+    <div><a href="/index.html">返回首页</a></div>
+</nav>
 
-<div id="loading">正在加载用户信息...</div>
-<div id="error"></div>
+<!-- ===== 用户信息卡 ===== -->
+<div class="container">
+    <h2>欢迎回来，<span id="usernameTitle">加载中...</span> 👋</h2>
+    <p class="welcome">查看你的账户信息与收藏</p>
 
-<div class="info-box" id="userInfo" style="display:none;">
-    <div class="info-item"><strong>用户名：</strong><span id="username"></span></div>
-    <div class="info-item"><strong>邮箱：</strong><span id="email"></span></div>
-    <div class="info-item"><strong>角色：</strong><span id="role"></span></div>
-    <div class="info-item"><strong>注册时间：</strong><span id="createdAt"></span></div>
+    <div id="loading">正在加载用户信息...</div>
+    <div id="error"></div>
+
+    <div class="info-box" id="userInfo" style="display:none;">
+        <div class="info-item"><strong>用户名：</strong><span id="username"></span></div>
+        <div class="info-item"><strong>邮箱：</strong><span id="email"></span></div>
+        <div class="info-item"><strong>角色：</strong><span id="role"></span></div>
+        <div class="info-item"><strong>注册时间：</strong><span id="createdAt"></span></div>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">退出登录</button>
 </div>
 
-<button class="logout-btn" onclick="logout()">退出登录</button>
+<footer>© 2025 TravelGo · All rights reserved.</footer>
 
 <script>
-    // ✅ 页面加载时执行
-    window.onload = function () {
+    // 页面加载时执行
+    window.onload = async function() {
         const token = localStorage.getItem("token");
         if (!token) {
             alert("请先登录！");
-            window.location.href = "login.html";
+            location.href = "login.html";
             return;
         }
 
-        fetch("http://localhost:8080/api/user/me", {
-            method: "GET",
-            headers: {
-                "Authorization": "Bearer " + token
-            }
-        })
-            .then(async response => {
-                const text = await response.text();
+        const loadingEl = document.getElementById("loading");
+        const errorEl = document.getElementById("error");
+        const infoBox = document.getElementById("userInfo");
 
-                if (response.ok) {
-                    const data = JSON.parse(text);
-
-                    document.getElementById("loading").style.display = "none";
-                    document.getElementById("userInfo").style.display = "block";
-
-                    document.getElementById("usernameTitle").innerText = data.username;
-                    document.getElementById("username").innerText = data.username;
-                    document.getElementById("email").innerText = data.email || "未设置";
-                    document.getElementById("role").innerText = data.role || "USER";
-                    document.getElementById("createdAt").innerText = data.createdAt || "未知";
-                } else {
-                    document.getElementById("loading").style.display = "none";
-                    document.getElementById("error").innerText = "获取用户信息失败：" + text;
-                    if (response.status === 401 || response.status === 403) {
-                        setTimeout(() => {
-                            alert("登录已过期，请重新登录");
-                            logout();
-                        }, 1500);
-                    }
-                }
-            })
-            .catch(error => {
-                document.getElementById("loading").style.display = "none";
-                document.getElementById("error").innerText = "请求失败：" + error;
+        try {
+            const response = await fetch("http://localhost:8080/api/user/me", {
+                headers: { "Authorization": "Bearer " + token }
             });
+            const text = await response.text();
+
+            if (response.ok) {
+                const data = JSON.parse(text);
+                loadingEl.style.display = "none";
+                infoBox.style.display = "block";
+
+                document.getElementById("usernameTitle").innerText = data.username || "用户";
+                document.getElementById("username").innerText = data.username || "-";
+                document.getElementById("email").innerText = data.email || "未设置";
+                document.getElementById("role").innerText = data.role || "USER";
+                document.getElementById("createdAt").innerText = data.createdAt || "未知";
+            } else {
+                loadingEl.style.display = "none";
+                errorEl.innerText = "获取用户信息失败：" + text;
+                if (response.status === 401 || response.status === 403) {
+                    setTimeout(() => {
+                        alert("登录已过期，请重新登录");
+                        logout();
+                    }, 1200);
+                }
+            }
+        } catch (err) {
+            loadingEl.style.display = "none";
+            errorEl.innerText = "请求失败：" + err;
+        }
     };
 
-    // ✅ 退出登录
+    // 退出登录
     function logout() {
         localStorage.removeItem("token");
-        window.location.href = "login.html";
+        location.href = "login.html";
     }
 </script>
 

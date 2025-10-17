@@ -70,9 +70,14 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/css/**",
                                 "/images/**",
-                                "/static/**"       // Spring Boot 静态资源目录
+                                "/static/**"
                         ).permitAll()
 
+                        // ✅ 景点页面 & API 放行
+                        .requestMatchers(
+                                "/spot.html",
+                                "/api/spots/**"
+                        ).permitAll()
 
                         // ✅ 登录 & 注册 API 放行
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
@@ -84,7 +89,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-
                 // ✅ 使用我们自定义的认证逻辑
                 .authenticationProvider(authenticationProvider())
 
@@ -93,4 +97,5 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 }

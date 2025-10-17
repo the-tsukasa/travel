@@ -1,52 +1,102 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>用户登录</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>登录 · TravelGo</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        :root {
+            --brand: #3b82f6;
+            --brand-dark: #1d4ed8;
+            --bg: #f9fafb;
+            --card: #ffffff;
+            --text: #1e293b;
+            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            --radius: 18px;
         }
-        label { display: block; margin-top: 10px; }
-        input { width: 100%; padding: 8px; margin-top: 5px; }
+        * { box-sizing: border-box; }
+        html,body {
+            margin: 0; padding: 0;
+            font-family: "Segoe UI","Helvetica Neue",Arial,sans-serif;
+            background: linear-gradient(135deg,#e0f2fe 0%,#eff6ff 100%);
+            color: var(--text);
+        }
+        a { color: var(--brand); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ===== 导航栏 ===== */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 24px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px) saturate(180%);
+            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        }
+        .brand {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 22px; color: var(--brand-dark);
+        }
+        .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
+
+        /* ===== 登录卡片 ===== */
+        .container {
+            margin: 120px auto; padding: 30px 40px;
+            max-width: 420px; background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        h2 { margin-top: 0; }
+        label { display:block; text-align:left; margin-top:15px; font-weight:600; }
+        input {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid #d1d5db; border-radius: 10px;
+            font-size: 15px; margin-top:5px;
+        }
         button {
-            margin-top: 20px;
-            padding: 10px;
-            width: 100%;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
+            margin-top: 24px; padding: 12px; width: 100%;
+            background: var(--brand); color: white; border: none;
+            border-radius: 10px; font-size: 16px; font-weight:600; cursor: pointer;
+            transition: background 0.3s;
         }
-        button:hover { background-color: #1976D2; }
-        #result { margin-top: 20px; font-weight: bold; }
+        button:hover { background: var(--brand-dark); }
+        #result { margin-top: 16px; font-weight: bold; }
+
+        /* 页脚 */
+        footer { text-align:center; margin-top:60px; color:#64748b; font-size:14px; }
     </style>
 </head>
 <body>
+<nav class="nav">
+    <div class="brand"><span class="brand-dot"></span> TravelGo</div>
+    <div><a href="/index.html">返回首页</a></div>
+</nav>
 
-<h2>用户登录</h2>
+<div class="container">
+    <h2>登录账户</h2>
+    <p style="color:#64748b;">欢迎回来，探索新的旅程 🌏</p>
 
-<label>用户名：</label>
-<input type="text" id="username" placeholder="请输入用户名">
+    <label>用户名</label>
+    <input type="text" id="username" placeholder="请输入用户名">
 
-<label>密码：</label>
-<input type="password" id="password" placeholder="请输入密码">
+    <label>密码</label>
+    <input type="password" id="password" placeholder="请输入密码">
 
-<button onclick="login()">登录</button>
+    <button onclick="login()">登录</button>
 
-<p id="result"></p>
+    <p style="margin-top:14px;">还没有账户？ <a href="/register.html">立即注册</a></p>
+
+    <p id="result"></p>
+</div>
+
+<footer>© 2025 TravelGo · All rights reserved.</footer>
 
 <script>
-    function login() {
+    async function login() {
         const data = {
-            username: document.getElementById("username").value,
-            password: document.getElementById("password").value
+            username: document.getElementById("username").value.trim(),
+            password: document.getElementById("password").value.trim()
         };
 
         if (!data.username || !data.password) {
@@ -54,6 +104,7 @@
             return;
         }
 
+        // ✅ fetch 调用 + then 链式结构
         fetch("http://localhost:8080/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -61,17 +112,22 @@
         })
             .then(async response => {
                 const text = await response.text();
+                try {
+                    const result = JSON.parse(text); // 尝试解析 JSON
+                    if (result.token) {
+                        localStorage.setItem("token", result.token);
+                        localStorage.setItem("username", result.username || "用户");
+                        document.getElementById("result").innerText = "✅ 登录成功！";
+                        setTimeout(() => (location.href = "/index.html"), 800);
+                        return;
+                    }
+                } catch (e) { /* 如果不是 JSON 则进入下面 */ }
 
                 if (response.ok && text.startsWith("ey")) {
-                    // ✅ 登录成功，保存 Token
                     localStorage.setItem("token", text);
-                    document.getElementById("result").innerHTML = "✅ 登录成功！即将跳转...";
-
-                    // ✅ 跳转到用户主页
-                    setTimeout(() => {
-                        window.location.href = "/user.html";
-                    }, 800);
-
+                    localStorage.setItem("username", "用户");
+                    document.getElementById("result").innerText = "✅ 登录成功！";
+                    setTimeout(() => (location.href = "/index.html"), 800);
                 } else {
                     document.getElementById("result").innerText = "❌ 登录失败：" + text;
                 }
@@ -79,6 +135,7 @@
             .catch(error => {
                 document.getElementById("result").innerText = "请求失败：" + error;
             });
+
     }
 </script>
 

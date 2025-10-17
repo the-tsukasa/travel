@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>観光スポット一覧 | TravelGo</title>
+    <meta name="description" content="全国の人気観光地をチェックして、行きたい場所を見つけよう。TravelGoがあなたの旅をサポートします。">
+    <style>
+        :root {
+            --brand: #3b82f6;
+            --brand-dark: #1d4ed8;
+            --bg: #f9fafb;
+            --text: #1e293b;
+            --muted: #64748b;
+            --card: #ffffff;
+            --shadow: 0 10px 25px rgba(0,0,0,0.1);
+            --radius: 18px;
+        }
+        * { box-sizing: border-box; }
+        html,body {
+            margin: 0; padding: 0;
+            font-family: "Segoe UI","Helvetica Neue",Arial,sans-serif;
+            background: var(--bg); color: var(--text);
+            scroll-behavior: smooth;
+        }
+        a { color: inherit; text-decoration: none; }
+        img { max-width: 100%; display: block; }
+
+        /* ===== 导航栏 ===== */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 24px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px) saturate(180%);
+            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .nav.scrolled {
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .brand {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 22px; color: var(--brand-dark);
+        }
+        .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a { color: var(--text); opacity: 0.8; font-weight: 500; }
+        .nav-links a:hover { color: var(--brand-dark); opacity: 1; }
+        .nav-cta { display: flex; gap: 10px; align-items: center; }
+        .btn {
+            border: none; border-radius: 12px; cursor: pointer;
+            padding: 10px 18px; font-weight: 600; font-size: 15px;
+            background: var(--brand); color: #fff;
+            transition: background 0.3s;
+        }
+        .btn:hover { background: var(--brand-dark); }
+        .btn-outline {
+            background: transparent; border: 2px solid var(--brand); color: var(--brand);
+        }
+        .btn-outline:hover { background: var(--brand); color: #fff; }
+        .mobile-menu { display: none; font-size: 26px; background: none; border: none; cursor: pointer; }
+        @media(max-width:720px){
+            .nav-links{display:none;flex-direction:column;position:absolute;top:70px;right:20px;background:rgba(255,255,255,0.98);padding:20px;border-radius:12px;box-shadow:var(--shadow);}
+            .nav-links.show{display:flex;}
+            .mobile-menu{display:block;color:var(--brand-dark);}
+        }
+        /* ===== 固定式用户条  ===== */
+        .userbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(59,130,246,0.08); /* brand 的浅色底 */
+            border: 1px solid rgba(59,130,246,0.25);
+            padding: 6px 12px;
+            border-radius: 999px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .userbar-username {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: var(--brand-dark);
+            white-space: nowrap;
+        }
+        .userbar a,
+        .userbar button {
+            background: none;
+            border: none;
+            color: var(--text);
+            font: inherit;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 8px;
+            transition: background .2s, color .2s;
+        }
+        .userbar a:hover,
+        .userbar button:hover {
+            background: #f3f4f6;
+            color: var(--brand-dark);
+        }
+        .userbar .divider {
+            width: 1px;
+            height: 18px;
+            background: #e5e7eb;
+        }
+
+        /* 移动端：换行堆叠，点击面积更大 */
+        @media (max-width: 720px) {
+            .userbar {
+                gap: 8px;
+                border-radius: 14px;
+                padding: 8px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .userbar .divider { display: none; }
+        }
+
+        /* ===== 页面标题区 ===== */
+        header {
+            padding-top: 120px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header h1 {
+            font-size: clamp(26px,4vw,42px);
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+        header p {
+            color: var(--muted);
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;
+            background: #fff; border-radius: 16px; box-shadow: var(--shadow);
+            padding: 14px 16px; max-width: 640px; margin: 0 auto;
+        }
+        .search-box input {
+            padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 12px;
+            min-width: 240px; font-size: 15px;
+        }
+
+        /* ===== 景点网格 ===== */
+        .spot-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 40px auto 80px;
+            padding: 0 20px;
+        }
+        .spot-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform .2s, box-shadow .2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .spot-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+        .spot-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .spot-info {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .spot-info h3 {
+            font-size: 20px; margin-bottom: 8px;
+        }
+        .spot-info p {
+            font-size: 14px; color: var(--muted); margin: 4px 0;
+        }
+        .spot-meta {
+            margin-top: 8px; font-size: 14px; color: var(--muted);
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        .like-btn, .fav-btn {
+            border: none; border-radius: 8px; padding: 8px 14px; margin-right: 6px;
+            cursor: pointer; font-weight: 600; transition: background .25s;
+        }
+        .like-btn { background: #fee2e2; color: #b91c1c; }
+        .like-btn:hover { background: #fecaca; }
+        .fav-btn { background: #fef3c7; color: #92400e; }
+        .fav-btn:hover { background: #fde68a; }
+
+        /* ===== 页脚 ===== */
+        footer {
+            background: #111827;
+            color: #cbd5e1;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        footer a {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+        footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<!-- ===== 导航栏 ===== -->
+<nav class="nav" id="nav">
+    <div class="brand"><span class="brand-dot"></span> TravelGo</div>
+    <div class="nav-links" id="menu">
+        <a href="/index.html#destinations">目的地</a>
+        <a href="/index.html#packages">套餐</a>
+        <a href="/index.html#reviews">评价</a>
+        <a href="/spot.html">景点</a>
+        <a href="/index.html#contact">联系我们</a>
+    </div>
+    <div class="nav-cta">
+        <a href="/login.html" class="btn-outline">登录</a>
+        <a href="/register.html" class="btn">注册</a>
+    </div>
+    <button class="mobile-menu" onclick="toggleMenu()">☰</button>
+</nav>
+
+<!-- ===== 页面标题 ===== -->
+<header>
+    <h1>観光スポット一覧</h1>
+    <p>全国の人気スポットをチェックして、次の旅先を見つけよう。</p>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="キーワードで検索（例：京都 / 東京）">
+        <button class="btn" onclick="filterSpots()">検索</button>
+    </div>
+</header>
+
+<!-- ===== 景点列表 ===== -->
+<main>
+    <div class="spot-container" id="spots"></div>
+</main>
+
+<!-- ===== 页脚 ===== -->
+<footer>
+    <div>© 2025 TravelGo · All rights reserved.</div>
+    <div style="margin-top:8px;">联系邮箱：<a href="mailto:hello@travelgo.com">hello@travelgo.com</a></div>
+</footer>
+
+<script>
+    // ===== 导航栏滚动效果 =====
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+        nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+    
+    // ===== 移动端菜单切换 =====
+    const menu = document.getElementById('menu');
+    function toggleMenu() { menu.classList.toggle('show'); }
+
+    // ===== 登录状态检查 + 用户名显示（固定式用户栏） =====
+    window.addEventListener("DOMContentLoaded", async () => {
+        const navCta = document.querySelector(".nav-cta");
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            renderLoggedOut();
+            return;
+        }
+
+        try {
+            // 请求用户信息
+            const res = await fetch("http://localhost:8080/api/user/me", {
+                headers: { "Authorization": "Bearer " + token }
+            });
+
+            if (!res.ok) {
+                renderLoggedOut();
+                return;
+            }
+
+            const user = await res.json();
+            const name = user.username || localStorage.getItem("username") || "用户";
+            localStorage.setItem("username", name);
+
+            // ✅ 已登录状态 → 固定式用户信息栏
+            navCta.innerHTML = `
+        <div class="userbar">
+          <span class="userbar-username">👤 ${name}</span>
+          <span class="divider"></span>
+          <a href="/user.html" aria-label="我的主页">我的主页</a>
+          <a href="/favorites.html" aria-label="我的收藏">我的收藏</a>
+          <span class="divider"></span>
+          <button type="button" onclick="logout()" aria-label="退出登录">退出</button>
+        </div>
+      `;
+        } catch (e) {
+            renderLoggedOut();
+        }
+
+        function renderLoggedOut() {
+            navCta.innerHTML = `
+        <a href="/login.html" class="btn-outline">登录</a>
+        <a href="/register.html" class="btn">注册</a>
+      `;
+        }
+    });
+
+    // ===== 登出逻辑 =====
+    function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        location.reload();
+    }
+
+    // ===== 加载景点数据 =====
+    let allSpots = [];
+    async function loadSpots() {
+        try {
+            const response = await fetch('/api/spots');
+            allSpots = await response.json();
+            renderSpots(allSpots);
+        } catch (err) {
+            console.error(err);
+            document.getElementById('spots').innerHTML =
+                "<p style='text-align:center;color:gray;'>データを読み込めませんでした。</p>";
+        }
+    }
+
+    // ===== 渲染函数 =====
+    function renderSpots(spots) {
+        const container = document.getElementById('spots');
+        container.innerHTML = spots.map(s => `
+        <div class="spot-card">
+          <img src="${s.imageUrl}" alt="${s.name}">
+          <div class="spot-info">
+            <div>
+              <h3>${s.name}</h3>
+              <p>${s.description}</p>
+              <p>📍 ${s.location}</p>
+            </div>
+            <div class="spot-meta">❤️ ${s.likes}　⭐ ${s.favorites}</div>
+            <div class="buttons">
+              <button class="like-btn" onclick="likeSpot(${s.id})">❤️ いいね</button>
+              <button class="fav-btn" onclick="favoriteSpot(${s.id})">⭐ お気に入り</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ===== 点赞 & 收藏 =====
+    async function likeSpot(id) {
+        await fetch(`/api/spots/${id}/like`, { method: 'POST' });
+        loadSpots();
+    }
+    async function favoriteSpot(id) {
+        await fetch(`/api/spots/${id}/favorite`, { method: 'POST' });
+        loadSpots();
+    }
+
+    // ===== 搜索过滤 =====
+    function filterSpots() {
+        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+        const filtered = allSpots.filter(s =>
+            s.name.toLowerCase().includes(keyword) ||
+            s.description.toLowerCase().includes(keyword) ||
+            s.location.toLowerCase().includes(keyword)
+        );
+        renderSpots(filtered);
+    }
+
+    loadSpots();
+</script>
+</body>
+</html>
