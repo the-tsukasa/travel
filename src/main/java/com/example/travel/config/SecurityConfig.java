@@ -22,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
-@EnableMethodSecurity(prePostEnabled = true)  // 支持 @PreAuthorize
+@EnableMethodSecurity()  // 支持 @PreAuthorize
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;

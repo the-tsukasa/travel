@@ -21,8 +21,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+                                    @SuppressWarnings("NullableProblems") HttpServletResponse response,
+                                    @SuppressWarnings("NullableProblems") FilterChain filterChain)
             throws ServletException, IOException {
 
         // ✅ 0️⃣ 放行登录和注册接口

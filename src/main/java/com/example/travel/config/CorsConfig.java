@@ -10,6 +10,7 @@ public class CorsConfig {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
+        //noinspection NullableProblems
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
