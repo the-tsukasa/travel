@@ -36,9 +36,9 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setEmail(request.getEmail());       // ✅ 新增
-        user.setRole("USER");                    // ✅ 默认角色
-        user.setCreatedAt(LocalDateTime.now());  // ✅ 当前时间
+        user.setEmail(request.getEmail());       // 新增
+        user.setRole("USER");                    // 默认角色
+        user.setCreatedAt(LocalDateTime.now());  // 当前时间
 
         // 4. 保存
         userRepository.save(user);
@@ -58,9 +58,14 @@ public class UserServiceImpl implements UserService {
             return "密码错误"; // ❌ 占位，同上
         }
 
-        // ✅ 生成 JWT Token
+        // 生成 JWT Token
 
-        // ✅ 推荐返回 JSON 格式
+
+
+
+
+
+        // 推荐返回 JSON 格式
         return JwtUtil.generateToken(user.getUsername());
     }
 
