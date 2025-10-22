@@ -29,5 +29,6 @@ public class User {
 
     //  注册时间（自动记录）
     @Column(nullable = false)
+
     private LocalDateTime createdAt;
 }
