@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ja">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TravelGo · 发现世界的新方式</title>
-    <meta name="description" content="TravelGo：智能旅游平台，发现热门目的地、特惠线路与真实评价，助你轻松出发。">
+    <title>TravelGo · 世界を新しい方法で発見しよう</title>
+    <meta name="description" content="TravelGo：人気の旅行先・お得なプラン・本物のレビューを集約したスマート旅行プラットフォーム。">
     <style>
         :root {
-            --brand: #3b82f6;
-            --brand-dark: #1d4ed8;
-            --bg: #f9fafb;
+            --brand: #ff4d00;
+            --brand-dark: #e03e00;
+            --bg: #fff9f3;
             --text: #1e293b;
             --muted: #64748b;
             --card: #ffffff;
@@ -20,7 +20,7 @@
         * { box-sizing: border-box; }
         html,body {
             margin: 0; padding: 0;
-            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            font-family: "Hiragino Sans","Segoe UI","Helvetica Neue",Arial,sans-serif;
             color: var(--text);
             background: var(--bg);
             scroll-behavior: smooth;
@@ -28,15 +28,14 @@
         a { color: inherit; text-decoration: none; }
         img { max-width: 100%; display: block; }
 
-        /* ===== 顶部导航 ===== */
+        /* ===== ナビゲーション ===== */
         .nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 50;
             display: flex; align-items: center; justify-content: space-between;
             padding: 14px 24px;
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(12px) saturate(180%);
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(12px);
             box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
         }
 
         .brand {
@@ -45,10 +44,9 @@
         }
         .brand-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); }
         .nav-links { display: flex; gap: 24px; align-items: center; }
-        .nav-links a {
-            color: var(--text); font-weight: 500; opacity: 0.8;
-        }
+        .nav-links a { color: var(--text); font-weight: 500; opacity: 0.8; }
         .nav-links a:hover { color: var(--brand-dark); opacity: 1; }
+
         .nav-cta { display: flex; gap: 10px; align-items: center; }
         .btn {
             border: none; cursor: pointer; border-radius: 12px;
@@ -60,83 +58,45 @@
         .btn-outline {
             background: transparent; border: 2px solid var(--brand); color: var(--brand);
         }
-        .btn-outline:hover {
-            background: var(--brand); color: #fff;
-        }
-        .mobile-menu { display: none; font-size: 26px; background: none; border: none; cursor: pointer; }
+        .btn-outline:hover { background: var(--brand); color: #fff; }
 
-        @media (max-width:720px){
-            .nav-links { display: none; flex-direction: column; position: absolute; top: 70px; right: 20px; background: rgba(255,255,255,0.98); padding: 20px; border-radius: 12px; box-shadow: var(--shadow); }
-
-            .mobile-menu { display: block; color: var(--brand-dark); }
-        }
-        /* ===== 固定式用户条  ===== */
+        /* ===== ユーザー表示バー ===== */
         .userbar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(59,130,246,0.08); /* brand 的浅色底 */
-            border: 1px solid rgba(59,130,246,0.25);
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,77,0,0.08);
+            border: 1px solid rgba(255,77,0,0.25);
             padding: 6px 12px;
             border-radius: 999px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
         .userbar-username {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: 600;
-            color: var(--brand-dark);
-            white-space: nowrap;
+            font-weight: 600; color: var(--brand-dark);
+            display: flex; align-items: center; gap: 4px;
         }
-        .userbar a,
-        .userbar button {
-            background: none;
-            border: none;
-            color: var(--text);
-            font: inherit;
-            cursor: pointer;
-            padding: 6px 8px;
-            border-radius: 8px;
+        .userbar a, .userbar button {
+            background: none; border: none; color: var(--text);
+            font: inherit; cursor: pointer; padding: 6px 8px; border-radius: 8px;
             transition: background .2s, color .2s;
         }
-        .userbar a:hover,
-        .userbar button:hover {
+        .userbar a:hover, .userbar button:hover {
             background: #f3f4f6;
             color: var(--brand-dark);
         }
-        .userbar .divider {
-            width: 1px;
-            height: 18px;
-            background: #e5e7eb;
-        }
+        .divider { width: 1px; height: 18px; background: #e5e7eb; }
 
-        /* 移动端：换行堆叠，点击面积更大 */
-        @media (max-width: 720px) {
-            .userbar {
-                gap: 8px;
-                border-radius: 14px;
-                padding: 8px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .userbar .divider { display: none; }
-        }
-
-        /* ===== 英雄区 ===== */
+        /* ===== ヒーローセクション ===== */
         .hero {
-            position: relative; height: 90vh; min-height: 560px;
+            position: relative; height: 90vh;
             display: grid; place-items: center; text-align: center;
-            overflow: hidden; color: #fff;
+            color: #fff;
         }
         .hero::before {
             content:""; position:absolute; inset:0;
-            background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;
-            transform: scale(1.04);
+            background:url('https://images.unsplash.com/photo-1578632292335-df3abbb0d586?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;
             filter: brightness(0.75);
         }
         .hero::after {
-            content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,0.4),rgba(0,0,0,0.5));
+            content:""; position:absolute; inset:0;
+            background:linear-gradient(180deg,rgba(0,0,0,0.3),rgba(0,0,0,0.5));
         }
         .hero-content {
             position:relative; z-index:1; max-width:900px; padding:0 20px;
@@ -145,25 +105,30 @@
             font-size: clamp(32px,5vw,60px); margin-bottom:12px; font-weight:900;
         }
         .hero p { font-size: clamp(15px,2.4vw,20px); margin-bottom:28px; opacity:0.9; }
+
         .search {
-            background: rgba(255,255,255,0.9); display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+            background: rgba(255,255,255,0.95);
+            display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
             border-radius:16px; padding:14px 16px; box-shadow: var(--shadow);
         }
         .search input, .search select {
             padding:12px 14px; border:1px solid #e5e7eb; border-radius:12px; min-width:200px; font-size:15px;
         }
 
-        /* ===== 通用区块 ===== */
+        /* ===== 各セクション ===== */
         section { max-width:1200px; margin:80px auto; padding:0 20px; text-align:center; }
         section h2 { font-size:30px; margin-bottom:10px; }
         section p.lead { color: var(--muted); margin-bottom:36px; }
 
-        /* ===== 网格卡片 ===== */
+        /* ===== カードグリッド ===== */
         .grid { display:grid; gap:24px; }
         .grid-4 { grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); }
         .card {
-            background: var(--card); border-radius: var(--radius); overflow:hidden;
-            box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s;
+            background: var(--card);
+            border-radius: var(--radius);
+            overflow:hidden;
+            box-shadow: var(--shadow);
+            transition: transform .2s, box-shadow .2s;
         }
         .card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
         .card img { width:100%; height:180px; object-fit:cover; }
@@ -171,233 +136,204 @@
         .card-title { font-weight:700; margin-bottom:4px; }
         .muted { color: var(--muted); font-size:14px; }
 
-        /* ===== 评价样式 ===== */
+        /* ===== レビュー ===== */
         .review {
             display:flex; gap:14px; align-items:flex-start;
-            padding:16px; background:#f1f5f9; border-radius:14px; max-width:700px; margin:12px auto;
+            padding:16px; background:#f1f5f9; border-radius:14px;
+            max-width:700px; margin:12px auto;
         }
         .review img { width:50px; height:50px; border-radius:50%; object-fit:cover; }
 
-        /* ===== 页脚 ===== */
+        /* ===== フッター ===== */
         footer {
-            background:#111827; color:#cbd5e1; padding:30px 20px; text-align:center;
+            background:#111827; color:#cbd5e1;
+            padding:30px 20px; text-align:center;
         }
-        footer a { color:#93c5fd; text-decoration:none; }
+        footer a { color:#fca5a5; }
         footer a:hover { text-decoration:underline; }
-
     </style>
 </head>
+
 <body>
-<!-- ===== 导航栏 ===== -->
+<!-- ===== ナビゲーション ===== -->
 <nav class="nav" id="nav">
     <div class="brand"><span class="brand-dot"></span> TravelGo</div>
     <div class="nav-links" id="menu">
-        <a href="#destinations">目的地</a>
-        <a href="#packages">套餐</a>
-        <a href="#reviews">评价</a>
-        <a href="spot.html">景点</a>
-        <a href="#contact">联系我们</a>
+        <a href="#destinations">人気の旅先</a>
+        <a href="#packages">おすすめプラン</a>
+        <a href="#reviews">レビュー</a>
+        <a href="spot.html">観光スポット</a>
+        <a href="#contact">お問い合わせ</a>
     </div>
     <div class="nav-cta">
-        <a href="/login.html" class="btn-outline">登录</a>
-        <a href="/register.html" class="btn">注册</a>
+        <a href="/login.html" class="btn-outline">ログイン</a>
+        <a href="/register.html" class="btn">登録</a>
     </div>
-    <button class="mobile-menu" onclick="toggleMenu()">☰</button>
 </nav>
 
-<!-- ===== 英雄区 ===== -->
+<!-- ===== ヒーローセクション ===== -->
 <header class="hero">
     <div class="hero-content">
-        <h1>发现世界的新方式</h1>
-        <p>智能推荐 · 实时优惠 · 全球精选目的地</p>
+        <h1>世界を新しい方法で発見しよう</h1>
+        <p>スマート検索 · お得なプラン · 本物のレビュー</p>
         <form class="search" onsubmit="return goSearch(event)">
-            <input id="q-dst" type="text" placeholder="想去哪里？例如 东京 / 巴黎 / 三亚" aria-label="目的地" />
-            <select id="q-days" aria-label="行程天数">
-                <option value="">行程天数</option>
-                <option>3天</option>
-                <option>5天</option>
-                <option>7天</option>
-                <option>10天+</option>
+            <input id="q-dst" type="text" placeholder="行きたい場所を入力（例：東京 / 京都 / 沖縄）" />
+            <select id="q-days">
+                <option value="">日数を選択</option>
+                <option>3日間</option>
+                <option>5日間</option>
+                <option>7日間</option>
+                <option>10日以上</option>
             </select>
-            <button type="submit" class="btn">开始探索</button>
+            <button type="submit" class="btn">検索する</button>
         </form>
     </div>
 </header>
 
-<!-- ===== 热门目的地 ===== -->
+<!-- ===== 人気の旅先 ===== -->
 <section id="destinations">
-    <h2>热门目的地</h2>
-    <p class="lead">全球旅行者最向往的城市与自然奇景</p>
+    <h2>人気の旅先</h2>
+    <p class="lead">世界中の旅行者が注目する目的地</p>
     <div class="grid grid-4">
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1549693578-d683be217e58?q=80&w=1200" alt="东京">
+            <img src="https://images.unsplash.com/photo-1549693578-d683be217e58?q=80&w=1200" alt="東京">
             <div class="card-body">
-                <div class="card-title">日本 · 东京</div>
-                <div class="muted">都市魅力与传统文化并存</div>
+                <div class="card-title">日本 · 東京</div>
+                <div class="muted">伝統とモダンが交差する都市</div>
             </div>
         </div>
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1508051123996-69f8caf4891e?q=80&w=1200" alt="巴黎">
+            <img src="https://images.unsplash.com/photo-1508051123996-69f8caf4891e?q=80&w=1200" alt="パリ">
             <div class="card-body">
-                <div class="card-title">法国 · 巴黎</div>
-                <div class="muted">浪漫之都与艺术气息</div>
+                <div class="card-title">フランス · パリ</div>
+                <div class="muted">芸術と浪漫の街</div>
             </div>
         </div>
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200" alt="马尔代夫">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200" alt="モルディブ">
             <div class="card-body">
-                <div class="card-title">马尔代夫</div>
-                <div class="muted">纯净海岛与碧蓝海洋</div>
+                <div class="card-title">モルディブ</div>
+                <div class="muted">青い海と静かな島の楽園</div>
             </div>
         </div>
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200" alt="迪拜">
+            <img src="https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200" alt="ドバイ">
             <div class="card-body">
-                <div class="card-title">阿联酋 · 迪拜</div>
-                <div class="muted">沙漠奇迹与未来之城</div>
+                <div class="card-title">UAE · ドバイ</div>
+                <div class="muted">未来都市と砂漠のコントラスト</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ===== 精选套餐 ===== -->
+<!-- ===== おすすめプラン ===== -->
 <section id="packages">
-    <h2>精选旅行套餐</h2>
-    <p class="lead">高性价比 · 真透明 · 超放心</p>
+    <h2>おすすめプラン</h2>
+    <p class="lead">コスパ最高・透明価格・安心サポート</p>
     <div class="grid grid-4">
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1585421514738-01798e348b17?q=80&w=1200" alt="东京">
+            <img src="https://images.unsplash.com/photo-1585421514738-01798e348b17?q=80&w=1200" alt="東京">
             <div class="card-body">
-                <div class="card-title">东京5日自由行</div>
-                <div class="muted">含4星酒店+接送机</div>
-                <p style="font-weight:700;">¥4999</p>
+                <div class="card-title">東京5日間フリープラン</div>
+                <div class="muted">4つ星ホテル＋空港送迎付き</div>
+                <p style="font-weight:700;">¥49,000</p>
             </div>
         </div>
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1495433324511-bf8e92934d90?q=80&w=1200" alt="巴黎">
+            <img src="https://images.unsplash.com/photo-1495433324511-bf8e92934d90?q=80&w=1200" alt="パリ">
             <div class="card-body">
-                <div class="card-title">巴黎浪漫7日游</div>
-                <div class="muted">卢浮宫·凡尔赛宫·塞纳河</div>
-                <p style="font-weight:700;">¥8999</p>
+                <div class="card-title">パリ7日間ロマンチックツアー</div>
+                <div class="muted">ルーブル・ヴェルサイユ・セーヌ川</div>
+                <p style="font-weight:700;">¥89,000</p>
             </div>
         </div>
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200" alt="马尔代夫">
+            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200" alt="モルディブ">
             <div class="card-body">
-                <div class="card-title">马尔代夫蜜月6日</div>
-                <div class="muted">水屋连住+私人出海</div>
-                <p style="font-weight:700;">¥12999</p>
+                <div class="card-title">モルディブ6日間ハネムーン</div>
+                <div class="muted">水上ヴィラ＋プライベートボート</div>
+                <p style="font-weight:700;">¥129,000</p>
             </div>
         </div>
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1506806732259-39c2d0268443?q=80&w=1200" alt="迪拜">
+            <img src="https://images.unsplash.com/photo-1506806732259-39c2d0268443?q=80&w=1200" alt="ドバイ">
             <div class="card-body">
-                <div class="card-title">迪拜奢享5日</div>
-                <div class="muted">沙漠冲沙+哈利法塔</div>
-                <p style="font-weight:700;">¥7999</p>
+                <div class="card-title">ドバイ5日間プレミアム旅</div>
+                <div class="muted">砂漠サファリ＋ブルジュハリファ</div>
+                <p style="font-weight:700;">¥79,000</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ===== 用户评价 ===== -->
+<!-- ===== レビュー ===== -->
 <section id="reviews">
-    <h2>旅行者的声音</h2>
-    <p class="lead">真实体验 · 值得信赖</p>
+    <h2>旅行者の声</h2>
+    <p class="lead">リアルな体験談で安心の旅を</p>
     <div class="review">
-        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200" alt="头像">
+        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200" alt="avatar">
         <div>
-            <strong>Li Hua · 东京自由行</strong>
-            <div class="muted">“服务细致周到，行程安排合理，非常满意！”</div>
+            <strong>Li Hua · 東京フリープラン</strong>
+            <div class="muted">「対応が丁寧でスケジュールも完璧。大満足です！」</div>
         </div>
     </div>
     <div class="review">
-        <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=200" alt="头像">
+        <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=200" alt="avatar">
         <div>
-            <strong>Alice · 巴黎双人游</strong>
-            <div class="muted">“酒店位置很好，导游专业贴心。物超所值。”</div>
+            <strong>Alice · パリカップルツアー</strong>
+            <div class="muted">「ホテルの立地が最高、ガイドもとても親切でした。」</div>
         </div>
     </div>
 </section>
 
-<!-- ===== 页脚 ===== -->
+<!-- ===== フッター ===== -->
 <footer id="contact">
     <div>© 2025 TravelGo · All rights reserved.</div>
-    <div style="margin-top:8px;">联系邮箱：<a href="mailto:hello@travelgo.com">hello@travelgo.com</a></div>
+    <div style="margin-top:8px;">お問い合わせ：<a href="mailto:hello@travelgo.com">hello@travelgo.com</a></div>
 </footer>
 
 <script>
-    // ===== 顶部导航滚动阴影 =====
-    window.addEventListener("scroll", () => {
-        const nav = document.getElementById("nav");
-        nav.classList.toggle("scrolled", window.scrollY > 30);
-    });
-
-    // ===== 登录状态检查 + 用户名显示（固定式用户栏） =====
     window.addEventListener("DOMContentLoaded", async () => {
         const navCta = document.querySelector(".nav-cta");
         const token = localStorage.getItem("token");
 
         if (!token) {
-            // 未登录 → 显示登录注册按钮
             navCta.innerHTML = `
-        <a href="/login.html" class="btn-outline">登录</a>
-        <a href="/register.html" class="btn">注册</a>
-      `;
+      <a href="/login.html" class="btn-outline">ログイン</a>
+      <a href="/register.html" class="btn">登録</a>`;
             return;
         }
 
         try {
-            // 请求用户信息
             const res = await fetch("http://localhost:8080/api/user/me", {
                 headers: { "Authorization": "Bearer " + token }
             });
 
-            if (!res.ok) {
-                renderLoggedOut();
-                return;
-            }
-
+            if (!res.ok) throw new Error();
             const user = await res.json();
-            const name = user.username || localStorage.getItem("username") || "用户";
-            localStorage.setItem("username", name);
+            const name = user.username || localStorage.getItem("username") || "ユーザー";
 
-            // ✅ 已登录状态 → 固定式用户信息栏
             navCta.innerHTML = `
-        <div class="userbar">
-          <span class="userbar-username">👤 ${name}</span>
-          <span class="divider"></span>
-          <a href="/user.html" aria-label="我的主页">我的主页</a>
-          <a href="/favorites.html" aria-label="我的收藏">我的收藏</a>
-          <span class="divider"></span>
-          <button type="button" onclick="logout()" aria-label="退出登录">退出</button>
-        </div>
-      `;
-        } catch (e) {
-            renderLoggedOut();
-        }
-
-        function renderLoggedOut() {
+      <div class="userbar">
+        <span class="userbar-username">👤 ${name}</span>
+        <span class="divider"></span>
+        <a href="/user.html">マイページ</a>
+        <a href="/favorites.html">お気に入り</a>
+        <span class="divider"></span>
+        <button onclick="logout()">ログアウト</button>
+      </div>`;
+        } catch {
             navCta.innerHTML = `
-        <a href="/login.html" class="btn-outline">登录</a>
-        <a href="/register.html" class="btn">注册</a>
-      `;
+      <a href="/login.html" class="btn-outline">ログイン</a>
+      <a href="/register.html" class="btn">登録</a>`;
         }
     });
 
-    // ===== 登出逻辑 =====
     function logout() {
         localStorage.removeItem("token");
         localStorage.removeItem("username");
         location.reload();
     }
-
-    // ===== 移动端菜单展开 =====
-    function toggleMenu() {
-        document.getElementById("menu")?.classList.toggle("show");
-    }
 </script>
-
-
 </body>
 </html>

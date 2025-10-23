@@ -1,206 +1,293 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ja">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>我的主页 · TravelGo</title>
+    <title>マイページ · TravelGo</title>
     <style>
         :root {
-            --brand: #3b82f6;
-            --brand-dark: #1d4ed8;
-            --bg: #f9fafb;
+            --orange: #ff4d00;
+            --orange-dark: #e03e00;
+            --bg: #fff8f4;
+            --text: #333;
+            --muted: #777;
             --card: #ffffff;
-            --text: #1e293b;
-            --muted: #64748b;
-            --shadow: 0 10px 25px rgba(0,0,0,0.1);
-            --radius: 18px;
+            --shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+            --radius: 16px;
         }
-
         * { box-sizing: border-box; }
-        html, body {
+        body {
             margin: 0;
-            padding: 0;
-            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #e0f2fe 0%, #eff6ff 100%);
+            font-family: "Noto Sans JP", "Segoe UI", sans-serif;
+            background: var(--bg);
             color: var(--text);
-            scroll-behavior: smooth;
-        }
-        a { color: var(--brand); text-decoration: none; }
-        a:hover { text-decoration: underline; }
-
-        /* ===== 导航栏 ===== */
-        .nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 24px;
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(12px) saturate(180%);
-            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-        }
-        .brand {
-            display: flex; align-items: center; gap: 10px;
-            font-weight: 800; font-size: 22px; color: var(--brand-dark);
-        }
-        .brand-dot {
-            width: 10px; height: 10px; border-radius: 50%; background: var(--brand);
         }
 
-        /* ===== 主体内容 ===== */
-        .container {
-            max-width: 680px;
-            margin: 140px auto 60px;
+        /* ===== Header / Profile Section ===== */
+        .header {
+            background: var(--orange);
+            color: #fff;
+            text-align: center;
+            padding: 60px 20px 100px;
+            position: relative;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            margin-bottom: 12px;
+            background: #fff;
+        }
+        .username {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .info-line {
+            font-size: 14px;
+            color: #fefefe;
+            opacity: 0.9;
+        }
+
+        /* ===== Tabs ===== */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+            top: -40px;
+        }
+        .tab {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 12px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab:hover { transform: translateY(-2px); }
+        .tab.active {
+            background: var(--orange);
+            color: #fff;
+            border: none;
+        }
+
+        /* ===== Card Section ===== */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1100px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+        .card {
             background: var(--card);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
-            padding: 30px 40px;
+            overflow: hidden;
+            transition: all 0.25s ease;
         }
-        h2 {
-            margin-top: 0;
-            text-align: center;
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.15);
         }
-        .welcome {
-            text-align: center;
-            color: var(--muted);
-            margin-bottom: 20px;
-            font-size: 16px;
-        }
-        .info-box {
-            background: #f1f5f9;
-            border-radius: 14px;
-            padding: 20px;
-        }
-        .info-item {
-            font-size: 16px;
-            padding: 6px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .info-item:last-child {
-            border-bottom: none;
-        }
-        .info-item strong {
-            color: var(--brand-dark);
-        }
-
-        #loading {
-            text-align: center;
-            color: var(--muted);
-            font-size: 15px;
-            margin: 20px 0;
-        }
-        #error {
-            color: #dc2626;
-            text-align: center;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-
-        .logout-btn {
-            display: block;
+        .card img {
             width: 100%;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
+            height: 180px;
+            object-fit: cover;
+        }
+        .card-body {
+            padding: 16px;
+        }
+        .card h3 {
+            font-size: 17px;
+            margin: 6px 0;
+        }
+        .card p {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+        .read-btn {
+            display: inline-block;
+            background: var(--orange);
+            color: #fff;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            line-height: 60px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            float: right;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* ===== Pagination ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 60px;
             font-size: 16px;
-            font-weight: 600;
-            margin-top: 30px;
+        }
+        .pagination span {
+            width: 12px;
+            height: 12px;
+            background: var(--orange);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* ===== Logout ===== */
+        .logout {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logout button {
+            background: var(--orange);
+            border: none;
+            color: #fff;
+            border-radius: 999px;
+            padding: 10px 24px;
+            font-weight: bold;
             cursor: pointer;
             transition: background 0.3s;
         }
-        .logout-btn:hover {
-            background: #dc2626;
-        }
-
-        /* ===== 页脚 ===== */
-        footer {
-            text-align: center;
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 20px;
+        .logout button:hover {
+            background: var(--orange-dark);
         }
     </style>
 </head>
 <body>
 
-<!-- ===== 导航栏 ===== -->
-<nav class="nav">
-    <div class="brand"><span class="brand-dot"></span> TravelGo</div>
-    <div><a href="/index.html">返回首页</a></div>
-</nav>
+<!-- ===== Header Section ===== -->
+<section class="header">
+    <img id="avatar" class="avatar" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="avatar">
+    <div class="username" id="username">ユーザー</div>
+    <div class="info-line" id="userinfo">ID: ---- ｜ 所在地：日本</div>
+    <div class="info-line">🌏 Travel in Japan</div>
+    <div class="info-line">409フォロー　709フォロワー　2万いいね＆お気に入り</div>
+</section>
 
-<!-- ===== 用户信息卡 ===== -->
-<div class="container">
-    <h2>欢迎回来，<span id="usernameTitle">加载中...</span> 👋</h2>
-    <p class="welcome">查看你的账户信息与收藏</p>
-
-    <div id="loading">正在加载用户信息...</div>
-    <div id="error"></div>
-
-    <div class="info-box" id="userInfo" style="display:none;">
-        <div class="info-item"><strong>用户名：</strong><span id="username"></span></div>
-        <div class="info-item"><strong>邮箱：</strong><span id="email"></span></div>
-        <div class="info-item"><strong>角色：</strong><span id="role"></span></div>
-        <div class="info-item"><strong>注册时间：</strong><span id="createdAt"></span></div>
-    </div>
-
-    <button class="logout-btn" onclick="logout()">退出登录</button>
+<!-- ===== Tabs ===== -->
+<div class="tabs">
+    <div class="tab active" onclick="showTab('notes')">Notes</div>
+    <div class="tab" onclick="showTab('favorites')">Favorites</div>
+    <div class="tab" onclick="showTab('likes')">Likes</div>
 </div>
 
-<footer>© 2025 TravelGo · All rights reserved.</footer>
+<!-- ===== Cards Section ===== -->
+<div id="notes" class="card-container">
+    <div class="card">
+        <img src="https://images.unsplash.com/photo-1562127405-59aa1c4e5f98?q=80&w=1200" alt="浅草寺">
+        <div class="card-body">
+            <h3>浅草寺で感じる日本の伝統と祈り</h3>
+            <p>雷門から仲見世通りへ、浅草の魅力を満喫。下町情緒を感じる旅へ。</p>
+            <div class="read-btn">read<br>more</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <img src="https://images.unsplash.com/photo-1580810733150-6a1a4f9e03f1?q=80&w=1200" alt="原宿">
+        <div class="card-body">
+            <h3>原宿で出会う最新トレンド</h3>
+            <p>竹下通りから表参道まで、若者文化の発信地。</p>
+            <div class="read-btn">read<br>more</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <img src="https://images.unsplash.com/photo-1579164204629-1b51999b8c6f?q=80&w=1200" alt="新宿">
+        <div class="card-body">
+            <h3>東京の玄関口、新宿を歩く</h3>
+            <p>ショッピング・グルメ・エンタメの宝庫。</p>
+            <div class="read-btn">read<br>more</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200" alt="お台場">
+        <div class="card-body">
+            <h3>海風を感じるお台場の旅</h3>
+            <p>レインボーブリッジと東京湾の絶景。</p>
+            <div class="read-btn">read<br>more</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <img src="https://images.unsplash.com/photo-1555993539-1732a2c9e6df?q=80&w=1200" alt="温泉">
+        <div class="card-body">
+            <h3>心も体も癒す温泉の宿</h3>
+            <p>四季折々の景色とともに味わう天然温泉。心をほぐす癒やしの空間。</p>
+            <div class="read-btn">read<br>more</div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs placeholders -->
+<div id="favorites" class="card-container" style="display:none;">
+    <p style="text-align:center;color:gray;">お気に入りはまだありません。</p>
+</div>
+<div id="likes" class="card-container" style="display:none;">
+    <p style="text-align:center;color:gray;">いいねした投稿はまだありません。</p>
+</div>
+
+<!-- ===== Pagination ===== -->
+<div class="pagination">
+    <span></span><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>……</div>
+</div>
+
+<!-- ===== Logout ===== -->
+<div class="logout">
+    <button onclick="logout()">ログアウト</button>
+</div>
 
 <script>
-    // 页面加载时执行
-    window.onload = async function() {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            alert("请先登录！");
-            location.href = "login.html";
-            return;
-        }
+    // ===== Tabs logic =====
+    function showTab(id) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.card-container').forEach(c => c.style.display = 'none');
+        document.querySelector(`.tab[onclick="showTab('${id}')"]`).classList.add('active');
+        document.getElementById(id).style.display = 'grid';
+    }
 
-        const loadingEl = document.getElementById("loading");
-        const errorEl = document.getElementById("error");
-        const infoBox = document.getElementById("userInfo");
+    // ===== Load user info =====
+    window.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
         try {
-            const response = await fetch("http://localhost:8080/api/user/me", {
+            const res = await fetch("http://localhost:8080/api/user/me", {
                 headers: { "Authorization": "Bearer " + token }
             });
-            const text = await response.text();
-
-            if (response.ok) {
-                const data = JSON.parse(text);
-                loadingEl.style.display = "none";
-                infoBox.style.display = "block";
-
-                document.getElementById("usernameTitle").innerText = data.username || "用户";
-                document.getElementById("username").innerText = data.username || "-";
-                document.getElementById("email").innerText = data.email || "未设置";
-                document.getElementById("role").innerText = data.role || "USER";
-                document.getElementById("createdAt").innerText = data.createdAt || "未知";
-            } else {
-                loadingEl.style.display = "none";
-                errorEl.innerText = "获取用户信息失败：" + text;
-                if (response.status === 401 || response.status === 403) {
-                    setTimeout(() => {
-                        alert("登录已过期，请重新登录");
-                        logout();
-                    }, 1200);
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById("username").innerText = data.username || "ユーザー";
+                document.getElementById("userinfo").innerText = `ID: ${data.id || "---"} ｜ 所在地：日本`;
+                if (data.avatarUrl) {
+                    document.getElementById("avatar").src = data.avatarUrl;
                 }
             }
-        } catch (err) {
-            loadingEl.style.display = "none";
-            errorEl.innerText = "请求失败：" + err;
+        } catch (e) {
+            console.error("ユーザー情報の取得に失敗しました", e);
         }
-    };
+    });
 
-    // 退出登录
+    // ===== Logout =====
     function logout() {
         localStorage.removeItem("token");
         location.href = "login.html";
     }
 </script>
-
 </body>
 </html>
