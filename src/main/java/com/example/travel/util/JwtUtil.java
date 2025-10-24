@@ -1,12 +1,12 @@
 package com.example.travel.util;
 
+import java.security.Key;
+import java.util.Date;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-
-import java.security.Key;
-import java.util.Date;
 
 public class JwtUtil {
 
@@ -24,7 +24,6 @@ public class JwtUtil {
      * ✅ 1. 生成 Token，加入 username 和 role
      */
     public static String generateToken(String username) {
-        Object role = null;
         return Jwts.builder()
                 .setSubject(username)            // 标准字段：用户名
                 .claim("role", null)             // 自定义字段：角色

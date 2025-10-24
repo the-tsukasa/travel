@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行笔记 - Travel Notes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .note-card {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .note-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .note-author {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .note-content {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .note-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .note-location {
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .note-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: 2px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn.liked {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+            color: white;
+        }
+
+        .action-btn.favorited {
+            background: #ffd93d;
+            border-color: #ffd93d;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination.hidden {
+            display: none;
+        }
+
+        .page-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .no-notes {
+            text-align: center;
+            padding: 50px;
+            color: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌟 旅行笔记</h1>
+            <p>分享你的旅行故事，发现世界的美好</p>
+            <div class="nav-buttons">
+                <a href="/login.html" class="nav-btn">登录</a>
+                <a href="/register.html" class="nav-btn">注册</a>
+                <a href="/notes-create.html" class="nav-btn">发布笔记</a>
+                <a href="/notes-my.html" class="nav-btn">我的笔记</a>
+                <a href="/admin.html" class="nav-btn">管理后台</a>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <form class="search-form" id="searchForm">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索笔记标题或内容...">
+                <button type="submit" class="search-btn">🔍 搜索</button>
+            </form>
+        </div>
+
+        <div id="notesContainer">
+            <div class="loading">正在加载笔记...</div>
+        </div>
+
+        <div class="pagination" id="pagination">
+            <!-- 分页按钮将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 0;
+        let currentSearch = '';
+        let currentUser = null;
+
+        // 检查用户登录状态
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    currentUser = {
+                        id: payload.sub,
+                        username: payload.username,
+                        role: payload.role
+                    };
+                } catch (e) {
+                    localStorage.removeItem('token');
+                }
+            }
+        }
+
+        // 获取笔记列表
+        async function loadNotes(page = 0, search = '') {
+            try {
+                const container = document.getElementById('notesContainer');
+                container.innerHTML = '<div class="loading">正在加载笔记...</div>';
+
+                let url = `/api/notes?page=${page}&size=12`;
+                if (search) {
+                    url = `/api/notes/search?keyword=${encodeURIComponent(search)}&page=${page}&size=12`;
+                }
+
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('加载失败');
+                }
+
+                const data = await response.json();
+                displayNotes(data.content || data);
+                updatePagination(data);
+            } catch (error) {
+                document.getElementById('notesContainer').innerHTML = 
+                    '<div class="error">加载笔记失败，请稍后重试</div>';
+            }
+        }
+
+        // 显示笔记
+        function displayNotes(notes) {
+            const container = document.getElementById('notesContainer');
+            
+            if (!notes || notes.length === 0) {
+                container.innerHTML = '<div class="no-notes">暂无笔记，快来发布第一篇吧！</div>';
+                return;
+            }
+
+            const notesHtml = notes.map(note => `
+                <div class="note-card">
+                    <div class="note-header">
+                        <div>
+                            <div class="note-title">${escapeHtml(note.title)}</div>
+                            <div class="note-author">by ${escapeHtml(note.username)}</div>
+                        </div>
+                    </div>
+                    ${note.imageUrl ? `<img src="${note.imageUrl}" alt="笔记图片" class="note-image">` : ''}
+                    <div class="note-content">${escapeHtml(note.content)}</div>
+                    ${note.location ? `<div class="note-location">📍 ${escapeHtml(note.location)}</div>` : ''}
+                    <div class="note-stats">
+                        <div class="note-actions">
+                            <button class="action-btn ${note.isLiked ? 'liked' : ''}" 
+                                    onclick="toggleLike(${note.id}, this)">
+                                ❤️ ${note.likesCount || 0}
+                            </button>
+                            <button class="action-btn ${note.isFavorited ? 'favorited' : ''}" 
+                                    onclick="toggleFavorite(${note.id}, this)">
+                                ⭐ ${note.favoritesCount || 0}
+                            </button>
+                        </div>
+                        <div style="color: #718096; font-size: 0.9rem;">
+                            ${new Date(note.createdAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = notesHtml;
+        }
+
+        // 更新分页
+        function updatePagination(data) {
+            const pagination = document.getElementById('pagination');
+            if (!data.totalPages || data.totalPages <= 1) {
+                pagination.classList.add('hidden');
+                return;
+            }
+
+            pagination.classList.remove('hidden');
+            let html = '';
+
+            // 上一页
+            if (data.number > 0) {
+                html += `<button class="page-btn" onclick="loadNotes(${data.number - 1}, '${currentSearch}')">上一页</button>`;
+            }
+
+            // 页码
+            for (let i = Math.max(0, data.number - 2); i <= Math.min(data.totalPages - 1, data.number + 2); i++) {
+                html += `<button class="page-btn ${i === data.number ? 'active' : ''}" 
+                         onclick="loadNotes(${i}, '${currentSearch}')">${i + 1}</button>`;
+            }
+
+            // 下一页
+            if (data.number < data.totalPages - 1) {
+                html += `<button class="page-btn" onclick="loadNotes(${data.number + 1}, '${currentSearch}')">下一页</button>`;
+            }
+
+            pagination.innerHTML = html;
+        }
+
+        // 点赞/取消点赞
+        async function toggleLike(notesId, button) {
+            if (!currentUser) {
+                alert('请先登录');
+                return;
+            }
+
+            try {
+                const isLiked = button.classList.contains('liked');
+                const url = `/api/likes/${notesId}`;
+                const method = isLiked ? 'DELETE' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const count = parseInt(button.textContent.match(/\d+/)[0]);
+                    if (isLiked) {
+                        button.classList.remove('liked');
+                        button.innerHTML = `❤️ ${count - 1}`;
+                    } else {
+                        button.classList.add('liked');
+                        button.innerHTML = `❤️ ${count + 1}`;
+                    }
+                }
+            } catch (error) {
+                alert('操作失败，请稍后重试');
+            }
+        }
+
+        // 收藏/取消收藏
+        async function toggleFavorite(notesId, button) {
+            if (!currentUser) {
+                alert('请先登录');
+                return;
+            }
+
+            try {
+                const isFavorited = button.classList.contains('favorited');
+                const url = `/api/favorites/${notesId}`;
+                const method = isFavorited ? 'DELETE' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const count = parseInt(button.textContent.match(/\d+/)[0]);
+                    if (isFavorited) {
+                        button.classList.remove('favorited');
+                        button.innerHTML = `⭐ ${count - 1}`;
+                    } else {
+                        button.classList.add('favorited');
+                        button.innerHTML = `⭐ ${count + 1}`;
+                    }
+                }
+            } catch (error) {
+                alert('操作失败，请稍后重试');
+            }
+        }
+
+        // 搜索功能
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            currentSearch = searchTerm;
+            currentPage = 0;
+            loadNotes(0, searchTerm);
+        });
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            loadNotes();
+        });
+    </script>
+</body>
+</html>

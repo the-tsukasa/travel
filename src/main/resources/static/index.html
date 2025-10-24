@@ -34,6 +34,7 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 14px 24px;
             background: rgba(255,255,255,0.8);
+            -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
             box-shadow: 0 1px 6px rgba(0,0,0,0.08);
         }
@@ -163,6 +164,7 @@
         <a href="#packages">おすすめプラン</a>
         <a href="#reviews">レビュー</a>
         <a href="spot.html">観光スポット</a>
+        <a href="notes.html">旅行笔记</a>
         <a href="#contact">お問い合わせ</a>
     </div>
     <div class="nav-cta">
@@ -178,7 +180,7 @@
         <p>スマート検索 · お得なプラン · 本物のレビュー</p>
         <form class="search" onsubmit="return goSearch(event)">
             <input id="q-dst" type="text" placeholder="行きたい場所を入力（例：東京 / 京都 / 沖縄）" />
-            <select id="q-days">
+            <select id="q-days" title="旅行日数を選択">
                 <option value="">日数を選択</option>
                 <option>3日間</option>
                 <option>5日間</option>
@@ -318,6 +320,7 @@
         <span class="userbar-username">👤 ${name}</span>
         <span class="divider"></span>
         <a href="/user.html">マイページ</a>
+        <a href="/notes-my.html">我的笔记</a>
         <a href="/favorites.html">お気に入り</a>
         <span class="divider"></span>
         <button onclick="logout()">ログアウト</button>

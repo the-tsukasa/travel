@@ -1,8 +1,5 @@
 package com.example.travel.config;
 
-import com.example.travel.security.CustomUserDetailsService;
-import com.example.travel.security.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,6 +14,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.travel.security.CustomUserDetailsService;
+import com.example.travel.security.JwtAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @EnableWebSecurity
 @Configuration
@@ -57,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/*.html", "/js/**", "/css/**", "/images/**", "/static/**").permitAll()
                         .requestMatchers("/spot.html", "/api/spots/**").permitAll()
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/notes", "/api/notes/search", "/api/notes/{id}").permitAll() // 公开访问已批准的笔记
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

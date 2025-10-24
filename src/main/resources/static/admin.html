@@ -25,6 +25,18 @@
         button:hover {
             background-color: #d32f2f;
         }
+        .admin-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .admin-link:hover {
+            background: #45a049;
+        }
         #result {
             margin-top: 20px;
             font-weight: bold;
@@ -34,11 +46,14 @@
 </head>
 <body>
 
-<h2>管理员接口测试</h2>
+<h2>管理员后台</h2>
 
-<p>点击下方按钮，访问 <code>/api/admin/test</code>，只有 ADMIN 角色才能成功。</p>
+<p>管理员功能页面</p>
 
-<button onclick="testAdmin()">测试管理员接口</button>
+<div style="margin: 20px 0;">
+    <a href="/notes-admin.html" class="admin-link">笔记管理</a>
+    <button onclick="testAdmin()">测试管理员接口</button>
+</div>
 
 <p id="result"></p>
 

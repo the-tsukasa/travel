@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布笔记 - Create Note</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .form-textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .char-count {
+            text-align: right;
+            color: #718096;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .char-count.warning {
+            color: #f56565;
+        }
+
+        .char-count.error {
+            color: #e53e3e;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✍️ 发布笔记</h1>
+            <p>分享你的旅行故事，让更多人看到世界的美好</p>
+            <div class="nav-buttons">
+                <a href="/notes.html" class="nav-btn">浏览笔记</a>
+                <a href="/notes-my.html" class="nav-btn">我的笔记</a>
+                <a href="/login.html" class="nav-btn">登录</a>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div id="messageContainer"></div>
+            
+            <form id="noteForm">
+                <div class="form-group">
+                    <label class="form-label" for="title">标题 *</label>
+                    <input type="text" id="title" name="title" class="form-input" 
+                           placeholder="给你的笔记起个吸引人的标题..." required maxlength="200">
+                    <div class="char-count" id="titleCount">0/200</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="content">内容 *</label>
+                    <textarea id="content" name="content" class="form-input form-textarea" 
+                              placeholder="详细描述你的旅行经历、感受和见闻..." required maxlength="5000"></textarea>
+                    <div class="char-count" id="contentCount">0/5000</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="imageUrl">图片链接</label>
+                    <input type="url" id="imageUrl" name="imageUrl" class="form-input" 
+                           placeholder="https://example.com/image.jpg">
+                    <div class="image-preview" id="imagePreview"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="location">地点</label>
+                    <input type="text" id="location" name="location" class="form-input" 
+                           placeholder="例如：日本东京、法国巴黎...">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        发布笔记
+                    </button>
+                    <a href="/notes.html" class="btn btn-secondary">取消</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // 检查用户登录状态
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showMessage('请先登录才能发布笔记', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+                return false;
+            }
+
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                currentUser = {
+                    id: payload.sub,
+                    username: payload.username,
+                    role: payload.role
+                };
+                return true;
+            } catch (e) {
+                localStorage.removeItem('token');
+                showMessage('登录已过期，请重新登录', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+                return false;
+            }
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'error') {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // 字符计数
+        function updateCharCount(inputId, countId, maxLength) {
+            const input = document.getElementById(inputId);
+            const count = document.getElementById(countId);
+            
+            input.addEventListener('input', function() {
+                const length = this.value.length;
+                count.textContent = `${length}/${maxLength}`;
+                
+                if (length > maxLength * 0.9) {
+                    count.className = 'char-count warning';
+                } else if (length > maxLength) {
+                    count.className = 'char-count error';
+                } else {
+                    count.className = 'char-count';
+                }
+            });
+        }
+
+        // 图片预览
+        function setupImagePreview() {
+            const imageUrlInput = document.getElementById('imageUrl');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            imageUrlInput.addEventListener('input', function() {
+                const url = this.value.trim();
+                if (url && isValidUrl(url)) {
+                    imagePreview.innerHTML = `
+                        <img src="${url}" alt="预览图片" onerror="this.style.display='none'">
+                    `;
+                } else {
+                    imagePreview.innerHTML = '';
+                }
+            });
+        }
+
+        // 验证URL
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // 提交表单
+        document.getElementById('noteForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!checkAuth()) {
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '发布中...';
+
+            try {
+                const formData = new FormData(this);
+                const noteData = {
+                    title: formData.get('title').trim(),
+                    content: formData.get('content').trim(),
+                    imageUrl: formData.get('imageUrl').trim() || null,
+                    location: formData.get('location').trim() || null
+                };
+
+                // 验证必填字段
+                if (!noteData.title || !noteData.content) {
+                    throw new Error('标题和内容不能为空');
+                }
+
+                if (noteData.title.length > 200) {
+                    throw new Error('标题长度不能超过200个字符');
+                }
+
+                if (noteData.content.length > 5000) {
+                    throw new Error('内容长度不能超过5000个字符');
+                }
+
+                const response = await fetch('/api/notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(noteData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '发布失败');
+                }
+
+                const result = await response.json();
+                showMessage('笔记发布成功！正在等待审核，审核通过后将在笔记列表中显示。', 'success');
+                
+                // 清空表单
+                this.reset();
+                document.getElementById('imagePreview').innerHTML = '';
+                document.getElementById('titleCount').textContent = '0/200';
+                document.getElementById('contentCount').textContent = '0/5000';
+
+            } catch (error) {
+                showMessage(error.message || '发布失败，请稍后重试', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '发布笔记';
+            }
+        });
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                updateCharCount('title', 'titleCount', 200);
+                updateCharCount('content', 'contentCount', 5000);
+                setupImagePreview();
+            }
+        });
+    </script>
+</body>
+</html>
