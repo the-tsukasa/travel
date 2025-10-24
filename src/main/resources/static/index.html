@@ -19,11 +19,12 @@
 
         * { box-sizing: border-box; }
         html,body {
-            margin: 0; padding: 0;
+            margin: 0; padding: 40px 0;
             font-family: "Hiragino Sans","Segoe UI","Helvetica Neue",Arial,sans-serif;
             color: var(--text);
             background: var(--bg);
             scroll-behavior: smooth;
+
         }
         a { color: inherit; text-decoration: none; }
         img { max-width: 100%; display: block; }
@@ -158,20 +159,19 @@
 <body>
 <!-- ===== ナビゲーション ===== -->
 <nav class="nav" id="nav">
-    <div class="brand"><span class="brand-dot"></span> TravelGo</div>
+    <a href="/" class="brand" onclick="window.location.reload(); return false;">
+        <span class="brand-dot"></span> TravelGo
+    </a>
     <div class="nav-links" id="menu">
-        <a href="#destinations">人気の旅先</a>
-        <a href="#packages">おすすめプラン</a>
-        <a href="#reviews">レビュー</a>
         <a href="spot.html">観光スポット</a>
-        <a href="notes.html">旅行笔记</a>
-        <a href="#contact">お問い合わせ</a>
+        <a href="notes.html">みんなの旅行ノート</a>
     </div>
     <div class="nav-cta">
         <a href="/login.html" class="btn-outline">ログイン</a>
         <a href="/register.html" class="btn">登録</a>
     </div>
 </nav>
+
 
 <!-- ===== ヒーローセクション ===== -->
 <header class="hero">
@@ -320,8 +320,6 @@
         <span class="userbar-username">👤 ${name}</span>
         <span class="divider"></span>
         <a href="/user.html">マイページ</a>
-        <a href="/notes-my.html">我的笔记</a>
-        <a href="/favorites.html">お気に入り</a>
         <span class="divider"></span>
         <button onclick="logout()">ログアウト</button>
       </div>`;
@@ -337,6 +335,19 @@
         localStorage.removeItem("username");
         location.reload();
     }
+    function goSearch(event) {
+        event.preventDefault();
+        const dst = document.getElementById("q-dst").value.trim();
+        const days = document.getElementById("q-days").value;
+        if (!dst) {
+            alert("目的地を入力してください。");
+            return false;
+        }
+        window.location.href = `/spot.html?q=${encodeURIComponent(dst)}&days=${encodeURIComponent(days)}`;
+        return false;
+    }
+
 </script>
+<script src="js/nav.js"></script>
 </body>
 </html>
