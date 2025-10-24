@@ -268,32 +268,32 @@
 
         <div class="form-container">
             <div id="messageContainer"></div>
-            
+
             <form id="noteForm">
                 <div class="form-group">
                     <label class="form-label" for="title">标题 *</label>
-                    <input type="text" id="title" name="title" class="form-input" 
+                    <input type="text" id="title" name="title" class="form-input"
                            placeholder="给你的笔记起个吸引人的标题..." required maxlength="200">
                     <div class="char-count" id="titleCount">0/200</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="content">内容 *</label>
-                    <textarea id="content" name="content" class="form-input form-textarea" 
+                    <textarea id="content" name="content" class="form-input form-textarea"
                               placeholder="详细描述你的旅行经历、感受和见闻..." required maxlength="5000"></textarea>
                     <div class="char-count" id="contentCount">0/5000</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="imageUrl">图片链接</label>
-                    <input type="url" id="imageUrl" name="imageUrl" class="form-input" 
+                    <input type="url" id="imageUrl" name="imageUrl" class="form-input"
                            placeholder="https://example.com/image.jpg">
                     <div class="image-preview" id="imagePreview"></div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="location">地点</label>
-                    <input type="text" id="location" name="location" class="form-input" 
+                    <input type="text" id="location" name="location" class="form-input"
                            placeholder="例如：日本东京、法国巴黎...">
                 </div>
 
@@ -352,11 +352,11 @@
         function updateCharCount(inputId, countId, maxLength) {
             const input = document.getElementById(inputId);
             const count = document.getElementById(countId);
-            
+
             input.addEventListener('input', function() {
                 const length = this.value.length;
                 count.textContent = `${length}/${maxLength}`;
-                
+
                 if (length > maxLength * 0.9) {
                     count.className = 'char-count warning';
                 } else if (length > maxLength) {
@@ -371,7 +371,7 @@
         function setupImagePreview() {
             const imageUrlInput = document.getElementById('imageUrl');
             const imagePreview = document.getElementById('imagePreview');
-            
+
             imageUrlInput.addEventListener('input', function() {
                 const url = this.value.trim();
                 if (url && isValidUrl(url)) {
@@ -397,7 +397,7 @@
         // 提交表单
         document.getElementById('noteForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             if (!checkAuth()) {
                 return;
             }
@@ -444,7 +444,7 @@
 
                 const result = await response.json();
                 showMessage('笔记发布成功！正在等待审核，审核通过后将在笔记列表中显示。', 'success');
-                
+
                 // 清空表单
                 this.reset();
                 document.getElementById('imagePreview').innerHTML = '';
