@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
+            padding-top: 80px;
         }
 
         .container {
@@ -385,6 +386,21 @@
     </style>
 </head>
 <body>
+        <!-- ===== ナビゲーション ===== -->
+        <link rel="stylesheet" href="css/nav.css" />
+        <nav class="nav">
+            <a href="/index.html" class="brand">
+                <span class="brand-dot"></span> TravelGo
+            </a>
+            <div class="nav-links">
+                <a href="spot.html">観光スポット</a>
+                <a href="notes.html">みんなの旅行ノート</a>
+            </div>
+            <div class="nav-cta">
+                <a href="/login.html" class="btn-outline">ログイン</a>
+                <a href="/register.html" class="btn">登録</a>
+            </div>
+        </nav>
     <div class="container">
         <div class="header">
             <h1>📝 我的笔记</h1>
@@ -392,7 +408,6 @@
             <div class="nav-buttons">
                 <a href="/notes.html" class="nav-btn">浏览笔记</a>
                 <a href="/notes-create.html" class="nav-btn">发布新笔记</a>
-                <a href="/login.html" class="nav-btn">退出登录</a>
             </div>
         </div>
 
@@ -640,5 +655,6 @@
             });
         });
     </script>
+    <script src="js/nav.js"></script>
 </body>
 </html>

@@ -21,6 +21,7 @@
             font-family: "Noto Sans JP", "Segoe UI", sans-serif;
             background: var(--bg);
             color: var(--text);
+            padding-top: 40px;
         }
 
         /* ===== Header / Profile Section ===== */
@@ -169,6 +170,23 @@
     </style>
 </head>
 <body>
+<!-- ===== ナビゲーション ===== -->
+<link rel="stylesheet" href="css/nav.css" />
+<nav class="nav">
+    <a href="/index.html" class="brand">
+        <span class="brand-dot"></span> TravelGo
+    </a>
+    <div class="nav-links">
+        <a href="spot.html">観光スポット</a>
+        <a href="notes.html">みんなの旅行ノート</a>
+    </div>
+    <div class="nav-cta">
+        <a href="/login.html" class="btn-outline">ログイン</a>
+        <a href="/register.html" class="btn">登録</a>
+    </div>
+</nav>
+
+
 
 <!-- ===== Header Section ===== -->
 <section class="header">
@@ -289,5 +307,8 @@
         location.href = "login.html";
     }
 </script>
+
+<script src="js/nav.js"></script>
+
 </body>
 </html>
