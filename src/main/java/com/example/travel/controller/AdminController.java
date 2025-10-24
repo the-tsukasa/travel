@@ -10,12 +10,9 @@ public class AdminController {
 
     // ✅ 只有 ADMIN 角色可以访问
     @GetMapping("/api/admin/test")
-    @PreAuthorize("hasAuthority('ADMIN')")   // 或者 hasRole('ADMIN')，取决于你数据库角色存储方式
+    @PreAuthorize("hasRole('ADMIN')")
     public String adminTest(Authentication authentication) {
-        // 从认证信息中获取当前登录用户名
         String username = authentication.getName();
-
-        // 生成动态返回内容
         return "你好，" + username + "！只有 ADMIN 才能看到这个内容 ✅";
     }
 }
