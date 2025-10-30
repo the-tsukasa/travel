@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>发布笔记 - Create Note</title>
+    <title>ノートを投稿 - Create Note</title>
+
     <style>
         * {
             margin: 0;
@@ -242,232 +243,214 @@
 </head>
 <body>
 <!-- ===== ナビゲーション ===== -->
-    <link rel="stylesheet" href="css/nav.css" />
-    <nav class="nav">
-        <a href="/index.html" class="brand">
-            <span class="brand-dot"></span> TravelGo
-        </a>
-        <div class="nav-links">
-            <a href="spot.html">観光スポット</a>
-            <a href="notes.html">みんなの旅行ノート</a>
-        </div>
-        <div class="nav-cta">
-            <a href="/login.html" class="btn-outline">ログイン</a>
-            <a href="/register.html" class="btn">登録</a>
-        </div>
-    </nav>
-    <div class="container">
-        <div class="header">
-            <h1>✍️ 发布笔记</h1>
-            <p>分享你的旅行故事，让更多人看到世界的美好</p>
-            <div class="nav-buttons">
-                <a href="/notes.html" class="nav-btn">浏览笔记</a>
-                <a href="/notes-my.html" class="nav-btn">我的笔记</a>
-            </div>
-        </div>
+<link rel="stylesheet" href="css/nav.css" />
+<nav class="nav">
+    <a href="/index.html" class="brand">
+        <span class="brand-dot"></span> TravelGo
+    </a>
+    <div class="nav-links">
+        <a href="spot.html">観光スポット</a>
+        <a href="notes.html">みんなの旅行ノート</a>
+    </div>
+    <div class="nav-cta">
+        <a href="/login.html" class="btn-outline">ログイン</a>
+        <a href="/register.html" class="btn">登録</a>
+    </div>
+</nav>
 
-        <div class="form-container">
-            <div id="messageContainer"></div>
-
-            <form id="noteForm">
-                <div class="form-group">
-                    <label class="form-label" for="title">标题 *</label>
-                    <input type="text" id="title" name="title" class="form-input"
-                           placeholder="给你的笔记起个吸引人的标题..." required maxlength="200">
-                    <div class="char-count" id="titleCount">0/200</div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="content">内容 *</label>
-                    <textarea id="content" name="content" class="form-input form-textarea"
-                              placeholder="详细描述你的旅行经历、感受和见闻..." required maxlength="5000"></textarea>
-                    <div class="char-count" id="contentCount">0/5000</div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="imageUrl">图片链接</label>
-                    <input type="url" id="imageUrl" name="imageUrl" class="form-input"
-                           placeholder="https://example.com/image.jpg">
-                    <div class="image-preview" id="imagePreview"></div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="location">地点</label>
-                    <input type="text" id="location" name="location" class="form-input"
-                           placeholder="例如：日本东京、法国巴黎...">
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        发布笔记
-                    </button>
-                    <a href="/notes.html" class="btn btn-secondary">取消</a>
-                </div>
-            </form>
+<div class="container">
+    <div class="header">
+        <h1>✍️ ノートを投稿</h1>
+        <p>あなたの旅の思い出を共有しよう。世界の美しさをみんなと一緒に感じよう。</p>
+        <div class="nav-buttons">
+            <a href="/notes.html" class="nav-btn">ノートを見る</a>
+            <a href="/notes-my.html" class="nav-btn">マイノート</a>
         </div>
     </div>
 
-    <script>
-        let currentUser = null;
+    <div class="form-container">
+        <div id="messageContainer"></div>
 
-        // 检查用户登录状态
-        function checkAuth() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                showMessage('请先登录才能发布笔记', 'error');
-                setTimeout(() => {
-                    window.location.href = '/login.html';
-                }, 2000);
-                return false;
-            }
+        <form id="noteForm">
+            <div class="form-group">
+                <label class="form-label" for="title">タイトル *</label>
+                <input type="text" id="title" name="title" class="form-input"
+                       placeholder="魅力的なタイトルを入力してください..." required maxlength="200">
+                <div class="char-count" id="titleCount">0/200</div>
+            </div>
 
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                currentUser = {
-                    id: payload.sub,
-                    username: payload.username,
-                    role: payload.role
-                };
-                return true;
-            } catch (e) {
-                localStorage.removeItem('token');
-                showMessage('登录已过期，请重新登录', 'error');
-                setTimeout(() => {
-                    window.location.href = '/login.html';
-                }, 2000);
-                return false;
-            }
+            <div class="form-group">
+                <label class="form-label" for="content">内容 *</label>
+                <textarea id="content" name="content" class="form-input form-textarea"
+                          placeholder="旅行での体験や感想、見たこと・感じたことを詳しく書いてください..." required maxlength="5000"></textarea>
+                <div class="char-count" id="contentCount">0/5000</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="imageUrl">画像URL</label>
+                <input type="url" id="imageUrl" name="imageUrl" class="form-input"
+                       placeholder="https://example.com/image.jpg">
+                <div class="image-preview" id="imagePreview"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="location">場所</label>
+                <input type="text" id="location" name="location" class="form-input"
+                       placeholder="例：東京、日本 ／ パリ、フランス...">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="submitBtn">ノートを投稿</button>
+                <a href="/notes.html" class="btn btn-secondary">キャンセル</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+
+    // ===== 認証チェック =====
+    function checkAuth() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showMessage('ノートを投稿するにはログインが必要です。', 'error');
+            setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+            return false;
         }
 
-        // 显示消息
-        function showMessage(message, type = 'error') {
-            const container = document.getElementById('messageContainer');
-            container.innerHTML = `<div class="${type}">${message}</div>`;
-            setTimeout(() => {
-                container.innerHTML = '';
-            }, 5000);
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            currentUser = {
+                id: payload.sub,
+                username: payload.username,
+                role: payload.role
+            };
+            return true;
+        } catch (e) {
+            localStorage.removeItem('token');
+            showMessage('ログインの有効期限が切れました。再度ログインしてください。', 'error');
+            setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+            return false;
         }
+    }
 
-        // 字符计数
-        function updateCharCount(inputId, countId, maxLength) {
-            const input = document.getElementById(inputId);
-            const count = document.getElementById(countId);
+    // ===== メッセージ表示 =====
+    function showMessage(message, type = 'error') {
+        const container = document.getElementById('messageContainer');
+        container.innerHTML = `<div class="${type}">${message}</div>`;
+        setTimeout(() => { container.innerHTML = ''; }, 5000);
+    }
 
-            input.addEventListener('input', function() {
-                const length = this.value.length;
-                count.textContent = `${length}/${maxLength}`;
+    // ===== 文字数カウント =====
+    function updateCharCount(inputId, countId, maxLength) {
+        const input = document.getElementById(inputId);
+        const count = document.getElementById(countId);
 
-                if (length > maxLength * 0.9) {
-                    count.className = 'char-count warning';
-                } else if (length > maxLength) {
-                    count.className = 'char-count error';
-                } else {
-                    count.className = 'char-count';
-                }
-            });
-        }
+        input.addEventListener('input', function() {
+            const length = this.value.length;
+            count.textContent = `${length}/${maxLength}`;
 
-        // 图片预览
-        function setupImagePreview() {
-            const imageUrlInput = document.getElementById('imageUrl');
-            const imagePreview = document.getElementById('imagePreview');
-
-            imageUrlInput.addEventListener('input', function() {
-                const url = this.value.trim();
-                if (url && isValidUrl(url)) {
-                    imagePreview.innerHTML = `
-                        <img src="${url}" alt="预览图片" onerror="this.style.display='none'">
-                    `;
-                } else {
-                    imagePreview.innerHTML = '';
-                }
-            });
-        }
-
-        // 验证URL
-        function isValidUrl(string) {
-            try {
-                new URL(string);
-                return true;
-            } catch (_) {
-                return false;
-            }
-        }
-
-        // 提交表单
-        document.getElementById('noteForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            if (!checkAuth()) {
-                return;
-            }
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = '发布中...';
-
-            try {
-                const formData = new FormData(this);
-                const noteData = {
-                    title: formData.get('title').trim(),
-                    content: formData.get('content').trim(),
-                    imageUrl: formData.get('imageUrl').trim() || null,
-                    location: formData.get('location').trim() || null
-                };
-
-                // 验证必填字段
-                if (!noteData.title || !noteData.content) {
-                    throw new Error('标题和内容不能为空');
-                }
-
-                if (noteData.title.length > 200) {
-                    throw new Error('标题长度不能超过200个字符');
-                }
-
-                if (noteData.content.length > 5000) {
-                    throw new Error('内容长度不能超过5000个字符');
-                }
-
-                const response = await fetch('/api/notes', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify(noteData)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || '发布失败');
-                }
-
-                const result = await response.json();
-                showMessage('笔记发布成功！正在等待审核，审核通过后将在笔记列表中显示。', 'success');
-
-                // 清空表单
-                this.reset();
-                document.getElementById('imagePreview').innerHTML = '';
-                document.getElementById('titleCount').textContent = '0/200';
-                document.getElementById('contentCount').textContent = '0/5000';
-
-            } catch (error) {
-                showMessage(error.message || '发布失败，请稍后重试', 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = '发布笔记';
+            if (length > maxLength * 0.9) {
+                count.className = 'char-count warning';
+            } else if (length > maxLength) {
+                count.className = 'char-count error';
+            } else {
+                count.className = 'char-count';
             }
         });
+    }
 
-        // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            if (checkAuth()) {
-                updateCharCount('title', 'titleCount', 200);
-                updateCharCount('content', 'contentCount', 5000);
-                setupImagePreview();
+    // ===== 画像プレビュー =====
+    function setupImagePreview() {
+        const imageUrlInput = document.getElementById('imageUrl');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageUrlInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            if (url && isValidUrl(url)) {
+                imagePreview.innerHTML = `<img src="${url}" alt="画像プレビュー" onerror="this.style.display='none'">`;
+            } else {
+                imagePreview.innerHTML = '';
             }
         });
-    </script>
-    <script src="js/nav.js"></script>
+    }
+
+    // ===== URL検証 =====
+    function isValidUrl(string) {
+        try {
+            new URL(string);
+            return true;
+        } catch (_) {
+            return false;
+        }
+    }
+
+    // ===== ノート投稿処理 =====
+    document.getElementById('noteForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        if (!checkAuth()) return;
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '投稿中...';
+
+        try {
+            const formData = new FormData(this);
+            const noteData = {
+                title: formData.get('title').trim(),
+                content: formData.get('content').trim(),
+                imageUrl: formData.get('imageUrl').trim() || null,
+                location: formData.get('location').trim() || null
+            };
+
+            if (!noteData.title || !noteData.content) {
+                throw new Error('タイトルと内容は必須です。');
+            }
+            if (noteData.title.length > 200) {
+                throw new Error('タイトルは200文字以内で入力してください。');
+            }
+            if (noteData.content.length > 5000) {
+                throw new Error('内容は5000文字以内で入力してください。');
+            }
+
+            const response = await fetch('/api/notes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(noteData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '投稿に失敗しました。');
+            }
+
+            showMessage('ノートを投稿しました！承認後、ノート一覧に表示されます。', 'success');
+            this.reset();
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('titleCount').textContent = '0/200';
+            document.getElementById('contentCount').textContent = '0/5000';
+        } catch (error) {
+            showMessage(error.message || '投稿に失敗しました。もう一度お試しください。', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'ノートを投稿';
+        }
+    });
+
+    // ===== 初期化 =====
+    document.addEventListener('DOMContentLoaded', function() {
+        if (checkAuth()) {
+            updateCharCount('title', 'titleCount', 200);
+            updateCharCount('content', 'contentCount', 5000);
+            setupImagePreview();
+        }
+    });
+</script>
+<script src="js/nav.js"></script>
 </body>
 </html>
