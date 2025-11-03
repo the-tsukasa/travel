@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点赞/收藏功能测试页面 - TravelGo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Noto Sans JP', 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff4d00;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .info-box.error {
+            background: #ffebee;
+        }
+        .info-box.success {
+            background: #e8f5e9;
+        }
+        .info-box code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #ff4d00;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #e03e00;
+        }
+        .btn-secondary {
+            background: #2196f3;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #1976d2;
+        }
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #388e3c;
+        }
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 150px;
+        }
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .result-box pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-logged-in {
+            background: #4caf50;
+            color: white;
+        }
+        .status-logged-out {
+            background: #f44336;
+            color: white;
+        }
+        .token-info {
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+        .note-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background: white;
+        }
+        .note-item h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .note-item p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👍 点赞/收藏功能测试页面</h1>
+        <p class="subtitle">用于测试点赞和收藏相关的 API 功能</p>
+
+        <!-- 登录状态 -->
+        <div class="section">
+            <h2>📊 登录状态</h2>
+            <div class="info-box" id="loginStatus">
+                <strong>状态：</strong><span id="statusText">检查中...</span>
+                <span class="status-badge" id="statusBadge">-</span>
+            </div>
+            <div class="token-info" id="tokenInfo"></div>
+            <div class="test-controls">
+                <button class="btn-primary" onclick="checkLoginStatus()">刷新状态</button>
+                <button class="btn-danger" onclick="clearToken()">清除 Token</button>
+                <a href="/login.html" class="btn-secondary" style="text-decoration: none; display: inline-block;">前往登录</a>
+            </div>
+        </div>
+
+        <!-- 点赞测试 -->
+        <div class="section">
+            <h2>❤️ 点赞功能测试</h2>
+            <div class="test-controls">
+                <input type="number" id="likeNoteId" placeholder="笔记 ID" value="1">
+                <button class="btn-primary" onclick="testLike()">点赞</button>
+                <button class="btn-danger" onclick="testUnlike()">取消点赞</button>
+                <button class="btn-secondary" onclick="testGetLikedNotes()">获取点赞列表</button>
+                <button class="btn-secondary" onclick="testCheckLikeStatus()">检查点赞状态</button>
+            </div>
+            <div class="result-box" id="likeResult">
+                <pre>点击按钮测试...</pre>
+            </div>
+        </div>
+
+        <!-- 收藏测试 -->
+        <div class="section">
+            <h2>⭐ 收藏功能测试</h2>
+            <div class="test-controls">
+                <input type="number" id="favoriteNoteId" placeholder="笔记 ID" value="1">
+                <button class="btn-primary" onclick="testFavorite()">收藏</button>
+                <button class="btn-danger" onclick="testUnfavorite()">取消收藏</button>
+                <button class="btn-secondary" onclick="testGetFavoriteNotes()">获取收藏列表</button>
+                <button class="btn-secondary" onclick="testCheckFavoriteStatus()">检查收藏状态</button>
+            </div>
+            <div class="result-box" id="favoriteResult">
+                <pre>点击按钮测试...</pre>
+            </div>
+        </div>
+
+        <!-- API 测试 -->
+        <div class="section">
+            <h2>🔧 API 端点测试</h2>
+            <div class="test-controls">
+                <button class="btn-secondary" onclick="testGetNotes()">获取笔记列表</button>
+                <button class="btn-secondary" onclick="testGetUserInfo()">获取用户信息</button>
+            </div>
+            <div class="result-box" id="apiResult">
+                <pre>点击按钮测试...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // 检查登录状态
+        async function checkLoginStatus() {
+            const statusBox = document.getElementById('loginStatus');
+            const statusText = document.getElementById('statusText');
+            const statusBadge = document.getElementById('statusBadge');
+            const tokenInfo = document.getElementById('tokenInfo');
+
+            const token = TokenUtil.getToken();
+            
+            if (!token) {
+                statusText.textContent = '未登录';
+                statusBadge.textContent = '未登录';
+                statusBadge.className = 'status-badge status-logged-out';
+                statusBox.className = 'info-box error';
+                tokenInfo.textContent = '';
+                return;
+            }
+
+            // 检查 token 是否过期
+            if (TokenUtil.isTokenExpired(token)) {
+                TokenUtil.clearToken();
+                statusText.textContent = 'Token 已过期';
+                statusBadge.textContent = 'Token 过期';
+                statusBadge.className = 'status-badge status-logged-out';
+                statusBox.className = 'info-box error';
+                tokenInfo.textContent = '';
+                return;
+            }
+
+            try {
+                const authStatus = await AuthUtil.checkAuth();
+                
+                if (authStatus.authenticated) {
+                    const user = authStatus.user;
+                    statusText.textContent = `已登录: ${user.username || '用户'}`;
+                    statusBadge.textContent = '已登录';
+                    statusBadge.className = 'status-badge status-logged-in';
+                    statusBox.className = 'info-box success';
+                    
+                    // 显示 token 信息
+                    const tokenPreview = token.length > 50 ? token.substring(0, 50) + '...' : token;
+                    const expiresIn = authStatus.expiresIn || 0;
+                    const expiresAt = authStatus.expiresAt ? authStatus.expiresAt.toLocaleString('ja-JP') : '未知';
+                    
+                    let tokenStatus = '';
+                    if (expiresIn > 0) {
+                        tokenStatus = `Token 有效，剩余 ${expiresIn} 分钟，过期时间: ${expiresAt}`;
+                    } else {
+                        tokenStatus = `Token 已过期！过期时间: ${expiresAt}`;
+                    }
+                    
+                    tokenInfo.innerHTML = `<div>Token: ${tokenPreview}</div><div style="margin-top:5px;font-size:11px;">${tokenStatus}</div>`;
+                } else {
+                    statusText.textContent = `Token 无效: ${authStatus.reason || '未知原因'}`;
+                    statusBadge.textContent = 'Token 无效';
+                    statusBadge.className = 'status-badge status-logged-out';
+                    statusBox.className = 'info-box error';
+                    tokenInfo.textContent = '';
+                }
+            } catch (error) {
+                statusText.textContent = '检查失败: ' + error.message;
+                statusBadge.textContent = '错误';
+                statusBadge.className = 'status-badge status-logged-out';
+                statusBox.className = 'info-box error';
+                tokenInfo.textContent = '';
+            }
+        }
+
+        // 清除 Token
+        function clearToken() {
+            TokenUtil.clearToken();
+            alert('Token 已清除');
+            checkLoginStatus();
+        }
+
+        // 获取 Token（使用工具库）
+        function getToken() {
+            if (!TokenUtil.hasToken()) {
+                alert('请先登录');
+                return null;
+            }
+            return TokenUtil.getToken();
+        }
+
+        // 显示结果
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const pre = element.querySelector('pre');
+            if (isError) {
+                pre.textContent = '错误: ' + JSON.stringify(data, null, 2);
+                pre.style.color = '#f44336';
+            } else {
+                pre.textContent = JSON.stringify(data, null, 2);
+                pre.style.color = '#333';
+            }
+        }
+
+        // 显示详细错误信息
+        async function showDetailedError(elementId, res) {
+            let errorText = '';
+            let errorJson = null;
+            
+            try {
+                errorText = await res.text();
+                // 尝试解析 JSON 错误响应
+                try {
+                    errorJson = JSON.parse(errorText);
+                } catch (e) {
+                    // 如果不是 JSON，保持为文本
+                    errorJson = { raw: errorText };
+                }
+            } catch (e) {
+                errorText = '无法读取错误信息';
+            }
+            
+            const errorData = {
+                status: res.status,
+                statusText: res.statusText,
+                url: res.url,
+                error: errorJson || errorText || '(无错误信息)',
+                headers: {
+                    'content-type': res.headers.get('content-type'),
+                    'www-authenticate': res.headers.get('www-authenticate')
+                }
+            };
+            
+            showResult(elementId, errorData, true);
+        }
+
+        // 测试点赞
+        async function testLike() {
+            const noteId = document.getElementById('likeNoteId').value;
+            if (!noteId) {
+                alert('请输入笔记 ID');
+                return;
+            }
+
+            try {
+                const res = await ApiUtil.post(`/api/likes/${noteId}`, {});
+
+                if (res.ok) {
+                    showResult('likeResult', { success: true, message: '点赞成功', status: res.status }, false);
+                } else {
+                    await showDetailedError('likeResult', res);
+                }
+            } catch (error) {
+                if (error.message === 'AUTHENTICATION_FAILED' || 
+                    error.message === 'TOKEN_EXPIRED' || 
+                    error.message === 'NOT_AUTHENTICATED') {
+                    showResult('likeResult', { error: '认证失败，请重新登录' }, true);
+                    return;
+                }
+                showResult('likeResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试取消点赞
+        async function testUnlike() {
+            const noteId = document.getElementById('likeNoteId').value;
+            if (!noteId) {
+                alert('请输入笔记 ID');
+                return;
+            }
+
+            try {
+                const res = await ApiUtil.delete(`/api/likes/${noteId}`);
+
+                if (res.ok) {
+                    showResult('likeResult', { success: true, message: '取消点赞成功', status: res.status }, false);
+                } else {
+                    await showDetailedError('likeResult', res);
+                }
+            } catch (error) {
+                if (error.message === 'AUTHENTICATION_FAILED' || 
+                    error.message === 'TOKEN_EXPIRED' || 
+                    error.message === 'NOT_AUTHENTICATED') {
+                    showResult('likeResult', { error: '认证失败，请重新登录' }, true);
+                    return;
+                }
+                showResult('likeResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试获取点赞列表
+        async function testGetLikedNotes() {
+            try {
+                const res = await ApiUtil.get('/api/likes/my');
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showResult('likeResult', { success: true, count: data.length, data: data }, false);
+                } else {
+                    await showDetailedError('likeResult', res);
+                }
+            } catch (error) {
+                showResult('likeResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试检查点赞状态
+        async function testCheckLikeStatus() {
+            const noteId = document.getElementById('likeNoteId').value;
+            if (!noteId) {
+                alert('请输入笔记 ID');
+                return;
+            }
+
+            try {
+                const res = await ApiUtil.get(`/api/likes/${noteId}/status`);
+
+                if (res.ok) {
+                    const isLiked = await res.json();
+                    showResult('likeResult', { success: true, noteId: noteId, isLiked: isLiked }, false);
+                } else {
+                    await showDetailedError('likeResult', res);
+                }
+            } catch (error) {
+                showResult('likeResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试收藏
+        async function testFavorite() {
+            const noteId = document.getElementById('favoriteNoteId').value;
+            if (!noteId) {
+                alert('请输入笔记 ID');
+                return;
+            }
+
+            try {
+                const res = await ApiUtil.post(`/api/favorites/${noteId}`, {});
+
+                if (res.ok) {
+                    showResult('favoriteResult', { success: true, message: '收藏成功', status: res.status }, false);
+                } else {
+                    await showDetailedError('favoriteResult', res);
+                }
+            } catch (error) {
+                if (error.message === 'AUTHENTICATION_FAILED' || 
+                    error.message === 'TOKEN_EXPIRED' || 
+                    error.message === 'NOT_AUTHENTICATED') {
+                    showResult('favoriteResult', { error: '认证失败，请重新登录' }, true);
+                    return;
+                }
+                showResult('favoriteResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试取消收藏
+        async function testUnfavorite() {
+            const noteId = document.getElementById('favoriteNoteId').value;
+            if (!noteId) {
+                alert('请输入笔记 ID');
+                return;
+            }
+
+            try {
+                const res = await ApiUtil.delete(`/api/favorites/${noteId}`);
+
+                if (res.ok) {
+                    showResult('favoriteResult', { success: true, message: '取消收藏成功', status: res.status }, false);
+                } else {
+                    await showDetailedError('favoriteResult', res);
+                }
+            } catch (error) {
+                if (error.message === 'AUTHENTICATION_FAILED' || 
+                    error.message === 'TOKEN_EXPIRED' || 
+                    error.message === 'NOT_AUTHENTICATED') {
+                    showResult('favoriteResult', { error: '认证失败，请重新登录' }, true);
+                    return;
+                }
+                showResult('favoriteResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试获取收藏列表
+        async function testGetFavoriteNotes() {
+            try {
+                const res = await ApiUtil.get('/api/favorites/my');
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showResult('favoriteResult', { success: true, count: data.length, data: data }, false);
+                } else {
+                    await showDetailedError('favoriteResult', res);
+                }
+            } catch (error) {
+                showResult('favoriteResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试检查收藏状态
+        async function testCheckFavoriteStatus() {
+            const noteId = document.getElementById('favoriteNoteId').value;
+            if (!noteId) {
+                alert('请输入笔记 ID');
+                return;
+            }
+
+            try {
+                const res = await ApiUtil.get(`/api/favorites/${noteId}/status`);
+
+                if (res.ok) {
+                    const isFavorited = await res.json();
+                    showResult('favoriteResult', { success: true, noteId: noteId, isFavorited: isFavorited }, false);
+                } else {
+                    await showDetailedError('favoriteResult', res);
+                }
+            } catch (error) {
+                showResult('favoriteResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试获取笔记列表
+        async function testGetNotes() {
+            try {
+                const res = await ApiUtil.get('/api/notes?page=0&size=5', { requireAuth: false });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showResult('apiResult', { success: true, count: data.content?.length || data.length, data: data }, false);
+                } else {
+                    await showDetailedError('apiResult', res);
+                }
+            } catch (error) {
+                showResult('apiResult', { error: error.message }, true);
+            }
+        }
+
+        // 测试获取用户信息
+        async function testGetUserInfo() {
+            try {
+                const res = await ApiUtil.get('/api/user/me');
+
+                if (res.ok) {
+                    const data = await res.json();
+                    showResult('apiResult', { success: true, data: data }, false);
+                } else {
+                    await showDetailedError('apiResult', res);
+                }
+            } catch (error) {
+                showResult('apiResult', { error: error.message }, true);
+            }
+        }
+
+        // 页面加载时检查登录状态
+        window.addEventListener('DOMContentLoaded', checkLoginStatus);
+    </script>
+</body>
+</html>
+

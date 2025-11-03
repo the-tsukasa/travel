@@ -16,6 +16,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -82,7 +85,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             // Token 解析失败，清除 SecurityContext 并记录错误
             SecurityContextHolder.clearContext();
-            // 对于需要认证的端点，让 Spring Security 处理认证失败
+            log.warn("JWT Token 解析失败: {} - Path: {}", e.getMessage(), path);
+            log.debug("Token 解析异常详情", e);
+            // 让 Spring Security 的 AuthenticationEntryPoint 处理认证失败
             // 如果请求不需要认证，继续执行
         }
 

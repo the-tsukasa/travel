@@ -315,6 +315,8 @@
     <div style="margin-top:8px;">お問い合わせ：<a href="mailto:hello@travelgo.com">hello@travelgo.com</a></div>
 </footer>
 
+<!-- 先加载 auth.js，确保 TokenUtil 和 ApiUtil 可用 -->
+<script src="js/auth.js"></script>
 <script>
     let currentSearch = '';
 
@@ -372,64 +374,88 @@
     }
 
     async function toggleLike(id, btn) {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert('ログインしてください');
+        // 检查 TokenUtil 是否已加载
+        if (!window.TokenUtil || !window.ApiUtil) {
+            if (confirm('ログインが必要です。ログインページに移動しますか？')) {
+                window.location.href = '/login.html';
+            }
             return;
         }
+
+        // 检查是否有 token
+        const token = TokenUtil.getToken();
+        if (!token) {
+            if (confirm('ログインが必要です。ログインページに移動しますか？')) {
+                window.location.href = '/login.html';
+            }
+            return;
+        }
+
         const isLiked = btn.classList.contains('liked');
         const method = isLiked ? 'DELETE' : 'POST';
+        
         try {
-            const res = await fetch(`/api/likes/${id}`, { 
-                method, 
-                headers: { 'Authorization': 'Bearer ' + token } 
-            });
+            const res = await ApiUtil.fetch(`/api/likes/${id}`, { method });
+            
             if (res.ok) {
                 const num = parseInt(btn.textContent.match(/\d+/)[0]);
                 btn.classList.toggle('liked', !isLiked);
                 btn.innerHTML = `❤️ ${isLiked ? num - 1 : num + 1}`;
-            } else if (res.status === 401 || res.status === 403) {
-                // Token 无效或过期，清除 token 并提示重新登录
-                localStorage.removeItem('token');
-                localStorage.removeItem('username');
-                alert('ログイン期限が切れました。再度ログインしてください。');
-                window.location.href = '/login.html';
             } else {
-                alert('操作に失敗しました。');
+                const errorData = await res.json().catch(() => ({}));
+                alert(errorData.message || '操作に失敗しました。');
             }
         } catch (error) {
+            if (error.message === 'AUTHENTICATION_FAILED' || 
+                error.message === 'TOKEN_EXPIRED' || 
+                error.message === 'NOT_AUTHENTICATED') {
+                // 认证失败已在 ApiUtil 中处理
+                return;
+            }
             console.error('いいね操作エラー:', error);
             alert('操作に失敗しました。');
         }
     }
 
     async function toggleFavorite(id, btn) {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert('ログインしてください');
+        // 检查 TokenUtil 是否已加载
+        if (!window.TokenUtil || !window.ApiUtil) {
+            if (confirm('ログインが必要です。ログインページに移動しますか？')) {
+                window.location.href = '/login.html';
+            }
             return;
         }
+
+        // 检查是否有 token
+        const token = TokenUtil.getToken();
+        if (!token) {
+            if (confirm('ログインが必要です。ログインページに移動しますか？')) {
+                window.location.href = '/login.html';
+            }
+            return;
+        }
+
         const isFav = btn.classList.contains('favorited');
         const method = isFav ? 'DELETE' : 'POST';
+        
         try {
-            const res = await fetch(`/api/favorites/${id}`, { 
-                method, 
-                headers: { 'Authorization': 'Bearer ' + token } 
-            });
+            const res = await ApiUtil.fetch(`/api/favorites/${id}`, { method });
+            
             if (res.ok) {
                 const num = parseInt(btn.textContent.match(/\d+/)[0]);
                 btn.classList.toggle('favorited', !isFav);
                 btn.innerHTML = `⭐ ${isFav ? num - 1 : num + 1}`;
-            } else if (res.status === 401 || res.status === 403) {
-                // Token 无效或过期，清除 token 并提示重新登录
-                localStorage.removeItem('token');
-                localStorage.removeItem('username');
-                alert('ログイン期限が切れました。再度ログインしてください。');
-                window.location.href = '/login.html';
             } else {
-                alert('操作に失敗しました。');
+                const errorData = await res.json().catch(() => ({}));
+                alert(errorData.message || '操作に失敗しました。');
             }
         } catch (error) {
+            if (error.message === 'AUTHENTICATION_FAILED' || 
+                error.message === 'TOKEN_EXPIRED' || 
+                error.message === 'NOT_AUTHENTICATED') {
+                // 认证失败已在 ApiUtil 中处理
+                return;
+            }
             console.error('お気に入り操作エラー:', error);
             alert('操作に失敗しました。');
         }

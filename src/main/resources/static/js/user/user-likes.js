@@ -5,16 +5,16 @@
 
 // ===== いいねしたノート一覧を読み込み =====
 async function loadLikedNotes() {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        console.warn("未ログインユーザー");
+    if (!TokenUtil.hasToken()) {
+        const container = document.getElementById("likes");
+        if (container) {
+            container.innerHTML = `<p style="text-align:center;color:gray;">ログインが必要です。</p>`;
+        }
         return;
     }
 
     try {
-        const res = await fetch("/api/likes/my", {
-            headers: { "Authorization": "Bearer " + token }
-        });
+        const res = await ApiUtil.get("/api/likes/my");
 
         const container = document.getElementById("likes");
         container.innerHTML = "";
@@ -56,47 +56,58 @@ async function loadLikedNotes() {
 
 // ===== いいね登録 =====
 async function addLike(noteId) {
-    const token = localStorage.getItem("token");
-    if (!token) return alert("ログインが必要です。");
+    if (!TokenUtil.hasToken()) {
+        if (confirm("ログインが必要です。ログインページに移動しますか？")) {
+            window.location.href = '/login.html';
+        }
+        return;
+    }
 
     try {
-        const res = await fetch(`/api/likes/${noteId}`, {
-            method: "POST",
-            headers: { "Authorization": "Bearer " + token }
-        });
+        const res = await ApiUtil.post(`/api/likes/${noteId}`, {});
 
         if (res.ok) {
             alert("いいねしました！");
             loadLikedNotes();
         } else {
-            alert("いいねに失敗しました。");
+            const errorData = await res.json().catch(() => ({}));
+            alert(errorData.message || "いいねに失敗しました。");
         }
     } catch (e) {
+        if (e.message === 'AUTHENTICATION_FAILED' || 
+            e.message === 'TOKEN_EXPIRED' || 
+            e.message === 'NOT_AUTHENTICATED') {
+            return;
+        }
         console.error("いいね追加エラー:", e);
+        alert("いいねに失敗しました。");
     }
 }
 
 // ===== いいね解除 =====
 async function removeLike(noteId) {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!TokenUtil.hasToken()) return;
 
     if (!confirm("いいねを解除しますか？")) return;
 
     try {
-        const res = await fetch(`/api/likes/${noteId}`, {
-            method: "DELETE",
-            headers: { "Authorization": "Bearer " + token }
-        });
+        const res = await ApiUtil.delete(`/api/likes/${noteId}`);
 
         if (res.ok) {
             alert("いいねを解除しました。");
             loadLikedNotes();
         } else {
-            alert("解除に失敗しました。");
+            const errorData = await res.json().catch(() => ({}));
+            alert(errorData.message || "解除に失敗しました。");
         }
     } catch (e) {
+        if (e.message === 'AUTHENTICATION_FAILED' || 
+            e.message === 'TOKEN_EXPIRED' || 
+            e.message === 'NOT_AUTHENTICATED') {
+            return;
+        }
         console.error("いいね解除エラー:", e);
+        alert("解除に失敗しました。");
     }
 }
 
