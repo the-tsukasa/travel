@@ -7,7 +7,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.travel.dto.CreateNotesRequest;
 import com.example.travel.dto.NotesDTO;
@@ -108,10 +116,16 @@ public class NotesController {
     // 搜索笔记
     @GetMapping("/search")
     public ResponseEntity<Page<NotesDTO>> searchNotes(
-            @RequestParam String keyword,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
+        // 如果keyword为空或null，返回空结果
+        if (keyword == null || keyword.trim().isEmpty()) {
+            Pageable pageable = PageRequest.of(page, size);
+            return ResponseEntity.ok(Page.empty(pageable));
+        }
+        
         User currentUser = null;
         if (authentication != null && authentication.isAuthenticated()) {
             String username = authentication.getName();
@@ -119,7 +133,7 @@ public class NotesController {
         }
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<NotesDTO> notes = notesService.searchNotes(keyword, pageable, currentUser);
+        Page<NotesDTO> notes = notesService.searchNotes(keyword.trim(), pageable, currentUser);
         return ResponseEntity.ok(notes);
     }
 }

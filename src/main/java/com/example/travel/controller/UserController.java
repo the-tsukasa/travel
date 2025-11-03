@@ -27,12 +27,6 @@ public class UserController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + username));
 
-
-        // ✅ 防止空指针
-        if (user == null) {
-            throw new RuntimeException("用户不存在");
-        }
-
         // ✅ 转换为安全的 DTO（不会泄露密码）
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.travel.entity.Notes;
 import com.example.travel.entity.User;
+import com.example.travel.repository.UserRepository;
 import com.example.travel.service.LikesService;
 
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,15 @@ import lombok.RequiredArgsConstructor;
 public class LikesController {
 
     private final LikesService likesService;
+    private final UserRepository userRepository;
 
     // 点赞
     @PostMapping("/{notesId}")
     public ResponseEntity<Void> likeNotes(@PathVariable Long notesId, 
                                         Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         likesService.likeNotes(notesId, user);
         return ResponseEntity.ok().build();
     }
@@ -37,7 +41,9 @@ public class LikesController {
     @DeleteMapping("/{notesId}")
     public ResponseEntity<Void> unlikeNotes(@PathVariable Long notesId, 
                                          Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         likesService.unlikeNotes(notesId, user);
         return ResponseEntity.ok().build();
     }
@@ -45,7 +51,9 @@ public class LikesController {
     // 获取用户点赞的笔记列表
     @GetMapping
     public ResponseEntity<List<Notes>> getUserLikedNotes(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         List<Notes> likedNotes = likesService.getUserLikedNotes(user);
         return ResponseEntity.ok(likedNotes);
     }
@@ -54,7 +62,9 @@ public class LikesController {
     @GetMapping("/{notesId}/status")
     public ResponseEntity<Boolean> isLiked(@PathVariable Long notesId, 
                                         Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         boolean isLiked = likesService.isLiked(notesId, user);
         return ResponseEntity.ok(isLiked);
     }

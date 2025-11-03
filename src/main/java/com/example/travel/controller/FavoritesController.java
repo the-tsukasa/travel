@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.travel.entity.Favorites;
 import com.example.travel.entity.User;
+import com.example.travel.repository.UserRepository;
 import com.example.travel.service.FavoritesService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,12 +26,15 @@ import lombok.RequiredArgsConstructor;
 public class FavoritesController {
 
     private final FavoritesService favoritesService;
+    private final UserRepository userRepository;
 
     // 添加收藏
     @PostMapping("/{notesId}")
     public ResponseEntity<Void> addToFavorites(@PathVariable Long notesId, 
                                              Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         favoritesService.addToFavorites(notesId, user);
         return ResponseEntity.ok().build();
     }
@@ -39,7 +43,9 @@ public class FavoritesController {
     @DeleteMapping("/{notesId}")
     public ResponseEntity<Void> removeFromFavorites(@PathVariable Long notesId, 
                                                   Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         favoritesService.removeFromFavorites(notesId, user);
         return ResponseEntity.ok().build();
     }
@@ -50,7 +56,9 @@ public class FavoritesController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         Pageable pageable = PageRequest.of(page, size);
         Page<Favorites> favorites = favoritesService.getUserFavorites(user, pageable);
         return ResponseEntity.ok(favorites);
@@ -60,7 +68,9 @@ public class FavoritesController {
     @GetMapping("/{notesId}/status")
     public ResponseEntity<Boolean> isFavorited(@PathVariable Long notesId, 
                                             Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
         boolean isFavorited = favoritesService.isFavorited(notesId, user);
         return ResponseEntity.ok(isFavorited);
     }

@@ -25,7 +25,7 @@ public interface NotesRepository extends JpaRepository<Notes, Long> {
     List<Notes> findByIsApprovedFalseOrderByCreatedAtDesc();
 
     // 根据标题搜索已批准的笔记
-    @Query("SELECT n FROM Notes n WHERE n.isApproved = true AND (n.title LIKE %:keyword% OR n.content LIKE %:keyword%)")
+    @Query("SELECT n FROM Notes n WHERE n.isApproved = true AND (n.title LIKE CONCAT('%', :keyword, '%') OR n.content LIKE CONCAT('%', :keyword, '%'))")
     Page<Notes> searchApprovedNotes(@Param("keyword") String keyword, Pageable pageable);
 
     // 统计用户的笔记数量

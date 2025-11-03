@@ -63,6 +63,12 @@ public class NotesServiceImpl implements NotesService {
     public NotesDTO getNotesById(Long id, User currentUser) {
         Notes notes = notesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("笔记不存在"));
+        
+        // 检查笔记是否已批准，或者当前用户是否为笔记作者
+        if (!notes.getIsApproved() && (currentUser == null || !notes.getUser().getId().equals(currentUser.getId()))) {
+            throw new RuntimeException("笔记未审核，无法查看");
+        }
+        
         return convertToDTO(notes, currentUser);
     }
 
@@ -149,7 +155,9 @@ public class NotesServiceImpl implements NotesService {
         dto.setIsApproved(notes.getIsApproved());
         dto.setCreatedAt(notes.getCreatedAt());
         dto.setUpdatedAt(notes.getUpdatedAt());
-        dto.setUsername(notes.getUser().getUsername());
+        if (notes.getUser() != null) {
+            dto.setUsername(notes.getUser().getUsername());
+        }
 
         if (currentUser != null) {
             dto.setIsLiked(likesRepository.existsByUserAndNotes(currentUser, notes));
