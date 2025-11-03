@@ -28,12 +28,13 @@ public class User {
     private String role = "USER";
 
     //  注册时间（自动记录）
-    @Column(nullable = false)
-
+    @Column(nullable = false, name = "created_at")
     private LocalDateTime createdAt;
 
-    public User orElseThrow(Object object) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }

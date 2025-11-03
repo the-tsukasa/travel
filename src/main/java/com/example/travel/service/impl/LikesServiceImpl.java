@@ -40,8 +40,9 @@ public class LikesServiceImpl implements LikesService {
         likes.setNotes(notes);
         likesRepository.save(likes);
 
-        // 更新笔记的点赞数
-        notes.setLikesCount(notes.getLikesCount() + 1);
+        // 从数据库重新计算点赞数，确保计数准确（解决并发问题）
+        long actualCount = likesRepository.countByNotes(notes);
+        notes.setLikesCount((int) actualCount);
         notesRepository.save(notes);
     }
 
@@ -55,8 +56,9 @@ public class LikesServiceImpl implements LikesService {
 
         likesRepository.delete(likes);
 
-        // 更新笔记的点赞数
-        notes.setLikesCount(Math.max(0, notes.getLikesCount() - 1));
+        // 从数据库重新计算点赞数，确保计数准确（解决并发问题）
+        long actualCount = likesRepository.countByNotes(notes);
+        notes.setLikesCount((int) actualCount);
         notesRepository.save(notes);
     }
 

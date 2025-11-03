@@ -148,24 +148,73 @@
 
                 // 处理认证错误
                 if (response.status === 401 || response.status === 403) {
-                    TokenUtil.clearToken();
-                    
-                    // 尝试解析错误信息
+                    // 先记录详细的错误信息，不立即清除 Token
                     let errorMessage = 'ログインが必要です。';
+                    let errorDetails = null;
+                    
                     try {
                         const errorData = await response.clone().json();
                         if (errorData.message) {
                             errorMessage = errorData.message;
                         }
+                        errorDetails = errorData;
                     } catch (e) {
                         // 如果不是 JSON，使用默认消息
+                        try {
+                            const errorText = await response.clone().text();
+                            errorDetails = { raw: errorText };
+                        } catch (e2) {
+                            errorDetails = { error: '无法读取错误信息' };
+                        }
                     }
 
-                    // 如果不是在登录页面，提示并重定向
+                    // 记录详细的错误信息到控制台
+                    const errorInfo = {
+                        url: url,
+                        method: options.method || 'GET',
+                        status: response.status,
+                        statusText: response.statusText,
+                        requestHeaders: headers,
+                        token: token ? token.substring(0, 30) + '...' : '无',
+                        tokenFull: token ? token : '无',
+                        tokenPayload: token ? TokenUtil.parseToken(token) : null,
+                        tokenExpired: token ? TokenUtil.isTokenExpired(token) : null,
+                        errorDetails: errorDetails,
+                        responseHeaders: {
+                            'content-type': response.headers.get('content-type'),
+                            'www-authenticate': response.headers.get('www-authenticate'),
+                            'authorization': response.headers.get('authorization')
+                        }
+                    };
+                    
+                    console.error('认证失败详情:', errorInfo);
+                    console.error('错误详情 JSON:', JSON.stringify(errorInfo, null, 2));
+
+                    // 检查是否是真正的认证失败（Token 无效）还是其他问题
+                    // 如果 Token 本身是有效的，可能是后端配置问题，不要立即清除
+                    const isTokenValid = token && !TokenUtil.isTokenExpired(token);
+                    
+                    // 如果不是在登录页面，提示并询问是否清除 Token
                     if (!window.location.pathname.includes('login.html')) {
-                        if (confirm(errorMessage + '\n\nログインページに移動しますか？')) {
+                        const shouldClear = confirm(
+                            `认证失败 (${response.status})\n\n` +
+                            `错误信息: ${errorMessage}\n\n` +
+                            `Token 状态: ${isTokenValid ? '有效' : '无效'}\n\n` +
+                            `这可能是因为：\n` +
+                            `1. Token 已过期或无效\n` +
+                            `2. 后端配置问题\n` +
+                            `3. 请求路径或方法错误\n\n` +
+                            `是否清除 Token 并跳转到登录页面？\n\n` +
+                            `（点击"取消"保留 Token，可以在控制台查看详细错误信息）`
+                        );
+                        
+                        if (shouldClear) {
+                            TokenUtil.clearToken();
                             window.location.href = '/login.html';
                         }
+                    } else {
+                        // 在登录页面，直接清除 Token
+                        TokenUtil.clearToken();
                     }
                     
                     throw new Error('AUTHENTICATION_FAILED');

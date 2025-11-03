@@ -42,8 +42,9 @@ public class FavoritesServiceImpl implements FavoritesService {
         favorites.setNotes(notes);
         favoritesRepository.save(favorites);
 
-        // 更新笔记的收藏数
-        notes.setFavoritesCount(notes.getFavoritesCount() + 1);
+        // 从数据库重新计算收藏数，确保计数准确（解决并发问题）
+        long actualCount = favoritesRepository.countByNotes(notes);
+        notes.setFavoritesCount((int) actualCount);
         notesRepository.save(notes);
     }
 
@@ -57,8 +58,9 @@ public class FavoritesServiceImpl implements FavoritesService {
 
         favoritesRepository.delete(favorites);
 
-        // 更新笔记的收藏数
-        notes.setFavoritesCount(Math.max(0, notes.getFavoritesCount() - 1));
+        // 从数据库重新计算收藏数，确保计数准确（解决并发问题）
+        long actualCount = favoritesRepository.countByNotes(notes);
+        notes.setFavoritesCount((int) actualCount);
         notesRepository.save(notes);
     }
 

@@ -65,7 +65,7 @@ public class NotesServiceImpl implements NotesService {
                 .orElseThrow(() -> new RuntimeException("笔记不存在"));
         
         // 检查笔记是否已批准，或者当前用户是否为笔记作者
-        if (!notes.getIsApproved() && (currentUser == null || !notes.getUser().getId().equals(currentUser.getId()))) {
+        if (!notes.getIsApproved() && (currentUser == null || notes.getUser() == null || !notes.getUser().getId().equals(currentUser.getId()))) {
             throw new RuntimeException("笔记未审核，无法查看");
         }
         
@@ -77,7 +77,7 @@ public class NotesServiceImpl implements NotesService {
         Notes notes = notesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("笔记不存在"));
 
-        if (!notes.getUser().getId().equals(user.getId())) {
+        if (notes.getUser() == null || !notes.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("无权限修改此笔记");
         }
 
@@ -96,7 +96,7 @@ public class NotesServiceImpl implements NotesService {
         Notes notes = notesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("笔记不存在"));
 
-        if (!notes.getUser().getId().equals(user.getId())) {
+        if (notes.getUser() == null || !notes.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("无权限删除此笔记");
         }
 

@@ -326,12 +326,38 @@
         try {
             let url = `/api/notes?page=${page}&size=12`;
             if (search) url = `/api/notes/search?keyword=${encodeURIComponent(search)}&page=${page}&size=12`;
-            const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') } });
-            if (!res.ok) throw new Error();
+            
+            // 使用 ApiUtil 来统一处理认证，如果没有 token 就不发送 Authorization 头
+            const token = TokenUtil ? TokenUtil.getToken() : localStorage.getItem('token');
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            
+            const res = await fetch(url, { headers });
+            if (!res.ok) {
+                // 如果是 401，可能是 token 过期，清除 token 并重试
+                if (res.status === 401 && token) {
+                    if (TokenUtil) {
+                        TokenUtil.clearToken();
+                    } else {
+                        localStorage.removeItem('token');
+                    }
+                    // 重试一次，不带 token
+                    const retryRes = await fetch(url);
+                    if (!retryRes.ok) throw new Error('Failed to load notes');
+                    const retryData = await retryRes.json();
+                    renderNotes(retryData.content || retryData);
+                    updatePagination(retryData);
+                    return;
+                }
+                throw new Error('Failed to load notes');
+            }
             const data = await res.json();
             renderNotes(data.content || data);
             updatePagination(data);
-        } catch {
+        } catch (error) {
+            console.error('ノート読み込みエラー:', error);
             container.innerHTML = '<div class="error">ノートの読み込みに失敗しました。時間をおいて再試行してください。</div>';
         }
     }
@@ -394,8 +420,12 @@
         const isLiked = btn.classList.contains('liked');
         const method = isLiked ? 'DELETE' : 'POST';
         
+        // 确保使用绝对路径
+        const url = `/api/likes/${id}`;
+        console.log('点赞请求:', { url, method, token: token ? '存在' : '不存在' });
+        
         try {
-            const res = await ApiUtil.fetch(`/api/likes/${id}`, { method });
+            const res = await ApiUtil.fetch(url, { method });
             
             if (res.ok) {
                 const num = parseInt(btn.textContent.match(/\d+/)[0]);
@@ -403,6 +433,7 @@
                 btn.innerHTML = `❤️ ${isLiked ? num - 1 : num + 1}`;
             } else {
                 const errorData = await res.json().catch(() => ({}));
+                console.error('点赞失败:', errorData);
                 alert(errorData.message || '操作に失敗しました。');
             }
         } catch (error) {
@@ -438,8 +469,12 @@
         const isFav = btn.classList.contains('favorited');
         const method = isFav ? 'DELETE' : 'POST';
         
+        // 确保使用绝对路径
+        const url = `/api/favorites/${id}`;
+        console.log('收藏请求:', { url, method, token: token ? '存在' : '不存在' });
+        
         try {
-            const res = await ApiUtil.fetch(`/api/favorites/${id}`, { method });
+            const res = await ApiUtil.fetch(url, { method });
             
             if (res.ok) {
                 const num = parseInt(btn.textContent.match(/\d+/)[0]);
@@ -447,6 +482,7 @@
                 btn.innerHTML = `⭐ ${isFav ? num - 1 : num + 1}`;
             } else {
                 const errorData = await res.json().catch(() => ({}));
+                console.error('收藏失败:', errorData);
                 alert(errorData.message || '操作に失敗しました。');
             }
         } catch (error) {
@@ -471,14 +507,41 @@
 
     async function checkLoginStatus() {
         const navCta = document.querySelector(".nav-cta");
-        const token = localStorage.getItem("token");
+        if (!navCta) return;
+        
+        const token = TokenUtil ? TokenUtil.getToken() : localStorage.getItem("token");
         if (!token) {
             navCta.innerHTML = `<a href="/login.html" class="btn-outline">ログイン</a><a href="/register.html" class="btn">登録</a>`;
             return;
         }
+        
+        // 检查 token 是否过期
+        if (TokenUtil && TokenUtil.isTokenExpired(token)) {
+            TokenUtil.clearToken();
+            navCta.innerHTML = `<a href="/login.html" class="btn-outline">ログイン</a><a href="/register.html" class="btn">登録</a>`;
+            return;
+        }
+        
         try {
-            const res = await fetch("/api/user/me", { headers: { "Authorization": "Bearer " + token } });
-            if (!res.ok) throw new Error();
+            // 使用 ApiUtil 来统一处理认证
+            const res = ApiUtil ? await ApiUtil.get('/api/user/me') : await fetch("/api/user/me", { 
+                headers: { "Authorization": "Bearer " + token } 
+            });
+            
+            if (!res.ok) {
+                // 401 表示 token 无效，清除 token
+                if (res.status === 401) {
+                    if (TokenUtil) {
+                        TokenUtil.clearToken();
+                    } else {
+                        localStorage.removeItem('token');
+                    }
+                    navCta.innerHTML = `<a href="/login.html" class="btn-outline">ログイン</a><a href="/register.html" class="btn">登録</a>`;
+                    return;
+                }
+                throw new Error();
+            }
+            
             const user = await res.json();
             const name = user.username || "ユーザー";
             navCta.innerHTML = `
@@ -489,7 +552,8 @@
             <span class="divider"></span>
             <button onclick="logout()">ログアウト</button>
           </div>`;
-        } catch {
+        } catch (error) {
+            console.error('ログイン状態確認エラー:', error);
             navCta.innerHTML = `<a href="/login.html" class="btn-outline">ログイン</a><a href="/register.html" class="btn">登録</a>`;
         }
     }
