@@ -12,7 +12,7 @@ async function loadLikedNotes() {
     }
 
     try {
-        const res = await fetch("http://localhost:8080/api/likes/my", {
+        const res = await fetch("/api/likes/my", {
             headers: { "Authorization": "Bearer " + token }
         });
 
@@ -60,7 +60,7 @@ async function addLike(noteId) {
     if (!token) return alert("ログインが必要です。");
 
     try {
-        const res = await fetch(`http://localhost:8080/api/likes/${noteId}`, {
+        const res = await fetch(`/api/likes/${noteId}`, {
             method: "POST",
             headers: { "Authorization": "Bearer " + token }
         });
@@ -84,7 +84,7 @@ async function removeLike(noteId) {
     if (!confirm("いいねを解除しますか？")) return;
 
     try {
-        const res = await fetch(`http://localhost:8080/api/likes/${noteId}`, {
+        const res = await fetch(`/api/likes/${noteId}`, {
             method: "DELETE",
             headers: { "Authorization": "Bearer " + token }
         });

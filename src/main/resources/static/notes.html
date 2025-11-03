@@ -372,26 +372,56 @@
     }
 
     async function toggleLike(id, btn) {
-        if (!localStorage.getItem('token')) return alert('ログインしてください');
+        if (!localStorage.getItem('token')) {
+            alert('ログインしてください');
+            return;
+        }
         const isLiked = btn.classList.contains('liked');
         const method = isLiked ? 'DELETE' : 'POST';
-        const res = await fetch(`/api/likes/${id}`, { method, headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
-        if (res.ok) {
-            const num = parseInt(btn.textContent.match(/\d+/)[0]);
-            btn.classList.toggle('liked', !isLiked);
-            btn.innerHTML = `❤️ ${isLiked ? num - 1 : num + 1}`;
+        try {
+            const res = await fetch(`/api/likes/${id}`, { 
+                method, 
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } 
+            });
+            if (res.ok) {
+                const num = parseInt(btn.textContent.match(/\d+/)[0]);
+                btn.classList.toggle('liked', !isLiked);
+                btn.innerHTML = `❤️ ${isLiked ? num - 1 : num + 1}`;
+            } else if (res.status === 401 || res.status === 403) {
+                alert('ログインが必要です。');
+            } else {
+                alert('操作に失敗しました。');
+            }
+        } catch (error) {
+            console.error('いいね操作エラー:', error);
+            alert('操作に失敗しました。');
         }
     }
 
     async function toggleFavorite(id, btn) {
-        if (!localStorage.getItem('token')) return alert('ログインしてください');
+        if (!localStorage.getItem('token')) {
+            alert('ログインしてください');
+            return;
+        }
         const isFav = btn.classList.contains('favorited');
         const method = isFav ? 'DELETE' : 'POST';
-        const res = await fetch(`/api/favorites/${id}`, { method, headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
-        if (res.ok) {
-            const num = parseInt(btn.textContent.match(/\d+/)[0]);
-            btn.classList.toggle('favorited', !isFav);
-            btn.innerHTML = `⭐ ${isFav ? num - 1 : num + 1}`;
+        try {
+            const res = await fetch(`/api/favorites/${id}`, { 
+                method, 
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } 
+            });
+            if (res.ok) {
+                const num = parseInt(btn.textContent.match(/\d+/)[0]);
+                btn.classList.toggle('favorited', !isFav);
+                btn.innerHTML = `⭐ ${isFav ? num - 1 : num + 1}`;
+            } else if (res.status === 401 || res.status === 403) {
+                alert('ログインが必要です。');
+            } else {
+                alert('操作に失敗しました。');
+            }
+        } catch (error) {
+            console.error('お気に入り操作エラー:', error);
+            alert('操作に失敗しました。');
         }
     }
 

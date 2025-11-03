@@ -12,7 +12,7 @@ async function loadFavoriteNotes() {
     }
 
     try {
-        const res = await fetch("http://localhost:8080/api/favorites/my", {
+        const res = await fetch("/api/favorites/my", {
             headers: { "Authorization": "Bearer " + token }
         });
 
@@ -60,7 +60,7 @@ async function addFavorite(noteId) {
     if (!token) return alert("ログインが必要です。");
 
     try {
-        const res = await fetch(`http://localhost:8080/api/favorites/${noteId}`, {
+        const res = await fetch(`/api/favorites/${noteId}`, {
             method: "POST",
             headers: { "Authorization": "Bearer " + token }
         });
@@ -84,7 +84,7 @@ async function removeFavorite(noteId) {
     if (!confirm("お気に入りを解除しますか？")) return;
 
     try {
-        const res = await fetch(`http://localhost:8080/api/favorites/${noteId}`, {
+        const res = await fetch(`/api/favorites/${noteId}`, {
             method: "DELETE",
             headers: { "Authorization": "Bearer " + token }
         });
