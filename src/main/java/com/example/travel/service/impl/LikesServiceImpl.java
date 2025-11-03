@@ -3,6 +3,7 @@ package com.example.travel.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,9 @@ import com.example.travel.repository.NotesRepository;
 import com.example.travel.service.LikesService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -33,19 +36,29 @@ public class LikesServiceImpl implements LikesService {
         Notes notes = notesRepository.findById(notesId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
 
+        // 先检查是否已点赞（避免唯一约束冲突）
         if (likesRepository.existsByUserAndNotes(user, notes)) {
+            log.warn("用户 {} 已经点赞过笔记 {}", user.getUsername(), notesId);
             throw new BusinessException("ALREADY_LIKED", "已经点赞过此笔记");
         }
 
-        Likes likes = new Likes();
-        likes.setUser(user);
-        likes.setNotes(notes);
-        likesRepository.save(likes);
+        try {
+            Likes likes = new Likes();
+            likes.setUser(user);
+            likes.setNotes(notes);
+            likesRepository.save(likes);
+            log.debug("用户 {} 成功点赞笔记 {}", user.getUsername(), notesId);
 
-        // 从数据库重新计算点赞数，确保计数准确（解决并发问题）
-        long actualCount = likesRepository.countByNotes(notes);
-        notes.setLikesCount((int) actualCount);
-        notesRepository.save(notes);
+            // 从数据库重新计算点赞数，确保计数准确（解决并发问题）
+            long actualCount = likesRepository.countByNotes(notes);
+            notes.setLikesCount((int) actualCount);
+            notesRepository.save(notes);
+        } catch (DataIntegrityViolationException e) {
+            // 处理唯一约束冲突（并发情况下的重复点赞）
+            log.warn("数据库唯一约束冲突：用户 {} 尝试重复点赞笔记 {}，可能由并发请求引起", 
+                    user.getUsername(), notesId);
+            throw new BusinessException("ALREADY_LIKED", "已经点赞过此笔记");
+        }
     }
 
     @Override
@@ -57,6 +70,7 @@ public class LikesServiceImpl implements LikesService {
                 .orElseThrow(() -> new ResourceNotFoundException("Likes", "user and notes", user.getUsername() + " and notes " + notesId));
 
         likesRepository.delete(likes);
+        log.debug("用户 {} 成功取消点赞笔记 {}", user.getUsername(), notesId);
 
         // 从数据库重新计算点赞数，确保计数准确（解决并发问题）
         long actualCount = likesRepository.countByNotes(notes);

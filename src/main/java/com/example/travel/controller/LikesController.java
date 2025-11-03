@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.Notes;
 import com.example.travel.entity.User;
+import com.example.travel.exception.ResourceNotFoundException;
 import com.example.travel.repository.UserRepository;
 import com.example.travel.service.LikesService;
 
@@ -33,7 +34,7 @@ public class LikesController {
                                         Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         likesService.likeNotes(notesId, user);
         return ResponseEntity.ok().build();
     }
@@ -44,7 +45,7 @@ public class LikesController {
                                          Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         likesService.unlikeNotes(notesId, user);
         return ResponseEntity.ok().build();
     }
@@ -54,7 +55,7 @@ public class LikesController {
     public ResponseEntity<List<Notes>> getUserLikedNotes(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         List<Notes> likedNotes = likesService.getUserLikedNotes(user);
         return ResponseEntity.ok(likedNotes);
     }
@@ -64,7 +65,7 @@ public class LikesController {
     public ResponseEntity<List<NotesDTO>> getMyLikedNotes(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         List<NotesDTO> likedNotes = likesService.getUserLikedNotesDTO(user);
         return ResponseEntity.ok(likedNotes);
     }
@@ -75,7 +76,7 @@ public class LikesController {
                                         Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         boolean isLiked = likesService.isLiked(notesId, user);
         return ResponseEntity.ok(isLiked);
     }
