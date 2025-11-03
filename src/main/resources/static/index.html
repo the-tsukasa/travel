@@ -58,9 +58,22 @@
         }
         .btn:hover { background: var(--brand-dark); }
         .btn-outline {
-            background: transparent; border: 2px solid var(--brand); color: var(--brand);
+            background: transparent;
+            border: 2px solid var(--brand);
+            color: var(--brand);
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
-        .btn-outline:hover { background: var(--brand); color: #fff; }
+        .btn-outline:hover {
+            background: var(--brand);
+            color: #fff;
+        }
 
         /* ===== ユーザー表示バー ===== */
         .userbar {
@@ -76,12 +89,30 @@
         }
         .userbar a, .userbar button {
             background: none; border: none; color: var(--text);
-            font: inherit; cursor: pointer; padding: 6px 8px; border-radius: 8px;
+            font: inherit; cursor: pointer; padding: 6px 12px; border-radius: 8px;
             transition: background .2s, color .2s;
+            font-weight: 500;
+            font-size: 15px;
         }
         .userbar a:hover, .userbar button:hover {
-            background: #f3f4f6;
+            background: rgba(255,77,0,0.1);
             color: var(--brand-dark);
+        }
+        /* ログアウトボタンを統一スタイルに（優先度を高くする） */
+        .userbar button.logout-btn {
+            background: transparent !important;
+            border: 2px solid var(--brand) !important;
+            color: var(--brand) !important;
+            padding: 8px 16px !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            font-size: 15px !important;
+            transition: all 0.3s !important;
+            cursor: pointer !important;
+        }
+        .userbar button.logout-btn:hover {
+            background: var(--brand) !important;
+            color: #fff !important;
         }
         .divider { width: 1px; height: 18px; background: #e5e7eb; }
 
@@ -495,7 +526,7 @@
         <span class="divider"></span>
         <a href="/user.html">マイページ</a>
         <span class="divider"></span>
-        <button onclick="logout()">ログアウト</button>
+        <button class="logout-btn" onclick="logout()">ログアウト</button>
       </div>`;
         } catch {
             navCta.innerHTML = `
