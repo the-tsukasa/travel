@@ -52,6 +52,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 5️⃣ 如果当前没有认证，则手动创建认证信息
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // 确保 role 不为 null，默认为 USER
+                if (role == null || role.trim().isEmpty()) {
+                    role = "USER";
+                }
+                
+                // 确保 role 格式正确（去掉可能的 ROLE_ 前缀，后面会重新添加）
+                role = role.toUpperCase();
+                if (role.startsWith("ROLE_")) {
+                    role = role.substring(5);
+                }
 
                 // 封装角色 -> GrantedAuthority（注意要加 "ROLE_" 前缀）
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
@@ -70,7 +80,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-            // Token 解析失败，继续执行，不要直接 403
+            // Token 解析失败，清除 SecurityContext 并记录错误
+            SecurityContextHolder.clearContext();
+            // 对于需要认证的端点，让 Spring Security 处理认证失败
+            // 如果请求不需要认证，继续执行
         }
 
         // 继续过滤链
