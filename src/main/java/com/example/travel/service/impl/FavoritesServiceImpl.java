@@ -12,6 +12,8 @@ import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.Favorites;
 import com.example.travel.entity.Notes;
 import com.example.travel.entity.User;
+import com.example.travel.exception.BusinessException;
+import com.example.travel.exception.ResourceNotFoundException;
 import com.example.travel.repository.FavoritesRepository;
 import com.example.travel.repository.LikesRepository;
 import com.example.travel.repository.NotesRepository;
@@ -31,10 +33,10 @@ public class FavoritesServiceImpl implements FavoritesService {
     @Override
     public void addToFavorites(Long notesId, User user) {
         Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new RuntimeException("笔记不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
 
         if (favoritesRepository.existsByUserAndNotes(user, notes)) {
-            throw new RuntimeException("已经收藏过此笔记");
+            throw new BusinessException("ALREADY_FAVORITED", "已经收藏过此笔记");
         }
 
         Favorites favorites = new Favorites();
@@ -51,10 +53,10 @@ public class FavoritesServiceImpl implements FavoritesService {
     @Override
     public void removeFromFavorites(Long notesId, User user) {
         Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new RuntimeException("笔记不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
 
         Favorites favorites = favoritesRepository.findByUserAndNotes(user, notes)
-                .orElseThrow(() -> new RuntimeException("未收藏此笔记"));
+                .orElseThrow(() -> new ResourceNotFoundException("Favorites", "user and notes", user.getUsername() + " and notes " + notesId));
 
         favoritesRepository.delete(favorites);
 
@@ -83,7 +85,7 @@ public class FavoritesServiceImpl implements FavoritesService {
     @Transactional(readOnly = true)
     public boolean isFavorited(Long notesId, User user) {
         Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new RuntimeException("笔记不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
         return favoritesRepository.existsByUserAndNotes(user, notes);
     }
 

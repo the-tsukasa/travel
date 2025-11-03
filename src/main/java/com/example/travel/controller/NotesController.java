@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.travel.dto.CreateNotesRequest;
 import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.User;
-import com.example.travel.repository.UserRepository;
 import com.example.travel.service.NotesService;
+import com.example.travel.util.SecurityUtils;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,16 +32,13 @@ import lombok.RequiredArgsConstructor;
 public class NotesController {
 
     private final NotesService notesService;
-    private final UserRepository userRepository;
+    private final SecurityUtils securityUtils;
 
     // 创建笔记
     @PostMapping
     public ResponseEntity<NotesDTO> createNotes(@Valid @RequestBody CreateNotesRequest request,
                                                 Authentication authentication) {
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
-
+        User user = securityUtils.getCurrentUserOrThrow(authentication);
         NotesDTO notes = notesService.createNotes(request, user);
         return ResponseEntity.ok(notes);
     }
@@ -52,11 +49,7 @@ public class NotesController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             Authentication authentication) {
-        User currentUser = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            currentUser = userRepository.findByUsername(username).orElse(null);
-        }
+        User currentUser = securityUtils.getCurrentUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size);
         Page<NotesDTO> notes = notesService.getApprovedNotes(pageable, currentUser);
@@ -66,10 +59,7 @@ public class NotesController {
     // 获取用户的笔记
     @GetMapping("/my")
     public ResponseEntity<List<NotesDTO>> getUserNotes(Authentication authentication) {
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
-
+        User user = securityUtils.getCurrentUserOrThrow(authentication);
         List<NotesDTO> notes = notesService.getUserNotes(user);
         return ResponseEntity.ok(notes);
     }
@@ -78,12 +68,7 @@ public class NotesController {
     @GetMapping("/{id}")
     public ResponseEntity<NotesDTO> getNotesById(@PathVariable Long id,
                                                  Authentication authentication) {
-        User currentUser = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            currentUser = userRepository.findByUsername(username).orElse(null);
-        }
-
+        User currentUser = securityUtils.getCurrentUser(authentication);
         NotesDTO notes = notesService.getNotesById(id, currentUser);
         return ResponseEntity.ok(notes);
     }
@@ -93,10 +78,7 @@ public class NotesController {
     public ResponseEntity<NotesDTO> updateNotes(@PathVariable Long id,
                                                 @Valid @RequestBody CreateNotesRequest request,
                                                 Authentication authentication) {
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
-
+        User user = securityUtils.getCurrentUserOrThrow(authentication);
         NotesDTO notes = notesService.updateNotes(id, request, user);
         return ResponseEntity.ok(notes);
     }
@@ -105,10 +87,7 @@ public class NotesController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotes(@PathVariable Long id,
                                             Authentication authentication) {
-        String username = authentication.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
-
+        User user = securityUtils.getCurrentUserOrThrow(authentication);
         notesService.deleteNotes(id, user);
         return ResponseEntity.ok().build();
     }
@@ -126,11 +105,7 @@ public class NotesController {
             return ResponseEntity.ok(Page.empty(pageable));
         }
         
-        User currentUser = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            currentUser = userRepository.findByUsername(username).orElse(null);
-        }
+        User currentUser = securityUtils.getCurrentUser(authentication);
 
         Pageable pageable = PageRequest.of(page, size);
         Page<NotesDTO> notes = notesService.searchNotes(keyword.trim(), pageable, currentUser);

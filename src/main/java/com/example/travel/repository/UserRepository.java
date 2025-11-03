@@ -12,4 +12,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // ✅ 改成 Optional<User>
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
+    
+    // 检查是否存在（性能优化）
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }

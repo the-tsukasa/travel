@@ -10,6 +10,8 @@ import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.Likes;
 import com.example.travel.entity.Notes;
 import com.example.travel.entity.User;
+import com.example.travel.exception.BusinessException;
+import com.example.travel.exception.ResourceNotFoundException;
 import com.example.travel.repository.FavoritesRepository;
 import com.example.travel.repository.LikesRepository;
 import com.example.travel.repository.NotesRepository;
@@ -29,10 +31,10 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public void likeNotes(Long notesId, User user) {
         Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new RuntimeException("笔记不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
 
         if (likesRepository.existsByUserAndNotes(user, notes)) {
-            throw new RuntimeException("已经点赞过此笔记");
+            throw new BusinessException("ALREADY_LIKED", "已经点赞过此笔记");
         }
 
         Likes likes = new Likes();
@@ -49,10 +51,10 @@ public class LikesServiceImpl implements LikesService {
     @Override
     public void unlikeNotes(Long notesId, User user) {
         Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new RuntimeException("笔记不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
 
         Likes likes = likesRepository.findByUserAndNotes(user, notes)
-                .orElseThrow(() -> new RuntimeException("未点赞此笔记"));
+                .orElseThrow(() -> new ResourceNotFoundException("Likes", "user and notes", user.getUsername() + " and notes " + notesId));
 
         likesRepository.delete(likes);
 
@@ -81,7 +83,7 @@ public class LikesServiceImpl implements LikesService {
     @Transactional(readOnly = true)
     public boolean isLiked(Long notesId, User user) {
         Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new RuntimeException("笔记不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
         return likesRepository.existsByUserAndNotes(user, notes);
     }
 

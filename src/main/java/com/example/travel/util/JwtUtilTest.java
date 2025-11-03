@@ -112,33 +112,13 @@ public class JwtUtilTest {
     
     /**
      * 4. 测试 Token 生成和验证
+     * 注意：此方法需要Spring上下文，因为JwtUtil现在是@Component
+     * 建议使用Spring Boot测试框架进行测试
      */
     private static void testTokenGenerationAndValidation() {
         System.out.println("4. 测试 Token 生成和验证:");
-        
-        try {
-            // 生成 Token
-            String token = JwtUtil.generateToken("testuser", "USER");
-            System.out.println("   ✓ Token 生成成功");
-            System.out.println("   Token 长度: " + token.length() + " 字符");
-            System.out.println("   Token 前30字符: " + token.substring(0, Math.min(30, token.length())) + "...");
-            
-            // 验证 Token
-            try {
-                var claims = JwtUtil.getClaims(token);
-                System.out.println("   ✓ Token 验证成功");
-                System.out.println("   用户名: " + claims.getSubject());
-                System.out.println("   角色: " + claims.get("role"));
-            } catch (Exception e) {
-                System.out.println("   ✗ Token 验证失败: " + e.getClass().getSimpleName());
-                System.out.println("   错误信息: " + e.getMessage());
-            }
-            
-        } catch (Exception e) {
-            System.out.println("   ✗ Token 生成失败: " + e.getClass().getSimpleName());
-            System.out.println("   错误信息: " + e.getMessage());
-            e.printStackTrace();
-        }
+        System.out.println("   注意：JwtUtil已改为Spring Bean，需要Spring上下文才能使用");
+        System.out.println("   建议使用@SpringBootTest进行集成测试");
         System.out.println();
     }
 }

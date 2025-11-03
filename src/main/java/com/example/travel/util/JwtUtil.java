@@ -4,6 +4,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+import org.springframework.stereotype.Component;
+
+import com.example.travel.config.JwtProperties;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -15,25 +19,21 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 public class JwtUtil {
 
-    // ✅ 安全秘钥（请保密）
-    private static final String SECRET = "pV4E@9f!jL#8rXu2Yz*QmN3hS0w^Rk7VbG&cJ5zMdT$PqH6Lx";
+    private final JwtProperties jwtProperties;
+    private final Key key;
 
-    // ✅ Token 有效期（7天）
-    private static final long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7;
-    // ✅ 字段名也可以改成 TOKEN_EXPIRE_TIME 让人更一目了然
-
-    // ✅ 签名 Key - 使用 UTF-8 编码确保一致性
-    private static final Key KEY;
-    
-    static {
+    // 使用构造函数初始化Key
+    public JwtUtil(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
         // 初始化时验证密钥长度
-        byte[] secretBytes = SECRET.getBytes(StandardCharsets.UTF_8);
+        byte[] secretBytes = jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8);
         int bitLength = secretBytes.length * 8;
         
         log.info("JWT 密钥初始化:");
-        log.info("  密钥字符串长度: {} 字符", SECRET.length());
+        log.info("  密钥字符串长度: {} 字符", jwtProperties.getSecret().length());
         log.info("  密钥字节长度: {} 字节", secretBytes.length);
         log.info("  密钥位长度: {} 位", bitLength);
         
@@ -43,22 +43,28 @@ public class JwtUtil {
             log.info("  ✓ 密钥长度符合 HS256 要求（≥256位）");
         }
         
-        KEY = Keys.hmacShaKeyFor(secretBytes);
+        this.key = Keys.hmacShaKeyFor(secretBytes);
         log.info("  ✓ 密钥初始化成功");
+        log.info("  Token 有效期: {} 毫秒 ({} 天)", 
+                jwtProperties.getExpiration(), 
+                jwtProperties.getExpiration() / (1000L * 60 * 60 * 24));
     }
 
     /**
      * ✅ 1. 生成 Token，加入 username 和 role
      */
-    public static String generateToken(String username, String role) {
+    public String generateToken(String username, String role) {
         try {
             log.debug("生成 Token - username: {}, role: {}", username, role);
+            Date now = new Date();
+            Date expiryDate = new Date(now.getTime() + jwtProperties.getExpiration());
+            
             String token = Jwts.builder()
                     .setSubject(username)            // 标准字段：用户名
                     .claim("role", role)              // ✅ 写入角色（如 USER / ADMIN）
-                    .setIssuedAt(new Date())         // 签发时间
-                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 过期时间
-                    .signWith(KEY, SignatureAlgorithm.HS256)
+                    .setIssuedAt(now)                 // 签发时间
+                    .setExpiration(expiryDate)        // 过期时间
+                    .signWith(key, SignatureAlgorithm.HS256)
                     .compact();
             log.debug("Token 生成成功: {}...", token.substring(0, Math.min(30, token.length())));
             return token;
@@ -68,15 +74,14 @@ public class JwtUtil {
         }
     }
 
-
     /**
      * ✅ 2. 解析 Token → 获取 Claims（负载）
      * 增强异常处理，提供详细的错误信息
      */
-    public static Claims getClaims(String token) {
+    public Claims getClaims(String token) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(KEY)  // 设置秘钥
+                    .setSigningKey(key)  // 设置秘钥
                     .build()
                     .parseClaimsJws(token)  // 解析
                     .getBody();             // 获取负载数据
@@ -102,14 +107,14 @@ public class JwtUtil {
     /**
      * ✅ 3. 从 Token 中获取用户名
      */
-    public static String getUsername(String token) {
+    public String getUsername(String token) {
         return getClaims(token).getSubject();
     }
 
     /**
      * ✅ 4. 判断 Token 是否过期
      */
-    public static boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return getClaims(token).getExpiration().before(new Date());
     }
 }

@@ -23,6 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private final JwtUtil jwtUtil;
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     @SuppressWarnings("NullableProblems") HttpServletResponse response,
@@ -63,7 +69,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // 5️⃣ 解析 Token
             log.info("JWT Filter - 开始解析 Token - Method: {}", method);
-            Claims claims = JwtUtil.getClaims(token);
+            Claims claims = jwtUtil.getClaims(token);
             String username = claims.getSubject();
             String role = claims.get("role", String.class);   // 从 token 中读取角色
             log.info("JWT Filter - Token 解析成功: username={}, role={}", username, role);

@@ -3,31 +3,38 @@ package com.example.travel.service.impl;
 import com.example.travel.dto.LoginRequest;
 import com.example.travel.dto.RegisterRequest;
 import com.example.travel.entity.User;
+import com.example.travel.exception.BusinessException;
+import com.example.travel.exception.ResourceNotFoundException;
 import com.example.travel.repository.UserRepository;
 import com.example.travel.service.UserService;
 import com.example.travel.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Override
     public void register(RegisterRequest request) {
         // 检查用户名是否存在
-        userRepository.findByUsername(request.getUsername())
-                .ifPresent(u -> { throw new RuntimeException("用户名已存在"); });
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new BusinessException("USERNAME_EXISTS", "用户名已存在");
+        }
 
         // 检查邮箱是否存在
-        userRepository.findByEmail(request.getEmail())
-                .ifPresent(u -> { throw new RuntimeException("邮箱已被注册"); });
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BusinessException("EMAIL_EXISTS", "邮箱已被注册");
+        }
 
         // 创建用户
         User user = new User();
@@ -43,17 +50,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String login(LoginRequest request) {
-        // 查找用户（Optional 安全写法）
+        // 查找用户
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("用户不存在"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", request.getUsername()));
 
         // 校验密码
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("密码错误");
+            throw new BusinessException("INVALID_PASSWORD", "密码错误");
         }
 
         // 生成并返回 JWT Token
-        return JwtUtil.generateToken(user.getUsername(), user.getRole());
-
+        return jwtUtil.generateToken(user.getUsername(), user.getRole());
     }
 }

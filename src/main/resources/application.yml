@@ -15,6 +15,10 @@ spring:
     properties:
       hibernate.format_sql: true
 
+jwt:
+  secret: ${JWT_SECRET:pV4E@9f!jL#8rXu2Yz*QmN3hS0w^Rk7VbG&cJ5zMdT$PqH6Lx}
+  expiration: ${JWT_EXPIRATION:604800000}  # 7天，单位：毫秒
+
 logging:
   level:
     com.example.travel.security.JwtAuthenticationFilter: INFO
