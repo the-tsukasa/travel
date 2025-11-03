@@ -68,7 +68,7 @@ public class JwtUtil {
                     .compact();
             log.debug("Token 生成成功: {}...", token.substring(0, Math.min(30, token.length())));
             return token;
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | io.jsonwebtoken.security.SecurityException e) {
             log.error("生成 Token 失败: {}", e.getMessage(), e);
             throw e;
         }
@@ -97,9 +97,6 @@ public class JwtUtil {
             throw e;
         } catch (IllegalArgumentException e) {
             log.error("JWT Token 参数错误: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("JWT Token 解析失败 - 未知错误: {}", e.getMessage(), e);
             throw e;
         }
     }

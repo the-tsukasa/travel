@@ -116,7 +116,6 @@
             margin-bottom: 16px;
         }
         .read-btn {
-            display: inline-block;
             background: var(--orange);
             color: #fff;
             border-radius: 50%;
@@ -209,7 +208,7 @@
     <div class="username" id="username">ユーザー</div>
     <div class="info-line" id="userinfo">ID: ---- ｜ 所在地：日本</div>
     <div class="info-line">🌏 Travel in Japan</div>
-    <div class="info-line">409フォロー　709フォロワー　2万いいね＆お気に入り</div>
+    <div class="info-line" id="stats">409フォロー　709フォロワー　2万いいね＆お気に入り</div>
 </section>
 
 <!-- ===== Tabs ===== -->
@@ -314,16 +313,54 @@
             });
             if (res.ok) {
                 const data = await res.json();
+                
+                // 更新用户名
                 document.getElementById("username").innerText = data.username || "ユーザー";
-                document.getElementById("userinfo").innerText = `ID: ${data.id || "---"} ｜ 所在地：日本`;
+                
+                // 更新用户信息（ID和所在地）
+                const location = data.location || "日本";
+                document.getElementById("userinfo").innerText = `ID: ${data.id || "---"} ｜ 所在地：${location}`;
+                
+                // 更新头像
                 if (data.avatarUrl) {
                     document.getElementById("avatar").src = data.avatarUrl;
                 }
+                
+                // 更新统计信息
+                updateStatsDisplay(data);
             }
         } catch (e) {
             console.error("ユーザー情報の取得に失敗しました", e);
         }
     });
+
+    // ===== 格式化数字显示 =====
+    function formatNumber(num) {
+        if (!num || num === 0) return "0";
+        if (num >= 10000) {
+            const wan = num / 10000;
+            return (wan % 1 === 0 ? wan.toString() : wan.toFixed(1)) + "万";
+        } else if (num >= 1000) {
+            const qian = num / 1000;
+            return (qian % 1 === 0 ? qian.toString() : qian.toFixed(1)) + "千";
+        }
+        return num.toString();
+    }
+
+    // ===== 更新统计信息显示 =====
+    function updateStatsDisplay(data) {
+        const statsElement = document.getElementById("stats");
+        if (statsElement) {
+            const notesCount = data.notesCount || 0;
+            const likesCount = data.likesCount || 0;
+            const favoritesCount = data.favoritesCount || 0;
+            const totalLikesAndFavorites = data.totalLikesAndFavorites || 0;
+            
+            // 更新统计信息行（格式：笔记数　点赞数　收藏数）
+            // 注意：这里暂时没有フォロー/フォロワー功能，所以显示笔记数、点赞数和收藏数
+            statsElement.innerText = `${notesCount}ノート　${formatNumber(likesCount)}いいね　${formatNumber(favoritesCount)}お気に入り`;
+        }
+    }
 
     // ===== Logout =====
     function logout() {

@@ -27,6 +27,14 @@ public class User {
     @Column(nullable = false)
     private String role = "USER";
 
+    //  所在地
+    @Column(name = "location")
+    private String location = "日本";
+
+    //  头像URL
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     //  注册时间（自动记录）
     @Column(nullable = false, name = "created_at")
     private LocalDateTime createdAt;
