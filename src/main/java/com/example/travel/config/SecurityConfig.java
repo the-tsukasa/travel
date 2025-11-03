@@ -53,21 +53,25 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
 
-                // ✅ 放行端点 & 静态资源
+                // 放行端点 & 静态资源
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/*.html", "/js/**", "/css/**", "/images/**", "/static/**").permitAll()
                         .requestMatchers("/spot.html", "/api/spots/**").permitAll()
+                        .requestMatchers("/login.html", "/register.html", "/admin.html", "/notes-admin.html").permitAll() // 加上这行
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers("/api/notes", "/api/notes/search", "/api/notes/{id}").permitAll() // 公开访问已批准的笔记
+                        .requestMatchers("/api/notes", "/api/notes/search", "/api/notes/{id}").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/likes/**", "/api/favorites/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
 
-                // ✅ 新写法使用 AuthenticationManager
+
+                // 新写法使用 AuthenticationManager
                 .authenticationManager(authManager)
 
-                // ✅ JWT 过滤器在 UsernamePasswordAuthenticationFilter 之前
+                // JWT 过滤器在 UsernamePasswordAuthenticationFilter 之前
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

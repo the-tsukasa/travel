@@ -23,15 +23,16 @@ public class JwtUtil {
     /**
      * ✅ 1. 生成 Token，加入 username 和 role
      */
-    public static String generateToken(String username) {
+    public static String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)            // 标准字段：用户名
-                .claim("role", null)             // 自定义字段：角色
+                .claim("role", role)              // ✅ 写入角色（如 USER / ADMIN）
                 .setIssuedAt(new Date())         // 签发时间
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 过期时间
-                .signWith(KEY, SignatureAlgorithm.HS256)  // ✅ 使用 KEY（大写）签名
+                .signWith(KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     /**
      * ✅ 2. 解析 Token → 获取 Claims（负载）

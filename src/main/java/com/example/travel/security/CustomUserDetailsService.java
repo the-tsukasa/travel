@@ -16,16 +16,20 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("用户不存在: " + username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("用户不存在: " + username));
+
+        // ✅ 修正点：自动补全 ROLE_ 前缀
+        String roleName = user.getRole() != null ? user.getRole().toUpperCase() : "USER";
+        if (!roleName.startsWith("ROLE_")) {
+            roleName = "ROLE_" + roleName;
         }
 
-        // 这里暂时不给角色，所以用空列表
+
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
-                .authorities("USER")   // 如果以后加角色，可以从数据库加载
+                .authorities(roleName)
                 .build();
     }
 }

@@ -24,7 +24,9 @@ public class UserController {
                 .getPrincipal();
 
         // ✅ 查询数据库
-        User user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + username));
+
 
         // ✅ 防止空指针
         if (user == null) {

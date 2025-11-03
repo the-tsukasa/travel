@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>笔记管理 - Notes Admin</title>
+    <title>ノート管理 - Notes Admin</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
+        }body {
+             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+             min-height: 100vh;
+             color: #333;
+             padding-top: 80px; /* 固定ナビ分の余白 */
+         }
 
         .container {
             max-width: 1400px;
@@ -430,336 +430,273 @@
         <a href="/register.html" class="btn">登録</a>
     </div>
 </nav>
-    <div class="container">
-        <div class="header">
-            <h1>🛠️ 笔记管理</h1>
-            <p>管理员后台 - 审核和管理用户笔记</p>
-            <div class="nav-buttons">
-                <a href="/notes.html" class="nav-btn">浏览笔记</a>
-                <a href="/admin.html" class="nav-btn">管理后台</a>
-                <a href="/login.html" class="nav-btn">退出登录</a>
-            </div>
+
+<div class="container">
+    <div class="header">
+        <h1>🛠️ ノート管理</h1>
+        <p>管理者用ダッシュボード - ユーザー投稿のノートを確認・管理します</p>
+        <div class="nav-buttons">
+            <a href="/notes.html" class="nav-btn">ノート一覧</a>
+            <a href="/admin.html" class="nav-btn">管理画面</a>
+            <a href="/login.html" class="nav-btn">ログアウト</a>
         </div>
+    </div>
 
-        <div id="adminInfo" class="admin-info hidden">
-            <h3 id="adminName"></h3>
-            <p id="adminRole"></p>
-        </div>
+    <div id="adminInfo" class="admin-info hidden">
+        <h3 id="adminName"></h3>
+        <p id="adminRole"></p>
+    </div>
 
-        <div class="stats-section">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalNotes">0</div>
-                    <div class="stat-label">总笔记数</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="pendingNotes">0</div>
-                    <div class="stat-label">待审核</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="approvedNotes">0</div>
-                    <div class="stat-label">已发布</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="rejectedNotes">0</div>
-                    <div class="stat-label">已拒绝</div>
-                </div>
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalNotes">0</div>
+                <div class="stat-label">ノート総数</div>
             </div>
-        </div>
-
-        <div class="tabs">
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('pending')">待审核</button>
-                <button class="tab-btn" onclick="switchTab('all')">全部笔记</button>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingNotes">0</div>
+                <div class="stat-label">承認待ち</div>
             </div>
-
-            <div id="pendingTab" class="tab-content active">
-                <h3>📋 待审核笔记</h3>
-                <div id="pendingContainer">
-                    <div class="loading">正在加载待审核笔记...</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-number" id="approvedNotes">0</div>
+                <div class="stat-label">公開済み</div>
             </div>
-
-            <div id="allTab" class="tab-content">
-                <h3>📚 全部笔记</h3>
-                <div id="allContainer">
-                    <div class="loading">正在加载全部笔记...</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-number" id="rejectedNotes">0</div>
+                <div class="stat-label">拒否済み</div>
             </div>
         </div>
     </div>
 
-    <!-- 拒绝确认模态框 -->
-    <div id="rejectModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">确认拒绝</h3>
-                <span class="close">&times;</span>
+    <div class="tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('pending')">承認待ち</button>
+            <button class="tab-btn" onclick="switchTab('all')">すべてのノート</button>
+        </div>
+
+        <div id="pendingTab" class="tab-content active">
+            <h3>📋 承認待ちノート</h3>
+            <div id="pendingContainer">
+                <div class="loading">承認待ちノートを読み込み中...</div>
             </div>
-            <p>确定要拒绝这篇笔记吗？此操作将永久删除该笔记。</p>
-            <div class="modal-actions">
-                <button class="btn btn-cancel" onclick="closeRejectModal()">取消</button>
-                <button class="btn btn-confirm" id="confirmRejectBtn">拒绝</button>
+        </div>
+
+        <div id="allTab" class="tab-content">
+            <h3>📚 全ノート一覧</h3>
+            <div id="allContainer">
+                <div class="loading">全ノートを読み込み中...</div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        let currentUser = null;
-        let noteToReject = null;
-        let currentTab = 'pending';
+<!-- 拒否確認モーダル -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">拒否の確認</h3>
+            <span class="close">&times;</span>
+        </div>
+        <p>このノートを拒否しますか？この操作は取り消せません。</p>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" onclick="closeRejectModal()">キャンセル</button>
+            <button class="btn btn-confirm" id="confirmRejectBtn">拒否する</button>
+        </div>
+    </div>
+</div>
 
-        // 检查管理员权限
-        function checkAdminAuth() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('请先登录');
-                window.location.href = '/login.html';
+<script>
+    let currentUser = null;
+    let noteToReject = null;
+    let currentTab = 'pending';
+
+    // ===== 管理者認証チェック =====
+    function checkAdminAuth() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('まずログインしてください。');
+            window.location.href = '/login.html';
+            return false;
+        }
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            currentUser = {
+                id: payload.sub,
+                username: payload.username,
+                role: payload.role
+            };
+
+            if (currentUser.role !== 'ADMIN') {
+                alert('アクセス権がありません。管理者のみがこのページを利用できます。');
+                window.location.href = '/notes.html';
                 return false;
             }
 
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                currentUser = {
-                    id: payload.sub,
-                    username: payload.username,
-                    role: payload.role
-                };
-
-                if (currentUser.role !== 'ADMIN') {
-                    alert('权限不足，只有管理员可以访问此页面');
-                    window.location.href = '/notes.html';
-                    return false;
-                }
-
-                return true;
-            } catch (e) {
-                localStorage.removeItem('token');
-                alert('登录已过期，请重新登录');
-                window.location.href = '/login.html';
-                return false;
-            }
+            return true;
+        } catch (e) {
+            localStorage.removeItem('token');
+            alert('ログイン情報の有効期限が切れました。再度ログインしてください。');
+            window.location.href = '/login.html';
+            return false;
         }
+    }
 
-        // 显示管理员信息
-        function displayAdminInfo() {
-            if (currentUser) {
-                document.getElementById('adminName').textContent = `管理员：${currentUser.username}`;
-                document.getElementById('adminRole').textContent = `角色：${currentUser.role}`;
-                document.getElementById('adminInfo').classList.remove('hidden');
-            }
+    // ===== 管理者情報表示 =====
+    function displayAdminInfo() {
+        if (currentUser) {
+            document.getElementById('adminName').textContent = `管理者：${currentUser.username}`;
+            document.getElementById('adminRole').textContent = `権限：${currentUser.role}`;
+            document.getElementById('adminInfo').classList.remove('hidden');
         }
+    }
 
-        // 切换标签页
-        function switchTab(tab) {
-            // 更新按钮状态
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+    // ===== タブ切り替え =====
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(tab + 'Tab').classList.add('active');
+        currentTab = tab;
 
-            // 更新内容显示
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tab + 'Tab').classList.add('active');
-
-            currentTab = tab;
-            
-            if (tab === 'pending') {
-                loadPendingNotes();
-            } else if (tab === 'all') {
-                loadAllNotes();
-            }
+        if (tab === 'pending') {
+            loadPendingNotes();
+        } else if (tab === 'all') {
+            loadAllNotes();
         }
+    }
 
-        // 加载待审核笔记
-        async function loadPendingNotes() {
-            try {
-                const container = document.getElementById('pendingContainer');
-                container.innerHTML = '<div class="loading">正在加载待审核笔记...</div>';
-
-                const response = await fetch('/api/admin/notes/pending', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('加载失败');
-                }
-
-                const notes = await response.json();
-                displayPendingNotes(notes);
-            } catch (error) {
-                document.getElementById('pendingContainer').innerHTML = 
-                    '<div class="error">加载待审核笔记失败，请稍后重试</div>';
-            }
-        }
-
-        // 显示待审核笔记
-        function displayPendingNotes(notes) {
+    // ===== 承認待ちノートの読み込み =====
+    async function loadPendingNotes() {
+        try {
             const container = document.getElementById('pendingContainer');
-            
-            if (!notes || notes.length === 0) {
-                container.innerHTML = '<div class="no-notes">暂无待审核笔记</div>';
-                return;
-            }
+            container.innerHTML = '<div class="loading">承認待ちノートを読み込み中...</div>';
 
-            const tableHtml = `
-                <table class="notes-table">
-                    <thead>
-                        <tr>
-                            <th>标题</th>
-                            <th>作者</th>
-                            <th>内容预览</th>
-                            <th>创建时间</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${notes.map(note => `
-                            <tr>
-                                <td>
-                                    <div class="note-title" title="${escapeHtml(note.title)}">
-                                        ${escapeHtml(note.title)}
-                                    </div>
-                                </td>
-                                <td class="note-author">${escapeHtml(note.username)}</td>
-                                <td>
-                                    <div class="note-content" title="${escapeHtml(note.content)}">
-                                        ${escapeHtml(note.content)}
-                                    </div>
-                                </td>
-                                <td>${new Date(note.createdAt).toLocaleDateString()}</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="action-btn btn-approve" onclick="approveNote(${note.id})">
-                                            批准
-                                        </button>
-                                        <button class="action-btn btn-reject" onclick="showRejectModal(${note.id})">
-                                            拒绝
-                                        </button>
-                                        <button class="action-btn" onclick="viewNoteDetail(${note.id})" 
-                                                style="background: #667eea; color: white;">
-                                            详情
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-
-            container.innerHTML = tableHtml;
-        }
-
-        // 加载全部笔记
-        async function loadAllNotes() {
-            try {
-                const container = document.getElementById('allContainer');
-                container.innerHTML = '<div class="loading">正在加载全部笔记...</div>';
-
-                // 这里可以调用获取全部笔记的API
-                // 暂时显示提示信息
-                container.innerHTML = '<div class="no-notes">全部笔记功能开发中...</div>';
-            } catch (error) {
-                document.getElementById('allContainer').innerHTML = 
-                    '<div class="error">加载全部笔记失败，请稍后重试</div>';
-            }
-        }
-
-        // 批准笔记
-        async function approveNote(noteId) {
-            if (!confirm('确定要批准这篇笔记吗？')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/admin/notes/${noteId}/approve`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('批准失败');
-                }
-
-                alert('笔记批准成功');
-                loadPendingNotes(); // 重新加载待审核列表
-            } catch (error) {
-                alert('批准失败，请稍后重试');
-            }
-        }
-
-        // 显示拒绝确认模态框
-        function showRejectModal(noteId) {
-            noteToReject = noteId;
-            document.getElementById('rejectModal').style.display = 'block';
-        }
-
-        // 关闭拒绝模态框
-        function closeRejectModal() {
-            document.getElementById('rejectModal').style.display = 'none';
-            noteToReject = null;
-        }
-
-        // 确认拒绝
-        async function confirmReject() {
-            if (!noteToReject) return;
-
-            try {
-                const response = await fetch(`/api/admin/notes/${noteToReject}/reject`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('拒绝失败');
-                }
-
-                closeRejectModal();
-                loadPendingNotes(); // 重新加载待审核列表
-                alert('笔记已拒绝并删除');
-            } catch (error) {
-                alert('拒绝失败，请稍后重试');
-            }
-        }
-
-        // 查看笔记详情
-        function viewNoteDetail(noteId) {
-            // 这里可以实现查看笔记详情的功能
-            alert('查看笔记详情功能开发中...');
-        }
-
-        // HTML转义
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            if (checkAdminAuth()) {
-                displayAdminInfo();
-                loadPendingNotes();
-            }
-
-            // 绑定拒绝确认按钮
-            document.getElementById('confirmRejectBtn').addEventListener('click', confirmReject);
-
-            // 绑定模态框关闭事件
-            document.querySelector('.close').addEventListener('click', closeRejectModal);
-            document.getElementById('rejectModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeRejectModal();
-                }
+            const response = await fetch('/api/admin/notes/pending', {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
+
+            if (!response.ok) throw new Error('読み込み失敗');
+            const notes = await response.json();
+            displayPendingNotes(notes);
+        } catch (error) {
+            document.getElementById('pendingContainer').innerHTML =
+                '<div class="error">承認待ちノートの読み込みに失敗しました。時間をおいて再試行してください。</div>';
+        }
+    }
+
+    // ===== ノートリスト表示 =====
+    function displayPendingNotes(notes) {
+        const container = document.getElementById('pendingContainer');
+        if (!notes || notes.length === 0) {
+            container.innerHTML = '<div class="no-notes">承認待ちのノートはありません。</div>';
+            return;
+        }
+
+        const tableHtml = `
+        <table class="notes-table">
+            <thead>
+                <tr>
+                    <th>タイトル</th>
+                    <th>投稿者</th>
+                    <th>内容プレビュー</th>
+                    <th>作成日</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${notes.map(note => `
+                    <tr>
+                        <td><div class="note-title" title="${escapeHtml(note.title)}">${escapeHtml(note.title)}</div></td>
+                        <td class="note-author">${escapeHtml(note.username)}</td>
+                        <td><div class="note-content" title="${escapeHtml(note.content)}">${escapeHtml(note.content)}</div></td>
+                        <td>${new Date(note.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn btn-approve" onclick="approveNote(${note.id})">承認</button>
+                                <button class="action-btn btn-reject" onclick="showRejectModal(${note.id})">拒否</button>
+                                <button class="action-btn" onclick="viewNoteDetail(${note.id})" style="background:#667eea;color:white;">詳細</button>
+                            </div>
+                        </td>
+                    </tr>`).join('')}
+            </tbody>
+        </table>`;
+        container.innerHTML = tableHtml;
+    }
+
+    // ===== 承認済・全件読み込み =====
+    async function loadAllNotes() {
+        const container = document.getElementById('allContainer');
+        container.innerHTML = '<div class="loading">全ノートを読み込み中...</div>';
+        container.innerHTML = '<div class="no-notes">全ノート機能は開発中です。</div>';
+    }
+
+    // ===== ノート承認 =====
+    async function approveNote(noteId) {
+        if (!confirm('このノートを承認しますか？')) return;
+        try {
+            const res = await fetch(`/api/admin/notes/${noteId}/approve`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (!res.ok) throw new Error();
+            alert('ノートを承認しました。');
+            loadPendingNotes();
+        } catch {
+            alert('承認に失敗しました。');
+        }
+    }
+
+    // ===== 拒否モーダル =====
+    function showRejectModal(noteId) {
+        noteToReject = noteId;
+        document.getElementById('rejectModal').style.display = 'block';
+    }
+    function closeRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+        noteToReject = null;
+    }
+    async function confirmReject() {
+        if (!noteToReject) return;
+        try {
+            const res = await fetch(`/api/admin/notes/${noteToReject}/reject`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (!res.ok) throw new Error();
+            closeRejectModal();
+            loadPendingNotes();
+            alert('ノートを拒否しました。');
+        } catch {
+            alert('拒否処理に失敗しました。');
+        }
+    }
+
+    // ===== 詳細（開発中） =====
+    function viewNoteDetail(noteId) {
+        alert('ノート詳細表示機能は開発中です。');
+    }
+
+    // ===== HTML エスケープ =====
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ===== 初期化 =====
+    document.addEventListener('DOMContentLoaded', function() {
+        if (checkAdminAuth()) {
+            displayAdminInfo();
+            loadPendingNotes();
+        }
+        document.getElementById('confirmRejectBtn').addEventListener('click', confirmReject);
+        document.querySelector('.close').addEventListener('click', closeRejectModal);
+        document.getElementById('rejectModal').addEventListener('click', e => {
+            if (e.target === e.currentTarget) closeRejectModal();
         });
-    </script>
-    <script src="js/nav.js"></script>
-    <script src="js/nav.js"></script>
+    });
+</script>
+<script src="js/nav.js"></script>
 </body>
 </html>

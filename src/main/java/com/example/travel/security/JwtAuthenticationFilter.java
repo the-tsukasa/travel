@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @SuppressWarnings("NullableProblems") FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ✅ 0️⃣ 放行登录和注册接口
+        //  0️⃣ 放行登录和注册接口
         String path = request.getServletPath();
         if (path.equals("/api/auth/login") || path.equals("/api/auth/register")) {
             filterChain.doFilter(request, response);
@@ -48,24 +48,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 4️⃣ 解析 Token
             Claims claims = JwtUtil.getClaims(token);
             String username = claims.getSubject();
-            String role = claims.get("role", String.class);   // ✅ 从 token 中读取角色
+            String role = claims.get("role", String.class);   // 从 token 中读取角色
 
             // 5️⃣ 如果当前没有认证，则手动创建认证信息
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // ✅ 封装角色 -> GrantedAuthority（注意要加 "ROLE_" 前缀）
+                // 封装角色 -> GrantedAuthority（注意要加 "ROLE_" 前缀）
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 username,
                                 null,
-                                Collections.singletonList(authority)  // ✅ 传入角色权限
+                                Collections.singletonList(authority)  // 传入角色权限
                         );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // ✅ 将认证信息放入上下文
+                // 将认证信息放入上下文
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
 
@@ -73,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Token 解析失败，继续执行，不要直接 403
         }
 
-        // ✅ 继续过滤链
+        // 继续过滤链
         filterChain.doFilter(request, response);
     }
 }
