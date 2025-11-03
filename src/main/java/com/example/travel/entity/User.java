@@ -31,4 +31,9 @@ public class User {
     @Column(nullable = false)
 
     private LocalDateTime createdAt;
+
+    public User orElseThrow(Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
+    }
 }
