@@ -18,7 +18,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "favorites", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "notes_id"})
+    @UniqueConstraint(columnNames = {"user_id", "note_id"})
 })
 public class Favorites {
 
@@ -31,7 +31,7 @@ public class Favorites {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notes_id", nullable = false)
+    @JoinColumn(name = "note_id", nullable = false)
     private Notes notes;
 
     @Column(name = "created_at")
