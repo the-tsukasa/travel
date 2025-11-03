@@ -277,6 +277,15 @@
         document.querySelectorAll('.card-container').forEach(c => c.style.display = 'none');
         document.querySelector(`.tab[onclick="showTab('${id}')"]`).classList.add('active');
         document.getElementById(id).style.display = 'grid';
+        
+        // 切换到相应标签时重新加载数据
+        if (id === 'favorites' && typeof loadFavoriteNotes === 'function') {
+            loadFavoriteNotes();
+        } else if (id === 'likes' && typeof loadLikedNotes === 'function') {
+            loadLikedNotes();
+        } else if (id === 'notes' && typeof loadUserNotes === 'function') {
+            loadUserNotes();
+        }
     }
 
     // ===== Load user info =====
@@ -313,6 +322,8 @@
 <script src="js/user/user-notes.js"></script>
 <!-- Favorites（お気に入り）機能 -->
 <script src="js/user/user-favorites.js"></script>
+<!-- Likes（いいね）機能 -->
+<script src="js/user/user-likes.js"></script>
 
 
 

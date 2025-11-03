@@ -30,6 +30,10 @@ public interface LikesRepository extends JpaRepository<Likes, Long> {
     // 查找用户点赞的笔记列表
     @Query("SELECT l.notes FROM Likes l WHERE l.user = :user ORDER BY l.createdAt DESC")
     List<Notes> findNotesByUser(@Param("user") User user);
+    
+    // 查找用户点赞的笔记列表（带User关联的JOIN FETCH）
+    @Query("SELECT DISTINCT n FROM Notes n JOIN Likes l ON l.notes = n JOIN FETCH n.user WHERE l.user = :user ORDER BY l.createdAt DESC")
+    List<Notes> findNotesByUserWithUser(@Param("user") User user);
 
     // 根据笔记删除所有点赞记录
     void deleteByNotes(Notes notes);

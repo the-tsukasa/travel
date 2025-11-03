@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.Notes;
 import com.example.travel.entity.User;
 import com.example.travel.repository.UserRepository;
@@ -48,13 +49,23 @@ public class LikesController {
         return ResponseEntity.ok().build();
     }
 
-    // 获取用户点赞的笔记列表
+    // 获取用户点赞的笔记列表（返回Notes实体）
     @GetMapping
     public ResponseEntity<List<Notes>> getUserLikedNotes(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
         List<Notes> likedNotes = likesService.getUserLikedNotes(user);
+        return ResponseEntity.ok(likedNotes);
+    }
+
+    // 获取用户点赞的笔记列表（返回NotesDTO）
+    @GetMapping("/my")
+    public ResponseEntity<List<NotesDTO>> getMyLikedNotes(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        List<NotesDTO> likedNotes = likesService.getUserLikedNotesDTO(user);
         return ResponseEntity.ok(likedNotes);
     }
 

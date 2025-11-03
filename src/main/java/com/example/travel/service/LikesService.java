@@ -2,6 +2,7 @@ package com.example.travel.service;
 
 import java.util.List;
 
+import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.Notes;
 import com.example.travel.entity.User;
 
@@ -15,6 +16,9 @@ public interface LikesService {
     
     // 获取用户点赞的笔记列表
     List<Notes> getUserLikedNotes(User user);
+    
+    // 获取用户点赞的笔记列表（返回NotesDTO）
+    List<NotesDTO> getUserLikedNotesDTO(User user);
     
     // 检查是否已点赞
     boolean isLiked(Long notesId, User user);
