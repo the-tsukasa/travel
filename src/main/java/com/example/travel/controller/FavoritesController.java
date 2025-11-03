@@ -1,5 +1,7 @@
 package com.example.travel.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.Favorites;
 import com.example.travel.entity.User;
 import com.example.travel.repository.UserRepository;
@@ -50,7 +53,7 @@ public class FavoritesController {
         return ResponseEntity.ok().build();
     }
 
-    // 获取用户的收藏列表
+    // 获取用户的收藏列表（分页，返回Favorites实体）
     @GetMapping
     public ResponseEntity<Page<Favorites>> getUserFavorites(
             @RequestParam(defaultValue = "0") int page,
@@ -62,6 +65,16 @@ public class FavoritesController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Favorites> favorites = favoritesService.getUserFavorites(user, pageable);
         return ResponseEntity.ok(favorites);
+    }
+
+    // 获取用户收藏的笔记列表（返回NotesDTO）
+    @GetMapping("/my")
+    public ResponseEntity<List<NotesDTO>> getMyFavoriteNotes(Authentication authentication) {
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        List<NotesDTO> favoriteNotes = favoritesService.getUserFavoriteNotes(user);
+        return ResponseEntity.ok(favoriteNotes);
     }
 
     // 检查是否已收藏

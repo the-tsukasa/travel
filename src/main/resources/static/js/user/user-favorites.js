@@ -33,11 +33,13 @@ async function loadFavoriteNotes() {
         favorites.forEach(note => {
             const card = document.createElement("div");
             card.className = "card";
+            const content = note.content || "";
+            const shortContent = content.length > 80 ? content.slice(0, 80) + '…' : content;
             card.innerHTML = `
-                <img src="${note.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image'}" alt="${note.title}">
+                <img src="${note.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image'}" alt="${note.title || ''}">
                 <div class="card-body">
-                    <h3>${note.title}</h3>
-                    <p>${note.content.length > 80 ? note.content.slice(0, 80) + '…' : note.content}</p>
+                    <h3>${note.title || '無題'}</h3>
+                    <p>${shortContent}</p>
                     <div class="read-btn" onclick="viewNoteDetail(${note.id})">read<br>more</div>
                     <button class="unfavorite-btn" onclick="removeFavorite(${note.id})">💔 解除</button>
                 </div>

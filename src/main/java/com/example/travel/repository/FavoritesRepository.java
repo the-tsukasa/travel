@@ -35,6 +35,10 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Long> {
     // 查找用户收藏的笔记列表
     @Query("SELECT f.notes FROM Favorites f WHERE f.user = :user ORDER BY f.createdAt DESC")
     List<Notes> findNotesByUser(@Param("user") User user);
+    
+    // 查找用户收藏的笔记列表（带User关联的JOIN FETCH）
+    @Query("SELECT DISTINCT n FROM Notes n JOIN Favorites f ON f.notes = n JOIN FETCH n.user WHERE f.user = :user ORDER BY f.createdAt DESC")
+    List<Notes> findNotesByUserWithUser(@Param("user") User user);
 
     // 根据笔记删除所有收藏记录
     void deleteByNotes(Notes notes);
