@@ -2,6 +2,7 @@ package com.example.travel.service.impl;
 
 import com.example.travel.dto.LoginRequest;
 import com.example.travel.dto.RegisterRequest;
+import com.example.travel.dto.UpdateProfileRequest;
 import com.example.travel.entity.User;
 import com.example.travel.exception.BusinessException;
 import com.example.travel.exception.ResourceNotFoundException;
@@ -61,5 +62,38 @@ public class UserServiceImpl implements UserService {
 
         // 生成并返回 JWT Token
         return jwtUtil.generateToken(user.getUsername(), user.getRole());
+    }
+
+    @Override
+    public void updateProfile(String username, UpdateProfileRequest request) {
+        // 查找用户
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+
+        // 更新字段（只更新非空字段）
+        if (request.getFirstName() != null) {
+            user.setFirstName(request.getFirstName());
+        }
+        if (request.getLastName() != null) {
+            user.setLastName(request.getLastName());
+        }
+        if (request.getAvatarUrl() != null) {
+            user.setAvatarUrl(request.getAvatarUrl());
+        }
+        if (request.getBio() != null) {
+            user.setBio(request.getBio());
+        }
+        if (request.getLocation() != null) {
+            user.setLocation(request.getLocation());
+        }
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+        if (request.getBirthday() != null) {
+            user.setBirthday(request.getBirthday());
+        }
+
+        // 保存更新
+        userRepository.save(user);
     }
 }

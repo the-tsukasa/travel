@@ -27,6 +27,14 @@ public class User {
     @Column(nullable = false)
     private String role = "USER";
 
+    //  名
+    @Column(name = "first_name")
+    private String firstName;
+
+    //  姓
+    @Column(name = "last_name")
+    private String lastName;
+
     //  所在地
     @Column(name = "location")
     private String location = "日本";
@@ -34,6 +42,18 @@ public class User {
     //  头像URL
     @Column(name = "avatar_url")
     private String avatarUrl;
+
+    //  个人简介
+    @Column(name = "bio", columnDefinition = "TEXT")
+    private String bio;
+
+    //  地址
+    @Column(name = "address")
+    private String address;
+
+    //  生日
+    @Column(name = "birthday")
+    private java.time.LocalDate birthday;
 
     //  注册时间（自动记录）
     @Column(nullable = false, name = "created_at")

@@ -9,8 +9,13 @@ public class UserDTO {
     private String username;
     private String email;
     private String role;
+    private String firstName;
+    private String lastName;
     private String location;
     private String avatarUrl;
+    private String bio;
+    private String address;
+    private java.time.LocalDate birthday;
     private LocalDateTime createdAt;
     
     // 统计数据
