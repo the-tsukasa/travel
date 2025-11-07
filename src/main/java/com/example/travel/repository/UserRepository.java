@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // ✅ 改成 Optional<User>
+    // 改成 Optional<User>
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
     

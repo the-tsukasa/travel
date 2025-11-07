@@ -27,16 +27,16 @@ public class UserController {
 
     @GetMapping("/me")
     public UserDTO getCurrentUser() {
-        // ✅ 从 SecurityContext 中获取当前用户名
+        // 从 SecurityContext 中获取当前用户名
         String username = (String) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        // ✅ 查询数据库
+        // 查询数据库
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + username));
 
-        // ✅ 转换为安全的 DTO（不会泄露密码）
+        // 转换为安全的 DTO（不会泄露密码）
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
@@ -51,7 +51,7 @@ public class UserController {
         dto.setBirthday(user.getBirthday());
         dto.setCreatedAt(user.getCreatedAt());
 
-        // ✅ 计算统计数据
+        // 计算统计数据
         dto.setNotesCount(notesRepository.countByUser(user));
         dto.setLikesCount(likesRepository.countByUser(user));
         dto.setFavoritesCount(favoritesRepository.countByUser(user));
@@ -62,15 +62,15 @@ public class UserController {
 
     @PutMapping("/profile")
     public UserDTO updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
-        // ✅ 从 SecurityContext 中获取当前用户名
+        // 从 SecurityContext 中获取当前用户名
         String username = (String) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
-        // ✅ 更新用户资料
+        // 更新用户资料
         userService.updateProfile(username, request);
 
-        // ✅ 返回更新后的用户信息
+        // 返回更新后的用户信息
         return getCurrentUser();
     }
 }
