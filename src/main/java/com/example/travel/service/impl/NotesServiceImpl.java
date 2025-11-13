@@ -1,7 +1,11 @@
 package com.example.travel.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,13 +33,26 @@ public class NotesServiceImpl implements NotesService {
     private final NotesRepository notesRepository;
     private final LikesRepository likesRepository;
     private final FavoritesRepository favoritesRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public NotesDTO createNotes(CreateNotesRequest request, User user) {
         Notes notes = new Notes();
         notes.setTitle(request.getTitle());
         notes.setContent(request.getContent());
-        notes.setImageUrl(request.getImageUrl());
+        // 处理图片：优先使用 imageUrls（多图片），否则使用 imageUrl（单图片或兼容旧格式）
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            // 多图片：转换为 JSON 数组字符串存储
+            try {
+                String imageUrlsJson = objectMapper.writeValueAsString(request.getImageUrls());
+                notes.setImageUrl(imageUrlsJson);
+            } catch (Exception e) {
+                throw new BusinessException("IMAGE_URLS_ERROR", "图片URL处理失败: " + e.getMessage());
+            }
+        } else if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
+            // 单图片或旧格式
+            notes.setImageUrl(request.getImageUrl());
+        }
         notes.setLocation(request.getLocation());
         notes.setUser(user);
         notes.setIsApproved(false); // 新笔记需要审核
@@ -85,7 +102,21 @@ public class NotesServiceImpl implements NotesService {
 
         notes.setTitle(request.getTitle());
         notes.setContent(request.getContent());
-        notes.setImageUrl(request.getImageUrl());
+        // 处理图片：优先使用 imageUrls（多图片），否则使用 imageUrl（单图片或兼容旧格式）
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            // 多图片：转换为 JSON 数组字符串存储
+            try {
+                String imageUrlsJson = objectMapper.writeValueAsString(request.getImageUrls());
+                notes.setImageUrl(imageUrlsJson);
+            } catch (Exception e) {
+                throw new BusinessException("IMAGE_URLS_ERROR", "图片URL处理失败: " + e.getMessage());
+            }
+        } else if (request.getImageUrl() != null && !request.getImageUrl().isEmpty()) {
+            // 单图片或旧格式
+            notes.setImageUrl(request.getImageUrl());
+        } else {
+            notes.setImageUrl(null);
+        }
         notes.setLocation(request.getLocation());
         notes.setIsApproved(false); // 更新后需要重新审核
 
@@ -150,13 +181,54 @@ public class NotesServiceImpl implements NotesService {
         dto.setId(notes.getId());
         dto.setTitle(notes.getTitle());
         dto.setContent(notes.getContent());
-        // 处理图片URL：如果是本地文件（不是http/https），添加/uploads/前缀
-        String imageUrl = notes.getImageUrl();
-        if (imageUrl != null && !imageUrl.isEmpty() 
-            && !imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
-            imageUrl = "/uploads/" + imageUrl;
+        
+        // 处理图片URL：尝试解析为 JSON 数组（多图片），否则作为单图片处理
+        String imageUrlStr = notes.getImageUrl();
+        if (imageUrlStr != null && !imageUrlStr.isEmpty()) {
+            try {
+                // 尝试解析为 JSON 数组
+                if (imageUrlStr.trim().startsWith("[")) {
+                    List<String> imageUrls = objectMapper.readValue(imageUrlStr, new TypeReference<List<String>>() {});
+                    List<String> processedUrls = new ArrayList<>();
+                    for (String url : imageUrls) {
+                        // 如果是本地文件（不是http/https），添加/uploads/前缀
+                        if (url != null && !url.isEmpty() 
+                            && !url.startsWith("http://") && !url.startsWith("https://")) {
+                            processedUrls.add("/uploads/" + url);
+                        } else {
+                            processedUrls.add(url);
+                        }
+                    }
+                    dto.setImageUrls(processedUrls);
+                    // 为了兼容，也设置第一张图片到 imageUrl
+                    if (!processedUrls.isEmpty()) {
+                        dto.setImageUrl(processedUrls.get(0));
+                    }
+                } else {
+                    // 单图片格式
+                    String imageUrl = imageUrlStr;
+                    if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+                        imageUrl = "/uploads/" + imageUrl;
+                    }
+                    dto.setImageUrl(imageUrl);
+                    // 也设置到 imageUrls 数组（兼容新格式）
+                    List<String> singleUrlList = new ArrayList<>();
+                    singleUrlList.add(imageUrl);
+                    dto.setImageUrls(singleUrlList);
+                }
+            } catch (Exception e) {
+                // 解析失败，作为单图片处理
+                String imageUrl = imageUrlStr;
+                if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+                    imageUrl = "/uploads/" + imageUrl;
+                }
+                dto.setImageUrl(imageUrl);
+                List<String> singleUrlList = new ArrayList<>();
+                singleUrlList.add(imageUrl);
+                dto.setImageUrls(singleUrlList);
+            }
         }
-        dto.setImageUrl(imageUrl);
+        
         dto.setLocation(notes.getLocation());
         dto.setLikesCount(notes.getLikesCount());
         dto.setFavoritesCount(notes.getFavoritesCount());

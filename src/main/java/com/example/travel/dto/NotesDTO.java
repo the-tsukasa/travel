@@ -1,6 +1,7 @@
 package com.example.travel.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 
@@ -9,7 +10,8 @@ public class NotesDTO {
     private Long id;
     private String title;
     private String content;
-    private String imageUrl;
+    private String imageUrl; // 兼容旧版本：单张图片URL
+    private List<String> imageUrls; // 新版本：多张图片URL列表
     private String location;
     private Integer likesCount;
     private Integer favoritesCount;

@@ -16,7 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -190,6 +192,114 @@ public class FileUploadController {
             response.put("success", false);
             response.put("message", "ファイルアップロードに失敗しました: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } catch (Exception e) {
+            log.error("ノート画像アップロードエラー", e);
+            response.put("success", false);
+            response.put("message", "エラーが発生しました: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/note-images")
+    public ResponseEntity<Map<String, Object>> uploadNoteImages(@RequestParam("files") MultipartFile[] files) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // 验证文件数量（最多9张）
+            if (files == null || files.length == 0) {
+                response.put("success", false);
+                response.put("message", "ファイルが選択されていません");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (files.length > 9) {
+                response.put("success", false);
+                response.put("message", "画像は最大9枚までアップロードできます");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 获取当前用户
+            String username = (String) SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getPrincipal();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
+
+            // 创建上传目录（notes 子文件夹）
+            Path uploadPath = Paths.get(uploadDir, "notes");
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            List<String> uploadedFiles = new ArrayList<>();
+            List<String> uploadedUrls = new ArrayList<>();
+            List<String> errors = new ArrayList<>();
+
+            // 处理每个文件
+            for (int i = 0; i < files.length; i++) {
+                MultipartFile file = files[i];
+                
+                try {
+                    // 验证文件
+                    if (file.isEmpty()) {
+                        errors.add("ファイル " + (i + 1) + " が空です");
+                        continue;
+                    }
+
+                    // 验证文件类型
+                    String contentType = file.getContentType();
+                    if (contentType == null || !contentType.startsWith("image/")) {
+                        errors.add("ファイル " + (i + 1) + " は画像ファイルではありません");
+                        continue;
+                    }
+
+                    // 验证文件大小 (10MB)
+                    if (file.getSize() > 10 * 1024 * 1024) {
+                        errors.add("ファイル " + (i + 1) + " のサイズが10MBを超えています");
+                        continue;
+                    }
+
+                    // 生成唯一文件名
+                    String originalFilename = file.getOriginalFilename();
+                    String extension = "";
+                    if (originalFilename != null && originalFilename.contains(".")) {
+                        extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                    }
+                    String filename = "note_" + user.getId() + "_" + UUID.randomUUID().toString() + extension;
+
+                    // 保存文件
+                    Path filePath = uploadPath.resolve(filename);
+                    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                    // 保存相对路径
+                    String imageUrl = "notes/" + filename;
+                    uploadedFiles.add(imageUrl);
+                    uploadedUrls.add("/uploads/" + imageUrl);
+
+                } catch (IOException e) {
+                    log.error("ファイル " + (i + 1) + " のアップロードエラー", e);
+                    errors.add("ファイル " + (i + 1) + " のアップロードに失敗しました: " + e.getMessage());
+                }
+            }
+
+            // 如果所有文件都失败
+            if (uploadedFiles.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "すべてのファイルのアップロードに失敗しました: " + String.join(", ", errors));
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // 返回成功响应
+            response.put("success", true);
+            response.put("message", uploadedFiles.size() + " 枚の画像が正常にアップロードされました");
+            response.put("filenames", uploadedFiles); // 相对路径数组
+            response.put("imageUrls", uploadedUrls); // 完整URL数组
+            if (!errors.isEmpty()) {
+                response.put("warnings", errors);
+            }
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             log.error("ノート画像アップロードエラー", e);
             response.put("success", false);
