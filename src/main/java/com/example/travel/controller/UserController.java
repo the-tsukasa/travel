@@ -45,7 +45,13 @@ public class UserController {
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setLocation(user.getLocation() != null ? user.getLocation() : "日本");
-        dto.setAvatarUrl(user.getAvatarUrl());
+        // 处理头像URL：如果是本地文件（不是http/https），添加/uploads/前缀
+        String avatarUrl = user.getAvatarUrl();
+        if (avatarUrl != null && !avatarUrl.isEmpty() 
+            && !avatarUrl.startsWith("http://") && !avatarUrl.startsWith("https://")) {
+            avatarUrl = "/uploads/" + avatarUrl;
+        }
+        dto.setAvatarUrl(avatarUrl);
         dto.setBio(user.getBio());
         dto.setAddress(user.getAddress());
         dto.setBirthday(user.getBirthday());

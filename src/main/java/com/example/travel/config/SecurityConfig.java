@@ -164,7 +164,7 @@ public class SecurityConfig {
                         // 1. OPTIONS 请求全部放行（CORS 预检）
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 2. 静态资源和 HTML 页面放行
-                        .requestMatchers("/", "/*.html", "/js/**", "/css/**", "/images/**", "/static/**").permitAll()
+                        .requestMatchers("/", "/*.html", "/js/**", "/css/**", "/images/**", "/static/**", "/uploads/**").permitAll()
                         .requestMatchers("/spot.html", "/login.html", "/register.html", "/admin.html", "/notes-admin.html").permitAll()
                         // 3. 认证接口放行
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
@@ -187,7 +187,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/spots/**").authenticated()
                         // 11. 点赞和收藏接口 - 全部需要认证
                         .requestMatchers("/api/likes/**", "/api/favorites/**").authenticated()
-                        // 12. 用户相关接口 - 需要认证
+                        // 12. 文件上传接口 - 需要认证
+                        .requestMatchers("/api/upload/**").authenticated()
+                        // 13. 用户相关接口 - 需要认证
                         .requestMatchers("/api/user/**").authenticated()
                         // 13. 管理员接口 - 需要 ADMIN 角色
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

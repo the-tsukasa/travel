@@ -27,7 +27,13 @@
 
 <!-- ===== Header Section ===== -->
 <section class="header">
-    <img id="avatar" class="avatar" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="avatar">
+    <div style="position: relative; display: inline-block;">
+        <img id="avatar" class="avatar" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="avatar">
+        <label for="avatarUpload" style="position: absolute; bottom: 0; right: 0; background: var(--orange); color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+            <span style="font-size: 18px;">📷</span>
+        </label>
+        <input type="file" id="avatarUpload" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
+    </div>
     <div class="username" id="username">ユーザー</div>
     <div class="info-line" id="userinfo">ID: ---- ｜ 所在地：日本</div>
     <div class="info-line">Travel in Japan</div>
@@ -157,7 +163,12 @@
                 
                 // 更新头像
                 if (data.avatarUrl) {
-                    document.getElementById("avatar").src = data.avatarUrl;
+                    // 如果是相对路径，添加完整URL
+                    let avatarSrc = data.avatarUrl;
+                    if (avatarSrc.startsWith('/')) {
+                        avatarSrc = 'http://localhost:8080' + avatarSrc;
+                    }
+                    document.getElementById("avatar").src = avatarSrc;
                 }
                 
                 // 更新统计信息
@@ -194,6 +205,61 @@
             // 注意：这里暂时没有フォロー/フォロワー功能，所以显示笔记数、点赞数和收藏数
             statsElement.innerText = `${notesCount}ノート　${formatNumber(likesCount)}いいね　${formatNumber(favoritesCount)}お気に入り`;
         }
+    }
+
+    // ===== 上传头像 =====
+    async function uploadAvatar(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // 验证文件类型
+        if (!file.type.startsWith('image/')) {
+            alert('画像ファイルのみアップロードできます');
+            return;
+        }
+
+        // 验证文件大小 (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('ファイルサイズは5MB以下にしてください');
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            alert('ログインが必要です');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('http://localhost:8080/api/upload/avatar', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // 更新头像显示
+                if (result.avatarUrl) {
+                    document.getElementById('avatar').src = 'http://localhost:8080' + result.avatarUrl;
+                }
+                alert('アバターが正常にアップロードされました');
+            } else {
+                alert('アップロードに失敗しました: ' + (result.message || '不明なエラー'));
+            }
+        } catch (error) {
+            console.error('アップロードエラー:', error);
+            alert('エラーが発生しました: ' + error.message);
+        }
+
+        // 清空文件输入，允许重复选择同一文件
+        event.target.value = '';
     }
 
     // ===== Logout =====

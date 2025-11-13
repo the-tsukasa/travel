@@ -257,10 +257,15 @@
                 <div class="username" id="displayUsername">ユーザー</div>
                 <div class="registration-time" id="registrationTime">登録日: --</div>
             </div>
-            <img id="avatarPreview" class="avatar-preview" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Avatar Preview">
-            <div class="avatar-url-input">
-                <label for="avatarUrl">アバターURL(仮機能、直し待ち)</label>
-                <input type="url" id="avatarUrl" placeholder="https://example.com/avatar.jpg" oninput="updateAvatarPreview()">
+            <div style="position: relative; display: inline-block;">
+                <img id="avatarPreview" class="avatar-preview" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Avatar Preview">
+                <label for="avatarUpload" style="position: absolute; bottom: 10px; right: 10px; background: var(--orange); color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                    <span style="font-size: 20px;">📷</span>
+                </label>
+                <input type="file" id="avatarUpload" accept="image/*" style="display: none;" onchange="uploadAvatar(event)">
+            </div>
+            <div style="margin-top: 16px; color: #666; font-size: 14px;">
+                画像をクリックしてアップロード（5MB以下、JPG/PNG/GIF対応）
             </div>
         </div>
 
@@ -306,18 +311,72 @@
 </div>
 
 <script>
-    // 更新头像预览
-    function updateAvatarPreview() {
-        const url = document.getElementById('avatarUrl').value.trim();
+    // 上传头像
+    async function uploadAvatar(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // 验证文件类型
+        if (!file.type.startsWith('image/')) {
+            showMessage('画像ファイルのみアップロードできます', 'error');
+            return;
+        }
+
+        // 验证文件大小 (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showMessage('ファイルサイズは5MB以下にしてください', 'error');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showMessage('ログインが必要です', 'error');
+            return;
+        }
+
+        // 显示预览
         const preview = document.getElementById('avatarPreview');
-        if (url) {
-            preview.src = url;
-            preview.onerror = function() {
-                this.src = 'https://cdn-icons-png.flaticon.com/512/616/616408.png';
-            };
-        } else {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            showMessage('アップロード中...', 'success');
+            const response = await fetch('http://localhost:8080/api/upload/avatar', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage('アバターが正常にアップロードされました！', 'success');
+                // 更新预览图片
+                if (result.avatarUrl) {
+                    preview.src = 'http://localhost:8080' + result.avatarUrl;
+                }
+            } else {
+                showMessage('アップロードに失敗しました: ' + (result.message || '不明なエラー'), 'error');
+                // 恢复默认头像
+                preview.src = 'https://cdn-icons-png.flaticon.com/512/616/616408.png';
+            }
+        } catch (error) {
+            console.error('アップロードエラー:', error);
+            showMessage('エラーが発生しました: ' + error.message, 'error');
+            // 恢复默认头像
             preview.src = 'https://cdn-icons-png.flaticon.com/512/616/616408.png';
         }
+
+        // 清空文件输入
+        event.target.value = '';
     }
 
     // 加载当前用户信息
@@ -366,8 +425,13 @@
                     document.getElementById('birthday').value = user.birthday;
                 }
                 if (user.avatarUrl) {
-                    document.getElementById('avatarUrl').value = user.avatarUrl;
-                    updateAvatarPreview();
+                    // 更新头像预览
+                    const preview = document.getElementById('avatarPreview');
+                    let avatarSrc = user.avatarUrl;
+                    if (avatarSrc.startsWith('/')) {
+                        avatarSrc = 'http://localhost:8080' + avatarSrc;
+                    }
+                    preview.src = avatarSrc;
                 }
             } else {
                 showMessage('ユーザー情報の取得に失敗しました', 'error');
@@ -388,11 +452,10 @@
             return;
         }
 
-        // 收集表单数据
+        // 收集表单数据（注意：头像通过单独的上传接口更新，这里不再包含avatarUrl）
         const profileData = {
             firstName: document.getElementById('firstName').value.trim() || null,
             lastName: document.getElementById('lastName').value.trim() || null,
-            avatarUrl: document.getElementById('avatarUrl').value.trim() || null,
             bio: document.getElementById('bio').value.trim() || null,
             location: document.getElementById('location').value.trim() || null,
             address: document.getElementById('address').value.trim() || null,

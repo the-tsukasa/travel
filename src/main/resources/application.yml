@@ -24,3 +24,7 @@ logging:
     com.example.travel.security.JwtAuthenticationFilter: INFO
     com.example.travel.util.JwtUtil: DEBUG
     org.springframework.security: DEBUG
+
+# 文件上传配置
+file:
+  upload-dir: uploads
