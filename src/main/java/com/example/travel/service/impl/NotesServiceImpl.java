@@ -150,7 +150,13 @@ public class NotesServiceImpl implements NotesService {
         dto.setId(notes.getId());
         dto.setTitle(notes.getTitle());
         dto.setContent(notes.getContent());
-        dto.setImageUrl(notes.getImageUrl());
+        // 处理图片URL：如果是本地文件（不是http/https），添加/uploads/前缀
+        String imageUrl = notes.getImageUrl();
+        if (imageUrl != null && !imageUrl.isEmpty() 
+            && !imageUrl.startsWith("http://") && !imageUrl.startsWith("https://")) {
+            imageUrl = "/uploads/" + imageUrl;
+        }
+        dto.setImageUrl(imageUrl);
         dto.setLocation(notes.getLocation());
         dto.setLikesCount(notes.getLikesCount());
         dto.setFavoritesCount(notes.getFavoritesCount());

@@ -287,10 +287,18 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="imageUrl">画像URL</label>
-                <input type="url" id="imageUrl" name="imageUrl" class="form-input"
-                       placeholder="https://example.com/image.jpg">
+                <label class="form-label" for="noteImage">画像</label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <label for="noteImageUpload" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; cursor: pointer; text-align: center; font-weight: 600; transition: all 0.3s ease;">
+                        📷 画像を選択
+                    </label>
+                    <input type="file" id="noteImageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                    <div style="color: #718096; font-size: 0.9rem;">
+                        画像をアップロード（10MB以下、JPG/PNG/GIF対応）
+                    </div>
+                </div>
                 <div class="image-preview" id="imagePreview"></div>
+                <input type="hidden" id="imageUrl" name="imageUrl">
             </div>
 
             <div class="form-group">
@@ -361,28 +369,73 @@
         });
     }
 
-    // ===== 画像プレビュー =====
-    function setupImagePreview() {
-        const imageUrlInput = document.getElementById('imageUrl');
-        const imagePreview = document.getElementById('imagePreview');
+    // ===== 画像アップロード処理 =====
+    async function handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-        imageUrlInput.addEventListener('input', function() {
-            const url = this.value.trim();
-            if (url && isValidUrl(url)) {
-                imagePreview.innerHTML = `<img src="${url}" alt="画像プレビュー" onerror="this.style.display='none'">`;
-            } else {
-                imagePreview.innerHTML = '';
-            }
-        });
-    }
+        // 验证文件类型
+        if (!file.type.startsWith('image/')) {
+            showMessage('画像ファイルのみアップロードできます', 'error');
+            event.target.value = '';
+            return;
+        }
 
-    // ===== URL検証 =====
-    function isValidUrl(string) {
+        // 验证文件大小 (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            showMessage('ファイルサイズは10MB以下にしてください', 'error');
+            event.target.value = '';
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showMessage('ログインが必要です', 'error');
+            event.target.value = '';
+            return;
+        }
+
+        // 显示预览
+        const preview = document.getElementById('imagePreview');
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="画像プレビュー">`;
+        };
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
         try {
-            new URL(string);
-            return true;
-        } catch (_) {
-            return false;
+            showMessage('画像をアップロード中...', 'success');
+            const response = await fetch('http://localhost:8080/api/upload/note-image', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // 保存图片URL到隐藏字段
+                document.getElementById('imageUrl').value = result.filename; // 存储相对路径
+                showMessage('画像が正常にアップロードされました', 'success');
+                // 更新预览为服务器返回的URL
+                if (result.imageUrl) {
+                    preview.innerHTML = `<img src="http://localhost:8080${result.imageUrl}" alt="画像プレビュー">`;
+                }
+            } else {
+                showMessage('アップロードに失敗しました: ' + (result.message || '不明なエラー'), 'error');
+                preview.innerHTML = '';
+                document.getElementById('imageUrl').value = '';
+            }
+        } catch (error) {
+            console.error('アップロードエラー:', error);
+            showMessage('エラーが発生しました: ' + error.message, 'error');
+            preview.innerHTML = '';
+            document.getElementById('imageUrl').value = '';
         }
     }
 
@@ -397,12 +450,11 @@
         submitBtn.textContent = '投稿中...';
 
         try {
-            const formData = new FormData(this);
             const noteData = {
-                title: formData.get('title').trim(),
-                content: formData.get('content').trim(),
-                imageUrl: formData.get('imageUrl').trim() || null,
-                location: formData.get('location').trim() || null
+                title: document.getElementById('title').value.trim(),
+                content: document.getElementById('content').value.trim(),
+                imageUrl: document.getElementById('imageUrl').value.trim() || null,
+                location: document.getElementById('location').value.trim() || null
             };
 
             if (!noteData.title || !noteData.content) {
@@ -432,6 +484,8 @@
             showMessage('ノートを投稿しました！承認後、ノート一覧に表示されます。', 'success');
             this.reset();
             document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('imageUrl').value = '';
+            document.getElementById('noteImageUpload').value = '';
             document.getElementById('titleCount').textContent = '0/200';
             document.getElementById('contentCount').textContent = '0/5000';
         } catch (error) {
@@ -447,7 +501,6 @@
         if (checkAuth()) {
             updateCharCount('title', 'titleCount', 200);
             updateCharCount('content', 'contentCount', 5000);
-            setupImagePreview();
         }
     });
 </script>
