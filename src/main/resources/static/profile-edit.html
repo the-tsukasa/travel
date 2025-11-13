@@ -111,6 +111,22 @@
         border-bottom: 1px solid #e5e7eb;
     }
 
+    .user-info {
+        margin-bottom: 20px;
+    }
+
+    .user-info .username {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .user-info .registration-time {
+        font-size: 14px;
+        color: #666;
+    }
+
     .avatar-preview {
         width: 120px;
         height: 120px;
@@ -237,9 +253,13 @@
     <div class="form-card">
         <!-- 头像区域 -->
         <div class="avatar-section">
+            <div class="user-info">
+                <div class="username" id="displayUsername">ユーザー</div>
+                <div class="registration-time" id="registrationTime">登録日: --</div>
+            </div>
             <img id="avatarPreview" class="avatar-preview" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Avatar Preview">
             <div class="avatar-url-input">
-                <label for="avatarUrl">アバターURL</label>
+                <label for="avatarUrl">アバターURL(仮機能、直し待ち)</label>
                 <input type="url" id="avatarUrl" placeholder="https://example.com/avatar.jpg" oninput="updateAvatarPreview()">
             </div>
         </div>
@@ -320,6 +340,20 @@
 
             if (response.ok) {
                 const user = await response.json();
+                
+                // 显示用户名和注册时间
+                if (user.username) {
+                    document.getElementById('displayUsername').textContent = user.username;
+                }
+                if (user.createdAt) {
+                    const regDate = new Date(user.createdAt);
+                    const formattedDate = regDate.toLocaleDateString('ja-JP', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    document.getElementById('registrationTime').textContent = `登録日: ${formattedDate}`;
+                }
                 
                 // 填充表单
                 if (user.firstName) document.getElementById('firstName').value = user.firstName;

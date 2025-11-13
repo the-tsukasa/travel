@@ -139,8 +139,17 @@
             if (res.ok) {
                 const data = await res.json();
                 
-                // 更新用户名
-                document.getElementById("username").innerText = data.username || "ユーザー";
+                // 更新用户名 - 显示 First Name + Last Name
+                let displayName = "ユーザー";
+                if (data.firstName || data.lastName) {
+                    const nameParts = [];
+                    if (data.firstName) nameParts.push(data.firstName);
+                    if (data.lastName) nameParts.push(data.lastName);
+                    displayName = nameParts.join(" ");
+                } else if (data.username) {
+                    displayName = data.username;
+                }
+                document.getElementById("username").innerText = displayName;
                 
                 // 更新用户信息（ID和所在地）
                 const location = data.location || "日本";
