@@ -37,7 +37,7 @@
     <div class="username" id="username">ユーザー</div>
     <div class="info-line" id="userinfo">ID: ---- ｜ 所在地：日本</div>
     <div class="info-line">Travel in Japan</div>
-    <div class="info-line" id="stats">409フォロー　709フォロワー　2万いいね＆お気に入り</div>
+    <div class="info-line" id="stats"></div>
 </section>
 
 <!-- ===== Tabs ===== -->
@@ -48,54 +48,8 @@
     <div class="tab" onclick="location.href='profile-edit.html'">Account</div>
 </div>
 
-
 <!-- ===== Cards Section ===== -->
-<div id="notes" class="card-container">
-    <div class="card">
-        <img src="https://images.unsplash.com/photo-1562127405-59aa1c4e5f98?q=80&w=1200" alt="浅草寺">
-        <div class="card-body">
-            <h3>浅草寺で感じる日本の伝統と祈り</h3>
-            <p>雷門から仲見世通りへ、浅草の魅力を満喫。下町情緒を感じる旅へ。</p>
-            <div class="read-btn">read<br>more</div>
-        </div>
-    </div>
-
-    <div class="card">
-        <img src="https://images.unsplash.com/photo-1580810733150-6a1a4f9e03f1?q=80&w=1200" alt="原宿">
-        <div class="card-body">
-            <h3>原宿で出会う最新トレンド</h3>
-            <p>竹下通りから表参道まで、若者文化の発信地。</p>
-            <div class="read-btn">read<br>more</div>
-        </div>
-    </div>
-
-    <div class="card">
-        <img src="https://images.unsplash.com/photo-1579164204629-1b51999b8c6f?q=80&w=1200" alt="新宿">
-        <div class="card-body">
-            <h3>東京の玄関口、新宿を歩く</h3>
-            <p>ショッピング・グルメ・エンタメの宝庫。</p>
-            <div class="read-btn">read<br>more</div>
-        </div>
-    </div>
-
-    <div class="card">
-        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200" alt="お台場">
-        <div class="card-body">
-            <h3>海風を感じるお台場の旅</h3>
-            <p>レインボーブリッジと東京湾の絶景。</p>
-            <div class="read-btn">read<br>more</div>
-        </div>
-    </div>
-
-    <div class="card">
-        <img src="https://images.unsplash.com/photo-1555993539-1732a2c9e6df?q=80&w=1200" alt="温泉">
-        <div class="card-body">
-            <h3>心も体も癒す温泉の宿</h3>
-            <p>四季折々の景色とともに味わう天然温泉。心をほぐす癒やしの空間。</p>
-            <div class="read-btn">read<br>more</div>
-        </div>
-    </div>
-</div>
+<div id="notes" class="card-container"></div>
 
 <!-- Tabs placeholders -->
 <div id="favorites" class="card-container" style="display:none;">
@@ -103,11 +57,6 @@
 </div>
 <div id="likes" class="card-container" style="display:none;">
     <p style="text-align:center;color:gray;">いいねした投稿はまだありません。</p>
-</div>
-
-<!-- ===== Pagination ===== -->
-<div class="pagination">
-    <span></span><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>……</div>
 </div>
 
 <!-- ===== Logout ===== -->
@@ -277,8 +226,6 @@
 <script src="js/user/user-favorites.js"></script>
 <!-- Likes（いいね）機能 -->
 <script src="js/user/user-likes.js"></script>
-
-
 
 </body>
 </html>
