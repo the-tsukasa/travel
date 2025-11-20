@@ -369,14 +369,14 @@
             return;
         }
         container.innerHTML = notes.map(n => `
-        <div class="note-card">
+        <div class="note-card" onclick="viewNoteDetail(${n.id})" style="cursor: pointer;">
           <div class="note-title">${escapeHtml(n.title)}</div>
           <div class="note-author">by ${escapeHtml(n.username)}</div>
           ${n.imageUrl ? `<img src="${n.imageUrl}" alt="ノート画像" class="note-image" loading="lazy">` : ''}
           <div class="note-content">${escapeHtml(n.content)}</div>
           ${n.location ? `<div class="note-location">📍 ${escapeHtml(n.location)}</div>` : ''}
           <div class="note-stats">
-            <div class="note-actions">
+            <div class="note-actions" onclick="event.stopPropagation()">
               <button class="action-btn ${n.isLiked ? 'liked' : ''}" onclick="toggleLike(${n.id}, this)">❤️ ${n.likesCount || 0}</button>
               <button class="action-btn ${n.isFavorited ? 'favorited' : ''}" onclick="toggleFavorite(${n.id}, this)">⭐ ${n.favoritesCount || 0}</button>
             </div>
@@ -498,6 +498,11 @@
     }
 
     function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+    // ===== 查看笔记详情 =====
+    function viewNoteDetail(id) {
+        window.location.href = `notes-detail.html?id=${id}`;
+    }
 
     document.getElementById('searchForm').addEventListener('submit', e => {
         e.preventDefault();
