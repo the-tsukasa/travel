@@ -47,7 +47,10 @@ spring:
       on-profile: production
   
   datasource:
-    url: ${DATABASE_URL:jdbc:mariadb://localhost:3306/travel_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    # Railway 支持两种配置方式：
+    # 方式1: 直接使用 DATABASE_URL（推荐）
+    # 方式2: 使用分别的 DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD
+    url: ${DATABASE_URL:jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:travel_db}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driver-class-name: org.mariadb.jdbc.Driver
