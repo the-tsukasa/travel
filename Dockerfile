@@ -28,8 +28,8 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# 从构建阶段复制 JAR 文件
-COPY --from=build /app/target/travel-0.0.1-SNAPSHOT.jar app.jar
+# 从构建阶段复制 JAR 文件（使用通配符以支持不同版本）
+COPY --from=build /app/target/travel-*.jar app.jar
 
 # 暴露端口
 EXPOSE 8080
