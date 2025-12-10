@@ -31,9 +31,10 @@ WORKDIR /app
 # 从构建阶段复制 JAR 文件（使用通配符以支持不同版本）
 COPY --from=build /app/target/travel-*.jar app.jar
 
-# 暴露端口
+# 暴露端口（Railway 会自动设置 PORT 环境变量）
 EXPOSE 8080
 
 # 运行应用
+# Railway 会自动设置 PORT 环境变量，Spring Boot 会读取它
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
