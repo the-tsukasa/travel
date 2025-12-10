@@ -1,0 +1,11 @@
+# Docker 忽略文件
+target/
+.idea/
+*.iml
+.git/
+.gitignore
+.mvn/wrapper/maven-wrapper.jar
+uploads/
+*.md
+!README.md
+
