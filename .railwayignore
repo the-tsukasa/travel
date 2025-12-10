@@ -1,0 +1,9 @@
+# Railway 忽略文件
+target/
+.idea/
+*.iml
+.git/
+.gitignore
+README.md
+DEPLOYMENT_GUIDE.md
+

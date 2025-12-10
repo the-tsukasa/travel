@@ -1,7 +1,10 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  
   datasource:
     url: jdbc:mariadb://localhost:3306/travel_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
@@ -34,4 +37,33 @@ logging:
 
 # 文件上传配置
 file:
-  upload-dir: uploads
+  upload-dir: ${UPLOAD_DIR:uploads}
+
+---
+# 生产环境配置
+spring:
+  config:
+    activate:
+      on-profile: production
+  
+  datasource:
+    url: ${DATABASE_URL:jdbc:mariadb://localhost:3306/travel_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.mariadb.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false  # 生产环境关闭 SQL 日志
+    properties:
+      hibernate.format_sql: false
+
+logging:
+  level:
+    root: INFO
+    com.example.travel: INFO
+    org.springframework.security: WARN
+
+file:
+  upload-dir: ${UPLOAD_DIR:/tmp/uploads}  # 生产环境使用临时目录或云存储
