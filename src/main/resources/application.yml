@@ -61,6 +61,7 @@ spring:
     show-sql: false  # 生产环境关闭 SQL 日志
     properties:
       hibernate.format_sql: false
+      hibernate.dialect: org.hibernate.dialect.MariaDBDialect
 
 logging:
   level:
