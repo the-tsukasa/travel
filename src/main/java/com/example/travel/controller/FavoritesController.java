@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.Favorites;
 import com.example.travel.entity.User;
+import com.example.travel.exception.ResourceNotFoundException;
 import com.example.travel.repository.UserRepository;
 import com.example.travel.service.FavoritesService;
 
@@ -37,7 +38,7 @@ public class FavoritesController {
                                              Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         favoritesService.addToFavorites(notesId, user);
         return ResponseEntity.ok().build();
     }
@@ -48,7 +49,7 @@ public class FavoritesController {
                                                   Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         favoritesService.removeFromFavorites(notesId, user);
         return ResponseEntity.ok().build();
     }
@@ -61,7 +62,7 @@ public class FavoritesController {
             Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         Pageable pageable = PageRequest.of(page, size);
         Page<Favorites> favorites = favoritesService.getUserFavorites(user, pageable);
         return ResponseEntity.ok(favorites);
@@ -72,7 +73,7 @@ public class FavoritesController {
     public ResponseEntity<List<NotesDTO>> getMyFavoriteNotes(Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         List<NotesDTO> favoriteNotes = favoritesService.getUserFavoriteNotes(user);
         return ResponseEntity.ok(favoriteNotes);
     }
@@ -83,7 +84,7 @@ public class FavoritesController {
                                             Authentication authentication) {
         String username = authentication.getName();
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
         boolean isFavorited = favoritesService.isFavorited(notesId, user);
         return ResponseEntity.ok(isFavorited);
     }

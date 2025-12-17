@@ -34,3 +34,14 @@ build/
 
 ### Uploads ###
 uploads/
+
+### React / Node.js ###
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env.local
+frontend/.env.*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.DS_Store

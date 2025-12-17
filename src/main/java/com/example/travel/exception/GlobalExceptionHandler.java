@@ -51,7 +51,7 @@ public class GlobalExceptionHandler {
         });
         Map<String, Object> response = new HashMap<>();
         response.put("errorCode", "VALIDATION_ERROR");
-        response.put("message", "输入验证失败");
+        response.put("message", "入力検証に失敗しました");
         response.put("errors", errors);
         response.put("timestamp", LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
         log.error("Runtime exception occurred: {}", ex.getMessage(), ex);
         ErrorResponse error = new ErrorResponse(
             "INTERNAL_ERROR",
-            "服务器内部错误，请稍后重试",
+            "サーバー内部エラーが発生しました。しばらくしてから再試行してください",
             LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error occurred: {}", ex.getMessage(), ex);
         ErrorResponse error = new ErrorResponse(
             "INTERNAL_ERROR",
-            "服务器内部错误，请稍后重试",
+            "サーバー内部エラーが発生しました。しばらくしてから再試行してください",
             LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);

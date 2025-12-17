@@ -29,12 +29,12 @@ public class UserServiceImpl implements UserService {
     public void register(RegisterRequest request) {
         // 检查用户名是否存在
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new BusinessException("USERNAME_EXISTS", "用户名已存在");
+            throw new BusinessException("USERNAME_EXISTS", "このユーザー名は既に使用されています");
         }
 
         // 检查邮箱是否存在
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BusinessException("EMAIL_EXISTS", "邮箱已被注册");
+            throw new BusinessException("EMAIL_EXISTS", "このメールアドレスは既に登録されています");
         }
 
         // 创建用户
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
 
         // 校验密码
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BusinessException("INVALID_PASSWORD", "密码错误");
+            throw new BusinessException("INVALID_PASSWORD", "パスワードが正しくありません");
         }
 
         // 生成并返回 JWT Token
