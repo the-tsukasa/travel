@@ -26,6 +26,7 @@ spring:
       max-request-size: 100MB  # 整个请求最大100MB（支持9张图片，每张10MB）
 
 jwt:
+  # ⚠️ 生产环境必须设置 JWT_SECRET 环境变量，不能使用默认值
   secret: ${JWT_SECRET:pV4E@9f!jL#8rXu2Yz*QmN3hS0w^Rk7VbG&cJ5zMdT$PqH6Lx}
   expiration: ${JWT_EXPIRATION:604800000}  # 7天，单位：毫秒
 
@@ -61,7 +62,9 @@ spring:
   
   jpa:
     hibernate:
-      ddl-auto: update
+      # ⚠️ 生产环境必须使用 validate，不允许自动修改数据库结构
+      # 数据库迁移应使用 Flyway 或 Liquibase
+      ddl-auto: validate
     show-sql: false  # 生产环境关闭 SQL 日志
     properties:
       hibernate.format_sql: false

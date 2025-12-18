@@ -2,6 +2,7 @@ package com.example.travel.controller;
 
 import com.example.travel.repository.UserRepository;
 import com.example.travel.entity.User;
+import com.example.travel.util.FileValidationUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,11 +46,10 @@ public class FileUploadController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 验证文件类型
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
+            // 验证文件类型（包含扩展名、Content-Type 和 Magic Number 验证）
+            if (!FileValidationUtil.isValidImageFile(file)) {
                 response.put("success", false);
-                response.put("message", "画像ファイルのみアップロードできます");
+                response.put("message", "画像ファイルのみアップロードできます。有効な形式: JPG, PNG, GIF, WebP");
                 return ResponseEntity.badRequest().body(response);
             }
 
@@ -73,11 +73,12 @@ public class FileUploadController {
                 Files.createDirectories(uploadPath);
             }
 
-            // 生成唯一文件名
+            // 生成唯一文件名（使用验证后的扩展名）
             String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String extension = FileValidationUtil.getFileExtension(originalFilename != null ? originalFilename : "jpg");
+            // 如果扩展名为空，使用默认的 .jpg
+            if (extension.isEmpty()) {
+                extension = ".jpg";
             }
             String filename = "avatar_" + user.getId() + "_" + UUID.randomUUID().toString() + extension;
 
@@ -137,11 +138,10 @@ public class FileUploadController {
                 return ResponseEntity.badRequest().body(response);
             }
 
-            // 验证文件类型
-            String contentType = file.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
+            // 验证文件类型（包含扩展名、Content-Type 和 Magic Number 验证）
+            if (!FileValidationUtil.isValidImageFile(file)) {
                 response.put("success", false);
-                response.put("message", "画像ファイルのみアップロードできます");
+                response.put("message", "画像ファイルのみアップロードできます。有効な形式: JPG, PNG, GIF, WebP");
                 return ResponseEntity.badRequest().body(response);
             }
 
@@ -165,11 +165,11 @@ public class FileUploadController {
                 Files.createDirectories(uploadPath);
             }
 
-            // 生成唯一文件名
+            // 生成唯一文件名（使用验证后的扩展名）
             String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            String extension = FileValidationUtil.getFileExtension(originalFilename != null ? originalFilename : "jpg");
+            if (extension.isEmpty()) {
+                extension = ".jpg";
             }
             String filename = "note_" + user.getId() + "_" + UUID.randomUUID().toString() + extension;
 
@@ -246,10 +246,9 @@ public class FileUploadController {
                         continue;
                     }
 
-                    // 验证文件类型
-                    String contentType = file.getContentType();
-                    if (contentType == null || !contentType.startsWith("image/")) {
-                        errors.add("ファイル " + (i + 1) + " は画像ファイルではありません");
+                    // 验证文件类型（包含扩展名、Content-Type 和 Magic Number 验证）
+                    if (!FileValidationUtil.isValidImageFile(file)) {
+                        errors.add("ファイル " + (i + 1) + " は有効な画像ファイルではありません（JPG, PNG, GIF, WebP のみ）");
                         continue;
                     }
 
@@ -259,11 +258,11 @@ public class FileUploadController {
                         continue;
                     }
 
-                    // 生成唯一文件名
+                    // 生成唯一文件名（使用验证后的扩展名）
                     String originalFilename = file.getOriginalFilename();
-                    String extension = "";
-                    if (originalFilename != null && originalFilename.contains(".")) {
-                        extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                    String extension = FileValidationUtil.getFileExtension(originalFilename != null ? originalFilename : "jpg");
+                    if (extension.isEmpty()) {
+                        extension = ".jpg";
                     }
                     String filename = "note_" + user.getId() + "_" + UUID.randomUUID().toString() + extension;
 

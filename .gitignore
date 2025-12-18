@@ -35,6 +35,9 @@ build/
 ### Uploads ###
 uploads/
 
+### Qodana ###
+qodana.sarif.json
+
 ### React / Node.js ###
 frontend/node_modules/
 frontend/dist/
