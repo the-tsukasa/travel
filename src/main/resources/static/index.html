@@ -518,16 +518,13 @@
 
             if (!res.ok) throw new Error();
             const user = await res.json();
-            const name = user.username || localStorage.getItem("username") || "ユーザー";
-
-            navCta.innerHTML = `
-      <div class="userbar">
-        <span class="userbar-username">👤 ${name}</span>
-        <span class="divider"></span>
-        <a href="/user.html">マイページ</a>
-        <span class="divider"></span>
-        <button class="logout-btn" onclick="logout()">ログアウト</button>
-      </div>`;
+            // nav.js会处理，这里不需要重复处理
+            // 如果nav.js未加载，则等待
+            if (typeof window.createUserDropdownHTML === 'function') {
+                const dropdownData = window.createUserDropdownHTML(user);
+                navCta.innerHTML = dropdownData.html;
+                window.setupDropdownOutsideClick(dropdownData.wrapperId);
+            }
         } catch {
             navCta.innerHTML = `
       <a href="/login.html" class="btn-outline">ログイン</a>

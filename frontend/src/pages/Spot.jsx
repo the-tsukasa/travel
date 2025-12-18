@@ -1,281 +1,273 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
-import { TokenUtil } from '../utils/auth'
-import Footer from '../components/Footer'
+import SpotCard from '../components/common/SpotCard'
+import Footer from '../components/layout/Footer'
 
 const Spot = () => {
   const [spots, setSpots] = useState([])
-  const [filteredSpots, setFilteredSpots] = useState([])
-  const [searchKeyword, setSearchKeyword] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [searchKeyword, setSearchKeyword] = useState('')
+  const [sortBy, setSortBy] = useState('popular') // popular, name, latest
+  const searchInputRef = useRef(null)
+  const navigate = useNavigate()
 
+  // 从 URL 参数获取搜索关键词
   useEffect(() => {
-    loadSpots()
+    const params = new URLSearchParams(window.location.search)
+    const query = params.get('q')
+    if (query) {
+      setSearchKeyword(query)
+    }
   }, [])
 
+  // 初始加载
   useEffect(() => {
-    filterSpots()
-  }, [searchKeyword, spots])
+    loadSpots()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const loadSpots = async () => {
+  // 键盘快捷键：/ 或 f 聚焦搜索
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if ((e.key === '/' || e.key === 'f') && !e.ctrlKey && !e.metaKey) {
+        const target = e.target
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+          e.preventDefault()
+          searchInputRef.current?.focus()
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [])
+
+  const loadSpots = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    
     try {
-      setLoading(true)
       const response = await api.get('/spots')
-      setSpots(response.data || [])
-      setFilteredSpots(response.data || [])
-    } catch (error) {
-      console.error('スポット読み込みエラー:', error)
+      const spotsData = response.data || []
+      
+      // 排序
+      let sortedSpots = [...spotsData]
+      if (sortBy === 'popular') {
+        sortedSpots.sort((a, b) => (b.likes || 0) + (b.favorites || 0) - (a.likes || 0) - (a.favorites || 0))
+      } else if (sortBy === 'name') {
+        sortedSpots.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+      } else if (sortBy === 'latest') {
+        sortedSpots.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0)
+          const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0)
+          return dateB - dateA
+        })
+      }
+      
+      setSpots(sortedSpots)
+    } catch (err) {
+      console.error('スポット読み込みエラー:', err)
+      setError('スポットの読み込みに失敗しました。時間をおいて再試行してください。')
+      setSpots([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [sortBy])
 
-  const filterSpots = () => {
-    if (!searchKeyword.trim()) {
-      setFilteredSpots(spots)
-      return
+  // 当排序改变时重新加载
+  useEffect(() => {
+    if (!loading) {
+      loadSpots()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortBy])
 
+  // 防抖搜索
+  const debouncedSearch = useRef(null)
+  
+  const handleSearchChange = useCallback((value) => {
+    setSearchKeyword(value)
+    
+    if (debouncedSearch.current) {
+      clearTimeout(debouncedSearch.current)
+      debouncedSearch.current = null
+    }
+  }, [])
+
+  // 过滤景点
+  const filteredSpots = spots.filter(spot => {
+    if (!searchKeyword.trim()) return true
+    
     const keyword = searchKeyword.toLowerCase()
-    const filtered = spots.filter(spot =>
+    return (
       spot.name?.toLowerCase().includes(keyword) ||
       spot.description?.toLowerCase().includes(keyword) ||
       spot.location?.toLowerCase().includes(keyword)
     )
-    setFilteredSpots(filtered)
+  })
+
+  const handleSortChange = (newSort) => {
+    setSortBy(newSort)
   }
 
-  const handleLike = async (id) => {
-    const token = TokenUtil.getToken()
-    if (!token) {
-      if (confirm('ログインが必要です。ログインページに移動しますか？')) {
-        window.location.href = '/login'
-      }
-      return
-    }
-
-    try {
-      await api.post(`/spots/${id}/like`)
-      await loadSpots()
-    } catch (error) {
-      console.error('いいねエラー:', error)
-      if (error.response?.status === 401) {
-        if (confirm('ログインが必要です。ログインページに移動しますか？')) {
-          window.location.href = '/login'
-        }
-      }
-    }
-  }
-
-  const handleFavorite = async (id) => {
-    const token = TokenUtil.getToken()
-    if (!token) {
-      if (confirm('ログインが必要です。ログインページに移動しますか？')) {
-        window.location.href = '/login'
-      }
-      return
-    }
-
-    try {
-      await api.post(`/spots/${id}/favorite`)
-      await loadSpots()
-    } catch (error) {
-      console.error('お気に入りエラー:', error)
-      if (error.response?.status === 401) {
-        if (confirm('ログインが必要です。ログインページに移動しますか？')) {
-          window.location.href = '/login'
-        }
-      }
-    }
-  }
-
-  const formatImageUrl = (url) => {
-    if (!url) return 'https://via.placeholder.com/400x200?text=No+Image'
-    if (url.startsWith('http')) return url
-    if (url.startsWith('/')) return `http://localhost:8080${url}`
-    return `http://localhost:8080/uploads/${url}`
+  const handleClearSearch = () => {
+    setSearchKeyword('')
+    searchInputRef.current?.focus()
   }
 
   return (
     <>
-      <div style={{
-        background: 'var(--bg)',
-        minHeight: 'calc(100vh - 80px)',
-        paddingTop: '100px'
-      }}>
-        <header style={{
-          textAlign: 'center',
-          marginBottom: '40px',
-          padding: '0 20px'
-        }}>
-          <h1 style={{
-            fontSize: 'clamp(26px, 4vw, 42px)',
-            fontWeight: 900,
-            marginBottom: '10px'
-          }}>観光スポット</h1>
-          <p style={{
-            color: 'var(--muted)',
-            fontSize: '16px',
-            marginBottom: '24px'
-          }}>
-            全国の人気観光地をチェックして、行きたい場所を見つけよう
-          </p>
-        </header>
+      <div className="spot-page">
+        {/* Header */}
+        <div className="spot-header-bar">
+          <h1 className="spot-page-title">
+            <span className="spot-title-icon">📍</span>
+            観光スポット
+          </h1>
+          
+          <div className="spot-header-controls">
+            {/* Search */}
+            <div className="spot-search-wrapper">
+              <svg className="spot-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    handleClearSearch()
+                    searchInputRef.current?.blur()
+                  }
+                }}
+                placeholder="スポット名や場所で検索... ( / でフォーカス)"
+                className="spot-search-input"
+              />
+              {searchKeyword && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="spot-search-clear"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              )}
+            </div>
 
-        {/* 搜索框 */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: '10px',
-          background: '#fff',
-          borderRadius: '16px',
-          boxShadow: 'var(--shadow)',
-          padding: '14px 16px',
-          maxWidth: '640px',
-          margin: '0 auto 40px',
-        }}>
-          <input
-            type="text"
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            placeholder="スポット名や場所で検索..."
-            style={{
-              padding: '12px 14px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '12px',
-              minWidth: '240px',
-              fontSize: '15px',
-              fontFamily: 'inherit',
-              flex: 1
-            }}
-          />
+            {/* Sort */}
+            <div className="spot-sort">
+              <button
+                className={`spot-sort-btn ${sortBy === 'popular' ? 'active' : ''}`}
+                onClick={() => handleSortChange('popular')}
+                title="人気順"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span>人気</span>
+              </button>
+              <button
+                className={`spot-sort-btn ${sortBy === 'name' ? 'active' : ''}`}
+                onClick={() => handleSortChange('name')}
+                title="名前順"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                <span>名前</span>
+              </button>
+              <button
+                className={`spot-sort-btn ${sortBy === 'latest' ? 'active' : ''}`}
+                onClick={() => handleSortChange('latest')}
+                title="最新順"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                  <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+                <span>最新</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* 景点列表 */}
+        {/* Content */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '50px', color: 'var(--muted)' }}>
-            データを読み込み中...
-          </div>
-        ) : filteredSpots.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '50px', color: 'var(--muted)' }}>
-            {searchKeyword ? '検索結果が見つかりませんでした' : 'スポットがありません'}
-          </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '24px',
-            maxWidth: '1200px',
-            margin: '0 auto 80px',
-            padding: '0 20px'
-          }}>
-            {filteredSpots.map(spot => (
-              <div
-                key={spot.id}
-                style={{
-                  background: 'var(--card)',
-                  borderRadius: 'var(--radius)',
-                  overflow: 'hidden',
-                  boxShadow: 'var(--shadow)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)'
-                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.15)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = 'var(--shadow)'
-                }}
-              >
-                <img
-                  src={formatImageUrl(spot.imageUrl)}
-                  alt={spot.name}
-                  style={{
-                    width: '100%',
-                    height: '200px',
-                    objectFit: 'cover'
-                  }}
-                />
-                <div style={{
-                  padding: '16px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  flex: 1
-                }}>
-                  <h3 style={{
-                    fontSize: '20px',
-                    marginBottom: '8px',
-                    fontWeight: 700
-                  }}>{spot.name}</h3>
-                  <p style={{
-                    fontSize: '14px',
-                    color: 'var(--muted)',
-                    margin: '4px 0',
-                    flex: 1
-                  }}>{spot.description}</p>
-                  {spot.location && (
-                    <p style={{
-                      fontSize: '14px',
-                      color: 'var(--muted)',
-                      margin: '4px 0'
-                    }}>📍 {spot.location}</p>
-                  )}
-                  <div style={{
-                    marginTop: '8px',
-                    fontSize: '14px',
-                    color: 'var(--muted)',
-                    marginBottom: '10px'
-                  }}>
-                    ❤️ {spot.likes || 0}　⭐ {spot.favorites || 0}
-                  </div>
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <button
-                      onClick={() => handleLike(spot.id)}
-                      style={{
-                        flex: 1,
-                        border: 'none',
-                        borderRadius: '8px',
-                        padding: '8px 14px',
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        background: '#ff6b6b',
-                        color: '#fff',
-                        transition: 'background 0.25s',
-                        fontSize: '14px'
-                      }}
-                      onMouseEnter={(e) => e.target.style.background = '#ff5252'}
-                      onMouseLeave={(e) => e.target.style.background = '#ff6b6b'}
-                    >
-                      ❤️ いいね
-                    </button>
-                    <button
-                      onClick={() => handleFavorite(spot.id)}
-                      style={{
-                        flex: 1,
-                        border: 'none',
-                        borderRadius: '8px',
-                        padding: '8px 14px',
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        background: '#ffd93d',
-                        color: '#fff',
-                        transition: 'background 0.25s',
-                        fontSize: '14px'
-                      }}
-                      onMouseEnter={(e) => e.target.style.background = '#ffd700'}
-                      onMouseLeave={(e) => e.target.style.background = '#ffd93d'}
-                    >
-                      ⭐ お気に入り
-                    </button>
+          <div className="spot-loading">
+            <div className="spot-skeleton-grid">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="spot-skeleton-card">
+                  <div className="spot-skeleton-image"></div>
+                  <div className="spot-skeleton-content">
+                    <div className="spot-skeleton-title"></div>
+                    <div className="spot-skeleton-text"></div>
+                    <div className="spot-skeleton-text short"></div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+        ) : error ? (
+          <div className="spot-error">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <h3>読み込みエラー</h3>
+            <p>{error}</p>
+            <button className="btn btn-primary" onClick={loadSpots}>
+              再試行
+            </button>
+          </div>
+        ) : filteredSpots.length === 0 ? (
+          <div className="spot-empty">
+            <div className="spot-empty-icon">📍</div>
+            <h3>スポットが見つかりません</h3>
+            <p>
+              {searchKeyword 
+                ? `「${searchKeyword}」の検索結果が見つかりませんでした。`
+                : 'まだスポットが登録されていません。'
+              }
+            </p>
+            {searchKeyword && (
+              <button className="btn btn-primary" onClick={handleClearSearch}>
+                検索をクリア
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="spot-results-info">
+              <span>
+                {filteredSpots.length}件のスポットが見つかりました
+                {searchKeyword && `（「${searchKeyword}」の検索結果）`}
+              </span>
+            </div>
+
+            <div className="spot-grid">
+              {filteredSpots.map((spot, index) => (
+                <div 
+                  key={spot.id} 
+                  className="spot-grid-item"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <SpotCard 
+                    spot={spot} 
+                    onUpdate={loadSpots}
+                  />
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
       <Footer />

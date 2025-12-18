@@ -1,0 +1,372 @@
+/* ===== Spot Page ===== */
+.spot-page {
+  padding-top: 100px;
+  min-height: calc(100vh - 80px);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Header Bar */
+.spot-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.spot-page-title {
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.spot-title-icon {
+  font-size: 1.2em;
+  filter: drop-shadow(0 2px 4px rgba(255, 77, 0, 0.3));
+}
+
+.spot-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Search */
+.spot-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+  max-width: 400px;
+  flex: 1;
+}
+
+.spot-search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.spot-search-input {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.spot-search-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.spot-search-input::placeholder {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.spot-search-clear {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.spot-search-clear:hover {
+  background: #f1f5f9;
+  color: var(--text);
+}
+
+/* Sort */
+.spot-sort {
+  display: flex;
+  gap: 6px;
+  background: #f8fafc;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.spot-sort-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.spot-sort-btn:hover {
+  background: #fff;
+  color: var(--text);
+}
+
+.spot-sort-btn.active {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 77, 0, 0.2);
+}
+
+.spot-sort-btn:active {
+  transform: scale(0.95);
+}
+
+.spot-sort-btn svg {
+  flex-shrink: 0;
+}
+
+/* Results Info */
+.spot-results-info {
+  margin-bottom: 20px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.spot-results-info::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--brand);
+  display: inline-block;
+}
+
+/* Grid */
+.spot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.spot-grid-item {
+  animation: fadeInUp 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .spot-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* Loading State */
+.spot-loading {
+  margin-bottom: 40px;
+}
+
+.spot-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .spot-skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.spot-skeleton-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.spot-skeleton-image {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.spot-skeleton-content {
+  padding: 20px;
+}
+
+.spot-skeleton-title {
+  width: 70%;
+  height: 24px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+.spot-skeleton-text {
+  width: 100%;
+  height: 16px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+.spot-skeleton-text.short {
+  width: 60%;
+}
+
+/* Error State */
+.spot-error {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(254, 215, 215, 0.1);
+  border-radius: 20px;
+  border: 2px dashed #fc8181;
+}
+
+.spot-error svg {
+  color: #fc8181;
+  margin-bottom: 16px;
+}
+
+.spot-error h3 {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #c53030;
+}
+
+.spot-error p {
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* Empty State */
+.spot-empty {
+  text-align: center;
+  padding: 80px 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+}
+
+.spot-empty-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+  opacity: 0.6;
+}
+
+.spot-empty h3 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.spot-empty p {
+  color: var(--muted);
+  font-size: 16px;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .spot-page {
+    padding-top: 80px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .spot-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 0;
+    gap: 12px;
+  }
+
+  .spot-page-title {
+    font-size: 22px;
+    justify-content: flex-start;
+  }
+
+  .spot-header-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .spot-search-wrapper {
+    max-width: 100%;
+    min-width: unset;
+  }
+
+  .spot-sort {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .spot-sort-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+

@@ -419,7 +419,16 @@
             }
             
             const user = await res.json();
-            const name = user.username || "ユーザー";
+            // 优先显示真实姓名（firstName + lastName）
+            let name = "ユーザー";
+            if (user.firstName || user.lastName) {
+                const nameParts = [];
+                if (user.firstName) nameParts.push(user.firstName);
+                if (user.lastName) nameParts.push(user.lastName);
+                name = nameParts.join(" ");
+            } else if (user.username) {
+                name = user.username;
+            }
             navCta.innerHTML = `
                 <div class="userbar">
                     <span class="userbar-username">👤 ${name}</span>

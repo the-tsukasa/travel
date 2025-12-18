@@ -4,6 +4,7 @@ import com.example.travel.dto.LoginRequest;
 import com.example.travel.dto.LoginResponse;
 import com.example.travel.dto.RegisterRequest;
 import com.example.travel.entity.User;
+import com.example.travel.exception.ResourceNotFoundException;
 import com.example.travel.repository.UserRepository;
 import com.example.travel.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -40,14 +41,15 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         String token = userService.login(request);
         
-        // 获取用户信息
+        // 获取用户信息（登录成功后用户肯定存在）
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", request.getUsername()));
         
         LoginResponse response = new LoginResponse();
         response.setToken(token);
         response.setUsername(user.getUsername());
-        response.setRole(user.getRole());
+        // 处理 role 为 null 的情况（兼容旧数据）
+        response.setRole(user.getRole() != null ? user.getRole() : "USER");
         response.setMessage("ログイン成功");
         
         return ResponseEntity.ok(response);

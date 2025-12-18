@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { TokenUtil } from '../utils/auth'
-import Footer from '../components/Footer'
+import Footer from '../components/layout/Footer'
 
 const ProfileEdit = () => {
   const [userInfo, setUserInfo] = useState({

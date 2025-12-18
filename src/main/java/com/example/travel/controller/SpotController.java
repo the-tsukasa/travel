@@ -2,6 +2,7 @@ package com.example.travel.controller;
 
 import com.example.travel.entity.Spot;
 import com.example.travel.service.SpotService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -18,6 +19,15 @@ public class SpotController {
     @GetMapping
     public List<Spot> getAll() {
         return service.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Spot> getSpotById(@PathVariable Integer id) {
+        Spot spot = service.findById(id);
+        if (spot == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(spot);
     }
 
     @PostMapping("/{id}/like")

@@ -60,8 +60,11 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("INVALID_PASSWORD", "パスワードが正しくありません");
         }
 
+        // 处理 role 为 null 的情况（兼容旧数据）
+        String role = user.getRole() != null ? user.getRole() : "USER";
+        
         // 生成并返回 JWT Token
-        return jwtUtil.generateToken(user.getUsername(), user.getRole());
+        return jwtUtil.generateToken(user.getUsername(), role);
     }
 
     @Override

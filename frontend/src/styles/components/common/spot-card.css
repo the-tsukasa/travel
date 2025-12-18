@@ -1,0 +1,200 @@
+/* ===== Spot Card ===== */
+.spot-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.spot-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.spot-card:hover .spot-card-image {
+  transform: scale(1.05);
+}
+
+/* 图片区域 */
+.spot-card-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.spot-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.spot-card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  gap: 12px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.spot-card-image-placeholder svg {
+  opacity: 0.5;
+}
+
+.spot-card-image-placeholder span {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 内容区域 */
+.spot-card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 12px;
+}
+
+.spot-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 3.5em;
+}
+
+.spot-card-description {
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+/* 位置信息 */
+.spot-card-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #667eea;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 12px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.spot-card-location svg {
+  flex-shrink: 0;
+}
+
+.spot-card-location span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 操作按钮 */
+.spot-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.spot-card-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  flex: 1;
+  justify-content: center;
+}
+
+.spot-card-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.spot-card-action-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.spot-card-action-btn:hover svg {
+  transform: scale(1.1);
+}
+
+.spot-card-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.spot-card-action-btn:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.spot-card-action-btn span {
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .spot-card-image-wrapper {
+    height: 200px;
+  }
+
+  .spot-card-content {
+    padding: 16px;
+  }
+
+  .spot-card-title {
+    font-size: 1.1rem;
+  }
+
+  .spot-card-action-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .spot-card-action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+

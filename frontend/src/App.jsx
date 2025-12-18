@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import NavBar from './components/NavBar'
+import NavBar from './components/layout/NavBar'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -11,6 +11,7 @@ import NotesAdmin from './pages/NotesAdmin'
 import User from './pages/User'
 import ProfileEdit from './pages/ProfileEdit'
 import Spot from './pages/Spot'
+import SpotDetail from './pages/SpotDetail'
 import Admin from './pages/Admin'
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/user.html" element={<User />} />
           <Route path="/profile-edit.html" element={<ProfileEdit />} />
           <Route path="/spot.html" element={<Spot />} />
+          <Route path="/spot-detail.html" element={<SpotDetail />} />
           <Route path="/admin.html" element={<Admin />} />
         </Routes>
       </div>

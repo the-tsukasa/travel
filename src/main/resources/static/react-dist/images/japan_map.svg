@@ -1,0 +1,294 @@
+<svg width="1536" height="1024" viewBox="0 0 1536 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 海洋渐变 -->
+    <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6bb3f5;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4a90e2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2c5aa0;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- 陆地渐变 -->
+    <linearGradient id="landGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f5f0e8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ebe4d6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ddd4c0;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- 山脉纹理渐变 -->
+    <linearGradient id="mountainGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#c9b99b;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#8b7355;stop-opacity:0.15" />
+    </linearGradient>
+    
+    <!-- 阴影滤镜 -->
+    <filter id="landShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+      <feOffset dx="4" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.25"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- 城市标记渐变 -->
+    <radialGradient id="cityGradient" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#ff7043;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff4d00;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- 海洋背景 -->
+  <rect width="1536" height="1024" fill="url(#oceanGradient)"/>
+  
+  <!-- 海浪纹理 -->
+  <g opacity="0.15">
+    <path d="M 0 920 Q 150 940 300 920 T 600 920 T 900 920 T 1200 920 T 1536 920" 
+          fill="none" stroke="#fff" stroke-width="4"/>
+    <path d="M 0 960 Q 150 980 300 960 T 600 960 T 900 960 T 1200 960 T 1536 960" 
+          fill="none" stroke="#fff" stroke-width="3" opacity="0.7"/>
+    <path d="M 0 990 Q 150 1010 300 990 T 600 990 T 900 990 T 1200 990 T 1536 990" 
+          fill="none" stroke="#fff" stroke-width="2" opacity="0.5"/>
+  </g>
+  
+  <!-- 北海道 (Hokkaido) - 基于真实地理轮廓 -->
+  <path d="M 200 80
+           L 280 85
+           L 360 95
+           L 440 110
+           L 520 140
+           L 580 180
+           L 620 230
+           L 640 280
+           L 635 330
+           L 620 370
+           L 590 400
+           L 550 420
+           L 500 435
+           L 440 440
+           L 380 430
+           L 330 410
+           L 290 380
+           L 260 340
+           L 240 290
+           L 230 240
+           L 220 190
+           L 210 140
+           L 200 100
+           Z" 
+        fill="url(#landGradient)" 
+        stroke="#9b8667" 
+        stroke-width="2.5" 
+        filter="url(#landShadow)"/>
+  
+  <!-- 本州 (Honshu) - 主岛，基于真实地理轮廓的蜿蜒形状 -->
+  <path d="M 500 435
+           L 550 440
+           L 600 450
+           L 650 465
+           L 700 485
+           L 750 510
+           L 800 540
+           L 850 570
+           L 890 600
+           L 920 630
+           L 940 665
+           L 955 700
+           L 965 735
+           L 970 770
+           L 968 805
+           L 960 835
+           L 945 860
+           L 925 880
+           L 900 895
+           L 870 905
+           L 835 910
+           L 800 908
+           L 765 900
+           L 735 885
+           L 710 865
+           L 690 840
+           L 675 815
+           L 665 790
+           L 660 765
+           L 655 740
+           L 650 715
+           L 645 690
+           L 640 665
+           L 630 640
+           L 615 615
+           L 595 590
+           L 570 570
+           L 545 555
+           L 520 545
+           L 495 540
+           L 470 540
+           L 450 545
+           L 435 555
+           L 425 570
+           L 420 590
+           L 422 610
+           L 430 625
+           L 445 635
+           L 465 640
+           L 485 640
+           L 500 635
+           Z" 
+        fill="url(#landGradient)" 
+        stroke="#9b8667" 
+        stroke-width="2.5" 
+        filter="url(#landShadow)"/>
+  
+  <!-- 本州中部延伸部分 -->
+  <path d="M 485 640
+           L 500 650
+           L 510 665
+           L 515 685
+           L 512 705
+           L 505 720
+           L 495 730
+           L 480 735
+           L 465 730
+           L 453 720
+           L 445 705
+           L 442 685
+           L 448 665
+           L 460 650
+           L 475 642
+           Z" 
+        fill="url(#landGradient)" 
+        stroke="#9b8667" 
+        stroke-width="2" 
+        filter="url(#landShadow)"/>
+  
+  <!-- 四国 (Shikoku) -->
+  <path d="M 710 830
+           L 750 840
+           L 785 855
+           L 810 875
+           L 825 900
+           L 828 925
+           L 820 945
+           L 805 960
+           L 783 970
+           L 758 975
+           L 733 973
+           L 710 965
+           L 692 950
+           L 680 930
+           L 675 910
+           L 678 890
+           L 690 870
+           Z" 
+        fill="url(#landGradient)" 
+        stroke="#9b8667" 
+        stroke-width="2" 
+        filter="url(#landShadow)"/>
+  
+  <!-- 九州 (Kyushu) -->
+  <path d="M 870 870
+           L 920 880
+           L 965 895
+           L 1000 915
+           L 1025 940
+           L 1035 970
+           L 1030 995
+           L 1015 1015
+           L 990 1024
+           L 960 1024
+           L 935 1018
+           L 915 1005
+           L 900 985
+           L 890 960
+           L 885 935
+           L 888 910
+           Z" 
+        fill="url(#landGradient)" 
+        stroke="#9b8667" 
+        stroke-width="2" 
+        filter="url(#landShadow)"/>
+  
+  <!-- 山脉纹理（使用路径模拟山脉轮廓） -->
+  <g opacity="0.2">
+    <!-- 本州山脉 -->
+    <path d="M 650 550 L 700 530 L 750 545 L 800 535 L 850 550" 
+          fill="none" stroke="#6b5b4a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 680 600 L 730 580 L 780 595 L 830 585" 
+          fill="none" stroke="#6b5b4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 700 650 L 750 630 L 800 645" 
+          fill="none" stroke="#6b5b4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- 北海道山脉 -->
+    <path d="M 400 250 L 450 230 L 500 245" 
+          fill="none" stroke="#6b5b4a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 380 300 L 430 280 L 480 295" 
+          fill="none" stroke="#6b5b4a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- 主要城市标记 -->
+  <!-- 东京 (Tokyo) -->
+  <g>
+    <circle cx="960" cy="660" r="12" fill="url(#cityGradient)" stroke="#fff" stroke-width="3"/>
+    <circle cx="960" cy="660" r="7" fill="#fff" opacity="0.9"/>
+    <text x="960" y="685" text-anchor="middle" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="19" font-weight="bold" fill="#1e293b" stroke="#fff" stroke-width="0.5">東京</text>
+  </g>
+  
+  <!-- 横滨 (Yokohama) -->
+  <g>
+    <circle cx="975" cy="675" r="8" fill="url(#cityGradient)" stroke="#fff" stroke-width="2.5"/>
+    <text x="995" y="680" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="16" fill="#1e293b" stroke="#fff" stroke-width="0.3">横浜</text>
+  </g>
+  
+  <!-- 大阪 (Osaka) -->
+  <g>
+    <circle cx="820" cy="865" r="10" fill="url(#cityGradient)" stroke="#fff" stroke-width="3"/>
+    <text x="820" y="890" text-anchor="middle" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="18" font-weight="bold" fill="#1e293b" stroke="#fff" stroke-width="0.5">大阪</text>
+  </g>
+  
+  <!-- 名古屋 (Nagoya) -->
+  <g>
+    <circle cx="750" cy="670" r="8" fill="url(#cityGradient)" stroke="#fff" stroke-width="2.5"/>
+    <text x="770" y="675" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="16" fill="#1e293b" stroke="#fff" stroke-width="0.3">名古屋</text>
+  </g>
+  
+  <!-- 福冈 (Fukuoka) -->
+  <g>
+    <circle cx="960" cy="960" r="8" fill="url(#cityGradient)" stroke="#fff" stroke-width="2.5"/>
+    <text x="980" y="965" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="16" fill="#1e293b" stroke="#fff" stroke-width="0.3">福岡</text>
+  </g>
+  
+  <!-- 札幌 (Sapporo) -->
+  <g>
+    <circle cx="480" cy="280" r="8" fill="url(#cityGradient)" stroke="#fff" stroke-width="2.5"/>
+    <text x="500" y="285" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="16" fill="#1e293b" stroke="#fff" stroke-width="0.3">札幌</text>
+  </g>
+  
+  <!-- 仙台 (Sendai) -->
+  <g>
+    <circle cx="740" cy="550" r="7" fill="url(#cityGradient)" stroke="#fff" stroke-width="2"/>
+    <text x="760" y="555" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="15" fill="#1e293b" stroke="#fff" stroke-width="0.3">仙台</text>
+  </g>
+  
+  <!-- 京都 (Kyoto) -->
+  <g>
+    <circle cx="800" cy="820" r="7" fill="url(#cityGradient)" stroke="#fff" stroke-width="2"/>
+    <text x="820" y="825" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="15" fill="#1e293b" stroke="#fff" stroke-width="0.3">京都</text>
+  </g>
+  
+  <!-- 神户 (Kobe) -->
+  <g>
+    <circle cx="810" cy="855" r="6" fill="url(#cityGradient)" stroke="#fff" stroke-width="2"/>
+    <text x="830" y="860" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="14" fill="#1e293b" stroke="#fff" stroke-width="0.3">神戸</text>
+  </g>
+  
+  <!-- 广岛 (Hiroshima) -->
+  <g>
+    <circle cx="850" cy="880" r="7" fill="url(#cityGradient)" stroke="#fff" stroke-width="2"/>
+    <text x="870" y="885" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="15" fill="#1e293b" stroke="#fff" stroke-width="0.3">広島</text>
+  </g>
+  
+  <!-- 标题 -->
+  <text x="768" y="50" text-anchor="middle" font-family="'Hiragino Sans', 'Segoe UI', 'Yu Gothic', sans-serif" font-size="42" font-weight="bold" fill="#fff" opacity="0.95" stroke="#2c5aa0" stroke-width="1">日本地図</text>
+</svg>

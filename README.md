@@ -3,5 +3,5 @@
 
 本プロジェクトは、バックエンドとフロントエンドのテスト用です。  
 This project is for testing and practicing backend & frontend development.
-
+起動方法：npm run dev
 ---
