@@ -8,9 +8,15 @@ services:
       echo "📦 安装前端依赖..."
       cd frontend && npm install && echo "✅ 前端依赖安装完成"
       echo "🏗️ 构建前端..."
-      npm run build && echo "✅ 前端构建完成" && cd ..
+      npm run build && echo "✅ 前端构建完成"
+      echo "📋 验证 React 构建文件..."
+      ls -la ../src/main/resources/static/react-dist/ || echo "⚠️ React 构建目录不存在"
+      ls -la ../src/main/resources/static/react-dist/index.html || echo "⚠️ React index.html 不存在"
+      cd ..
       echo "☕ 构建后端..."
       ./mvnw clean package -DskipTests
+      echo "📦 验证 JAR 包中的 React 文件..."
+      jar tf target/travel-0.0.1-SNAPSHOT.jar | grep react-dist | head -5 || echo "⚠️ JAR 包中未找到 React 文件"
       echo "✅ 构建完成！"
     startCommand: java -jar target/travel-0.0.1-SNAPSHOT.jar
     envVars:
