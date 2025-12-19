@@ -17,10 +17,13 @@ RUN chmod +x mvnw
 # 下载依赖（利用 Docker 缓存）
 RUN ./mvnw dependency:go-offline -B
 
+# 复制前端目录（必须在复制源代码之前，以便前端构建插件能找到它）
+COPY frontend ./frontend
+
 # 复制源代码
 COPY src ./src
 
-# 构建应用
+# 构建应用（Maven 会自动构建前端）
 RUN ./mvnw clean package -DskipTests
 
 # 阶段 2: 运行
