@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ログイン · TravelGo</title>
+    <style>
+    :root {
+    --orange: #ff4d00;
+    --white: #ffffff;
+    --text: #1a1a1a;
+    --gray: #d1d5db;
+    }
+
+    /* ===== 全局重置 ===== */
+    * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    }
+
+    html, body {
+    height: 100%;
+    font-family: "Segoe UI", "Hiragino Sans", "Helvetica Neue", Arial, sans-serif;
+    background: var(--white);
+    color: var(--text);
+    }
+
+    /* ===== 页面结构 ===== */
+    .page {
+    display: flex;
+    height: 100vh;
+    }
+
+    /* ===== 左側（フォーム区域） ===== */
+    .left {
+    width: 42%;                /* 更自然比例 */
+    background: var(--orange);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: var(--text);
+    }
+
+    /* ===== 登录卡片 ===== */
+    .form-box {
+    width: 100%;
+    max-width: 340px;
+    background: var(--white);
+    border-radius: 30px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    transform: translateY(-6%);   /* 微上移，更协调 */
+    }
+
+    /* ===== 标题 ===== */
+    h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+    }
+
+    p.desc {
+    color: #444;
+    font-size: 14px;
+    margin-bottom: 22px;
+    }
+
+    /* ===== 输入区块 ===== */
+    label {
+    display: block;
+    text-align: left;
+    font-weight: 600;
+    margin-top: 16px;
+    color: #333;
+    }
+
+    .input-group {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 40px;
+    padding: 10px 16px;
+    margin-top: 8px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    }
+
+    .input-group img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    opacity: 0.7;
+    }
+
+    input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-size: 15px;
+    color: #333;
+    }
+
+    input::placeholder {
+    color: #999;
+    }
+
+    /* ===== 登录按钮 ===== */
+    button {
+    margin-top: 28px;
+    padding: 14px;
+    width: 100%;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 12px rgba(255,77,0,0.3);
+    }
+
+    button:hover {
+    background: #ff6420;
+    box-shadow: 0 8px 16px rgba(255,77,0,0.4);
+    transform: translateY(-2px);
+    }
+
+    /* ===== 链接文字 ===== */
+    .link {
+    margin-top: 18px;
+    font-size: 14px;
+    color: #333;
+    }
+
+    .link a {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    }
+
+    #result {
+    margin-top: 16px;
+    font-weight: bold;
+    color: #333;
+    }
+
+    /* ===== 右側（地図背景） ===== */
+    .right {
+    width: 58%;
+    position: relative;
+    overflow: hidden;
+    background-color: #fff;
+    }
+
+    .right img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;       /* 保证插画不裁切 */
+    object-position: center;
+    display: block;
+    }
+
+    .right::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.1);
+    }
+
+    /* ===== 响应式适配（手机/平板） ===== */
+    @media (max-width: 900px) {
+    .page {
+    flex-direction: column;
+    }
+
+    .left, .right {
+    width: 100%;
+    height: 50%;
+    }
+
+    .form-box {
+    transform: none;
+    box-shadow: none;
+    border-radius: 20px;
+    }
+
+    button {
+    box-shadow: none;
+    }
+    }
+    </style>
+</head>
+<body>
+<div class="page">
+    <!-- 左側フォーム -->
+    <div class="left">
+        <div class="form-box">
+            <h2>TravelGo へログイン</h2>
+            <p class="desc">アカウント情報を入力してください</p>
+
+            <label for="username">ユーザー名</label>
+            <div class="input-group">
+                <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" alt="user">
+                <input type="text" id="username" placeholder="ユーザー名を入力">
+            </div>
+
+            <label for="password">パスワード</label>
+            <div class="input-group">
+                <img src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" alt="lock">
+                <input type="password" id="password" placeholder="パスワードを入力">
+            </div>
+
+            <button onclick="login()">ログイン</button>
+
+            <div class="link">
+                パスワードをお忘れですか？<br>
+                <a href="/register.html">新規登録はこちら</a>
+            </div>
+
+            <p id="result"></p>
+        </div>
+    </div>
+
+    <!-- 右側：地図背景 -->
+    <div class="right">
+        <img src="images/login_map.png" alt="地図背景">
+    </div>
+
+</div>
+
+<script>
+    async function login() {
+        const data = {
+            username: document.getElementById("username").value.trim(),
+            password: document.getElementById("password").value.trim()
+        };
+
+        if (!data.username || !data.password) {
+            document.getElementById("result").innerText = "ユーザー名とパスワードを入力してください。";
+            return;
+        }
+
+        fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+            .then(async response => {
+                const text = await response.text();
+                try {
+                    const result = JSON.parse(text);
+                    if (result.token) {
+                        localStorage.setItem("token", result.token);
+                        localStorage.setItem("username", result.username || "ユーザー");
+                        document.getElementById("result").innerText = " ログイン成功！";
+                        setTimeout(() => (location.href = "/index.html"), 1500);
+                        return;
+                    }
+
+                } catch (e) { /* 非JSON時はスキップ */ }
+
+                if (response.ok && text.startsWith("ey")) {
+                    localStorage.setItem("token", text);
+                    localStorage.setItem("username", "ユーザー");
+                    document.getElementById("result").innerText = "ログイン成功！";
+                    setTimeout(() => (location.href = "/index.html"), 1500);
+                } else {
+                    document.getElementById("result").innerText = "ログイン失敗：" + text;
+                }
+            })
+            .catch(error => {
+                document.getElementById("result").innerText = "通信エラー：" + error;
+            });
+    }
+</script>
+<script src="js/nav.js"></script>
+</body>
+</html>

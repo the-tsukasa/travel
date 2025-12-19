@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイノート - My Notes</title>
+    <link rel="stylesheet" href="/css/notes-my/notes-my.css">
+    <link rel="stylesheet" href="css/nav.css" />
+</head>
+<body>
+<!-- ===== ナビゲーション ===== -->
+<nav class="nav">
+    <a href="/index.html" class="brand">
+        <span class="brand-dot"></span> TravelGo
+    </a>
+    <div class="nav-links">
+        <a href="spot.html">観光スポット</a>
+        <a href="notes.html">みんなの旅行ノート</a>
+    </div>
+    <div class="nav-cta">
+        <a href="/login.html" class="btn-outline">ログイン</a>
+        <a href="/register.html" class="btn">登録</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="header">
+        <h1>📝 マイノート</h1>
+        <p>あなたの旅行ノートを管理</p>
+        <div class="nav-buttons">
+            <a href="/notes.html" class="nav-btn">📖 ノートを見る</a>
+            <a href="/notes-create.html" class="nav-btn">📝 新しいノートを投稿</a>
+            <!-- 管理者専用ボタン -->
+            <a href="/notes-admin.html" id="adminButton" class="nav-btn" style="display: none;">
+                ⚒ 管理者ノート審査
+            </a>
+        </div>
+    </div> <!-- /header -->
+
+    <div id="userInfo" class="user-info hidden">
+        <h3 id="userName"></h3>
+        <p id="userRole"></p>
+    </div>
+
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalNotes">0</div>
+                <div class="stat-label">総ノート数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="approvedNotes">0</div>
+                <div class="stat-label">公開済み</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingNotes">0</div>
+                <div class="stat-label">審査中</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalLikes">0</div>
+                <div class="stat-label">総いいね数</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notes-section">
+        <h2 class="section-title">📚 マイノート一覧</h2>
+        <div id="notesContainer">
+            <div class="loading">ノートを読み込み中...</div>
+        </div>
+    </div>
+
+</div> <!-- /container -->
+
+<!-- 削除確認モーダル -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">削除の確認</h3>
+            <span class="close">&times;</span>
+        </div>
+        <p>このノートを削除しますか？ この操作は元に戻せません。</p>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" onclick="closeDeleteModal()">キャンセル</button>
+            <button class="btn btn-confirm" id="confirmDeleteBtn">削除</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="/js/notes-my/notes-my.js"></script>
+</body>
+</html>

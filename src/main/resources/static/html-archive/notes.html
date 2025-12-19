@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行ノート - TravelGo</title>
+    <link rel="stylesheet" href="css/nav.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        a { color: inherit; text-decoration: none; }
+        /* カラートークン（ページ共通で使用） */
+        :root {
+            --brand: #ff4d00;
+            --brand-dark: #e03e00;
+            --bg: #fff9f3;
+            --text: #1e293b;
+        }
+
+        /* ベースレイアウト */
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Noto Sans JP','Hiragino Kaku Gothic ProN','Segoe UI',sans-serif;
+            padding-top: 80px; /* 固定ナビ分の余白 */
+        }
+
+        /* コンテナ共通幅 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ===== ページヘッダー（タイトル・説明・ボタン） ===== */
+        .header {
+            background: rgba(255,255,255,0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        /* 投稿ボタン行 */
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .nav-btn,
+        .search-btn {
+            background: var(--brand);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: background .3s;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover,
+        .search-btn:hover {
+            background: var(--brand-dark);
+        }
+
+        /* ===== 検索フォーム ===== */
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(255,77,0,0.1);
+        }
+
+        /* ===== ノート一覧カード ===== */
+        .note-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .note-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .note-author {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .note-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+
+        .note-content {
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 15px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .note-location {
+            color: var(--brand);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .note-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .action-btn.liked {
+            background: #ff6b6b;
+            border-color: #ff6b6b;
+            color: #fff;
+        }
+
+        .action-btn.favorited {
+            background: #ffd93d;
+            border-color: #ffd93d;
+            color: #fff;
+        }
+
+        /* ===== ローディング・エラー表示 ===== */
+        .loading,
+        .no-notes {
+            text-align: center;
+            padding: 50px;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        /* ===== ページネーション ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .pagination.hidden {
+            display: none;
+        }
+
+        .page-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover,
+        .page-btn.active {
+            background: var(--brand);
+            color: #fff;
+        }
+
+        /* ===== フッター ===== */
+        footer {
+            background: #111827;
+            color: #cbd5e1;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        footer a {
+            color: #fca5a5;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+<!-- ===== ナビゲーション ===== -->
+<nav class="nav">
+    <a href="/index.html" class="brand">
+        <span class="brand-dot"></span> TravelGo
+    </a>
+    <div class="nav-links">
+        <a href="spot.html">観光スポット</a>
+        <a href="notes.html">みんなの旅行ノート</a>
+    </div>
+    <div class="nav-cta">
+        <a href="/login.html" class="btn-outline">ログイン</a>
+        <a href="/register.html" class="btn">登録</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h1>📖 旅行ノート</h1>
+        <p>あなたの旅の思い出を共有しよう。</p>
+        <div class="nav-buttons">
+            <a href="/notes-create.html" class="nav-btn">ノートを投稿</a>
+            <a href="/notes-my.html" class="nav-btn">マイノート</a>
+        </div>
+    </div>
+
+    <div class="search-section">
+        <form class="search-form" id="searchForm">
+            <input type="text" class="search-input" id="searchInput" placeholder="タイトルや内容で検索...">
+            <button type="submit" class="search-btn">🔍 検索</button>
+        </form>
+    </div>
+
+    <div id="notesContainer"><div class="loading">ノートを読み込み中...</div></div>
+    <div class="pagination" id="pagination"></div>
+</div>
+
+<footer>
+    <div>© 2025 TravelGo · All rights reserved.</div>
+    <div style="margin-top:8px;">お問い合わせ：<a href="mailto:hello@travelgo.com">hello@travelgo.com</a></div>
+</footer>
+
+<!-- 先加载 auth.js，确保 TokenUtil 和 ApiUtil 可用 -->
+<script src="js/auth.js"></script>
+<script>
+    let currentSearch = '';
+
+    async function loadNotes(page = 0, search = '') {
+        const container = document.getElementById('notesContainer');
+        container.innerHTML = '<div class="loading">ノートを読み込み中...</div>';
+        try {
+            let url = `/api/notes?page=${page}&size=12`;
+            if (search) url = `/api/notes/search?keyword=${encodeURIComponent(search)}&page=${page}&size=12`;
+            
+            // 使用 ApiUtil 来统一处理认证，如果没有 token 就不发送 Authorization 头
+            const token = TokenUtil ? TokenUtil.getToken() : localStorage.getItem('token');
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = 'Bearer ' + token;
+            }
+            
+            const res = await fetch(url, { headers });
+            if (!res.ok) {
+                // 如果是 401，可能是 token 过期，清除 token 并重试
+                if (res.status === 401 && token) {
+                    if (TokenUtil) {
+                        TokenUtil.clearToken();
+                    } else {
+                        localStorage.removeItem('token');
+                    }
+                    // 重试一次，不带 token
+                    const retryRes = await fetch(url);
+                    if (!retryRes.ok) throw new Error('Failed to load notes');
+                    const retryData = await retryRes.json();
+                    renderNotes(retryData.content || retryData);
+                    updatePagination(retryData);
+                    return;
+                }
+                throw new Error('Failed to load notes');
+            }
+            const data = await res.json();
+            renderNotes(data.content || data);
+            updatePagination(data);
+        } catch (error) {
+            console.error('ノート読み込みエラー:', error);
+            container.innerHTML = '<div class="error">ノートの読み込みに失敗しました。時間をおいて再試行してください。</div>';
+        }
+    }
+
+    function renderNotes(notes) {
+        const container = document.getElementById('notesContainer');
+        if (!notes || notes.length === 0) {
+            container.innerHTML = '<div class="no-notes">まだノートがありません。最初の1件を投稿してみましょう！</div>';
+            return;
+        }
+        container.innerHTML = notes.map(n => `
+        <div class="note-card" onclick="viewNoteDetail(${n.id})" style="cursor: pointer;">
+          <div class="note-title">${escapeHtml(n.title)}</div>
+          <div class="note-author">by ${escapeHtml(n.username)}</div>
+          ${n.imageUrl ? `<img src="${n.imageUrl}" alt="ノート画像" class="note-image" loading="lazy">` : ''}
+          <div class="note-content">${escapeHtml(n.content)}</div>
+          ${n.location ? `<div class="note-location">📍 ${escapeHtml(n.location)}</div>` : ''}
+          <div class="note-stats">
+            <div class="note-actions" onclick="event.stopPropagation()">
+              <button class="action-btn ${n.isLiked ? 'liked' : ''}" onclick="toggleLike(${n.id}, this)">❤️ ${n.likesCount || 0}</button>
+              <button class="action-btn ${n.isFavorited ? 'favorited' : ''}" onclick="toggleFavorite(${n.id}, this)">⭐ ${n.favoritesCount || 0}</button>
+            </div>
+            <div style="color:#718096;font-size:.9rem;">${new Date(n.createdAt).toLocaleDateString('ja-JP')}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updatePagination(data) {
+        const p = document.getElementById('pagination');
+        if (!data.totalPages || data.totalPages <= 1) return p.classList.add('hidden');
+        p.classList.remove('hidden');
+        let html = '';
+        if (data.number > 0) html += `<button class="page-btn" onclick="loadNotes(${data.number - 1}, '${currentSearch}')">前へ</button>`;
+        for (let i = Math.max(0, data.number - 2); i <= Math.min(data.totalPages - 1, data.number + 2); i++) {
+            html += `<button class="page-btn ${i === data.number ? 'active' : ''}" onclick="loadNotes(${i}, '${currentSearch}')">${i + 1}</button>`;
+        }
+        if (data.number < data.totalPages - 1) html += `<button class="page-btn" onclick="loadNotes(${data.number + 1}, '${currentSearch}')">次へ</button>`;
+        p.innerHTML = html;
+    }
+
+    async function toggleLike(id, btn) {
+        // 检查 TokenUtil 是否已加载
+        if (!window.TokenUtil || !window.ApiUtil) {
+            if (confirm('ログインが必要です。ログインページに移動しますか？')) {
+                window.location.href = '/login.html';
+            }
+            return;
+        }
+
+        // 检查是否有 token
+        const token = TokenUtil.getToken();
+        if (!token) {
+            if (confirm('ログインが必要です。ログインページに移動しますか？')) {
+                window.location.href = '/login.html';
+            }
+            return;
+        }
+
+        const isLiked = btn.classList.contains('liked');
+        const method = isLiked ? 'DELETE' : 'POST';
+        
+        // 确保使用绝对路径
+        const url = `/api/likes/${id}`;
+        console.log('点赞请求:', { url, method, token: token ? '存在' : '不存在' });
+        
+        try {
+            const res = await ApiUtil.fetch(url, { method });
+            
+            if (res.ok) {
+                const num = parseInt(btn.textContent.match(/\d+/)[0]);
+                btn.classList.toggle('liked', !isLiked);
+                btn.innerHTML = `❤️ ${isLiked ? num - 1 : num + 1}`;
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                console.error('点赞失败:', errorData);
+                alert(errorData.message || '操作に失敗しました。');
+            }
+        } catch (error) {
+            if (error.message === 'AUTHENTICATION_FAILED' || 
+                error.message === 'TOKEN_EXPIRED' || 
+                error.message === 'NOT_AUTHENTICATED') {
+                // 认证失败已在 ApiUtil 中处理
+                return;
+            }
+            console.error('いいね操作エラー:', error);
+            alert('操作に失敗しました。');
+        }
+    }
+
+    async function toggleFavorite(id, btn) {
+        // 检查 TokenUtil 是否已加载
+        if (!window.TokenUtil || !window.ApiUtil) {
+            if (confirm('ログインが必要です。ログインページに移動しますか？')) {
+                window.location.href = '/login.html';
+            }
+            return;
+        }
+
+        // 检查是否有 token
+        const token = TokenUtil.getToken();
+        if (!token) {
+            if (confirm('ログインが必要です。ログインページに移動しますか？')) {
+                window.location.href = '/login.html';
+            }
+            return;
+        }
+
+        const isFav = btn.classList.contains('favorited');
+        const method = isFav ? 'DELETE' : 'POST';
+        
+        // 确保使用绝对路径
+        const url = `/api/favorites/${id}`;
+        console.log('收藏请求:', { url, method, token: token ? '存在' : '不存在' });
+        
+        try {
+            const res = await ApiUtil.fetch(url, { method });
+            
+            if (res.ok) {
+                const num = parseInt(btn.textContent.match(/\d+/)[0]);
+                btn.classList.toggle('favorited', !isFav);
+                btn.innerHTML = `⭐ ${isFav ? num - 1 : num + 1}`;
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                console.error('收藏失败:', errorData);
+                alert(errorData.message || '操作に失敗しました。');
+            }
+        } catch (error) {
+            if (error.message === 'AUTHENTICATION_FAILED' || 
+                error.message === 'TOKEN_EXPIRED' || 
+                error.message === 'NOT_AUTHENTICATED') {
+                // 认证失败已在 ApiUtil 中处理
+                return;
+            }
+            console.error('お気に入り操作エラー:', error);
+            alert('操作に失敗しました。');
+        }
+    }
+
+    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+    // ===== 查看笔记详情 =====
+    function viewNoteDetail(id) {
+        window.location.href = `notes-detail.html?id=${id}`;
+    }
+
+    document.getElementById('searchForm').addEventListener('submit', e => {
+        e.preventDefault();
+        currentSearch = document.getElementById('searchInput').value.trim();
+        loadNotes(0, currentSearch);
+    });
+
+    async function checkLoginStatus() {
+        const navCta = document.querySelector(".nav-cta");
+        if (!navCta) return;
+        
+        const token = TokenUtil ? TokenUtil.getToken() : localStorage.getItem("token");
+        if (!token) {
+            navCta.innerHTML = `<a href="/login.html" class="btn-outline">ログイン</a><a href="/register.html" class="btn">登録</a>`;
+            return;
+        }
+        
+        // 检查 token 是否过期
+        if (TokenUtil && TokenUtil.isTokenExpired(token)) {
+            TokenUtil.clearToken();
+            navCta.innerHTML = `<a href="/login.html" class="btn-outline">ログイン</a><a href="/register.html" class="btn">登録</a>`;
+            return;
+        }
+        
+        try {
+            // 使用 ApiUtil 来统一处理认证
+            const res = ApiUtil ? await ApiUtil.get('/api/user/me') : await fetch("/api/user/me", { 
+                headers: { "Authorization": "Bearer " + token } 
+            });
+            
+            if (!res.ok) {
+                // 401 表示 token 无效，清除 token
+                if (res.status === 401) {
+                    if (TokenUtil) {
+                        TokenUtil.clearToken();
+                    } else {
+                        localStorage.removeItem('token');
+                    }
+                    navCta.innerHTML = `<a href="/login.html" class="btn-outline">ログイン</a><a href="/register.html" class="btn">登録</a>`;
+                    return;
+                }
+                throw new Error();
+            }
+            
+            const user = await res.json();
+            // 优先显示真实姓名（firstName + lastName）
+            let name = "ユーザー";
+            if (user.firstName || user.lastName) {
+                const nameParts = [];
+                if (user.firstName) nameParts.push(user.firstName);
+                if (user.lastName) nameParts.push(user.lastName);
+                name = nameParts.join(" ");
+            } else if (user.username) {
+                name = user.username;
+            }
+            navCta.innerHTML = `
+          <div class="userbar">
+            <span class="userbar-username">👤 ${name}</span>
+            <span class="divider"></span>
+            <a href="/user.html">マイページ</a>
+            <span class="divider"></span>
+            <button onclick="logout()">ログアウト</button>
+          </div>`;
+        } catch (error) {
+            console.error('ログイン状態確認エラー:', error);
+            navCta.innerHTML = `<a href="/login.html" class="btn-outline">ログイン</a><a href="/register.html" class="btn">登録</a>`;
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        location.reload();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await checkLoginStatus();
+        await loadNotes();
+    });
+</script>
+
+<script src="js/nav.js"></script>
+
+</body>
+</html>

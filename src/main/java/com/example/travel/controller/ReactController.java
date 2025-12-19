@@ -54,6 +54,28 @@ public class ReactController {
     }
 
     /**
+     * 处理旧的 HTML 文件路径，重定向到 React 路由
+     * 这些旧的 HTML 文件已被封存到 html-archive 目录
+     */
+    @GetMapping(value = {
+            "/spot.html",
+            "/login.html",
+            "/register.html",
+            "/admin.html",
+            "/notes-admin.html",
+            "/notes-create.html",
+            "/notes-detail.html",
+            "/notes-my.html",
+            "/notes.html",
+            "/profile-edit.html",
+            "/user.html"
+    }, produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> oldHtmlRoutes() {
+        // 返回 React 应用，由 React Router 处理路由
+        return getReactIndex();
+    }
+
+    /**
      * 读取 React 构建的 index.html
      * 支持 JAR 包和文件系统两种方式
      */

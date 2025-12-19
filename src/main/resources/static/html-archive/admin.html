@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员接口测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #d32f2f;
+        }
+        .admin-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .admin-link:hover {
+            background: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<h2>管理员后台</h2>
+
+<p>管理员功能页面</p>
+
+<div style="margin: 20px 0;">
+    <a href="/notes-admin.html" class="admin-link">笔记管理</a>
+    <button onclick="testAdmin()">测试管理员接口</button>
+</div>
+
+<p id="result"></p>
+
+<script>
+    function testAdmin() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            document.getElementById("result").innerText = "❌ 未找到 Token，请先登录！";
+            return;
+        }
+
+        fetch("http://localhost:8080/api/admin/test", {
+            method: "GET",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        })
+            .then(async response => {
+                const text = await response.text();
+                if (response.ok) {
+                    document.getElementById("result").innerText = "✅ 请求成功：\n" + text;
+                } else if (response.status === 403) {
+                    document.getElementById("result").innerText = "❌ 403 Forbidden：你不是管理员";
+                } else {
+                    document.getElementById("result").innerText = "❌ 请求失败：" + text;
+                }
+            })
+            .catch(error => {
+                document.getElementById("result").innerText = "请求失败：" + error;
+            });
+    }
+</script>
+
+</body>
+</html>
