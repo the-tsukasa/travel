@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
  */
 @Slf4j
 @RestController
-@Order(1)  // 确保优先级高于静态资源处理器
+@Order(0)  // 改为 0，确保最高优先级（数字越小优先级越高）
 public class ReactController {
 
     /**

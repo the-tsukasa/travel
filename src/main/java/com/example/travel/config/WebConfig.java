@@ -21,16 +21,21 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadPath + "/");
         
-        // 配置 React 构建的静态资源（优先级高于默认静态资源）
+        // 只配置 React 构建的静态资源（不处理 .html 文件）
         // React 构建的文件在 react-dist 目录中
         registry.addResourceHandler("/assets/**")
                 .addResourceLocations("classpath:/static/react-dist/assets/")
-                .setCachePeriod(3600);
+                .setCachePeriod(3600)
+                .resourceChain(true);  // 启用资源链，提高优先级
         
         // React 构建的图片资源
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("classpath:/static/react-dist/images/")
-                .setCachePeriod(3600);
+                .setCachePeriod(3600)
+                .resourceChain(true);
+        
+        // 注意：不配置 /*.html 的静态资源处理
+        // 所有 .html 请求都由 ReactController 处理
     }
 }
 

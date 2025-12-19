@@ -53,9 +53,11 @@ spring:
   mvc:
     welcome-page:
       enabled: false  # 禁用自动欢迎页面，使用 ReactController 返回 React 应用
+    static-path-pattern: /static-resources/**  # 改变默认静态资源路径，避免与 React 路由冲突
   web:
     resources:
-      add-mappings: true  # 确保静态资源映射正常工作
+      add-mappings: false  # 关键：禁用默认的静态资源映射，只使用 WebConfig 中配置的
+      static-locations: []  # 清空默认静态资源位置
   
   datasource:
     # Render 提供的 DATABASE_URL 格式可能是:
