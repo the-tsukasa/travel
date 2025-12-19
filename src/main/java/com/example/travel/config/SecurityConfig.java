@@ -164,7 +164,14 @@ public class SecurityConfig {
                         // 1. OPTIONS 请求全部放行（CORS 预检）
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 2. 静态资源和 HTML 页面放行
-                        .requestMatchers("/", "/*.html", "/js/**", "/css/**", "/images/**", "/static/**", "/uploads/**").permitAll()
+                        // React 构建的静态资源
+                        .requestMatchers("/assets/**", "/images/**", "/react-dist/**").permitAll()
+                        // React SPA 路由
+                        .requestMatchers("/", "/home", "/spot", "/notes", "/login", "/register", 
+                                "/user", "/profile-edit", "/notifications", "/admin", 
+                                "/notes-admin", "/users-admin", "/notes-create", "/notes-my", "/notes-detail/**").permitAll()
+                        // 旧的 HTML 页面（保留兼容性）
+                        .requestMatchers("/*.html", "/js/**", "/css/**", "/static/**", "/uploads/**").permitAll()
                         .requestMatchers("/spot.html", "/login.html", "/register.html", "/admin.html", "/notes-admin.html").permitAll()
                         // 3. 认证接口放行
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()

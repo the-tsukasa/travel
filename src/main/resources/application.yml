@@ -74,9 +74,9 @@ spring:
     properties:
       hibernate.format_sql: false
       # 明确指定数据库方言（Render 使用 PostgreSQL）
-      # PostgreSQL: org.hibernate.dialect.PostgreSQLDialect
-      # MariaDB/MySQL: org.hibernate.dialect.MariaDBDialect
-      hibernate.dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
+      # Spring Boot 会自动读取 SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT 环境变量
+      # 如果使用 DATABASE_URL 格式，可以通过 HIBERNATE_DIALECT 设置
+      hibernate.dialect: ${SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT:${HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}}
 
 logging:
   level:
