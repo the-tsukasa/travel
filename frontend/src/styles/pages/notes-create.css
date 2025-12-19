@@ -53,8 +53,73 @@
 }
 
 @media (max-width: 768px) {
+  .notes-create-page {
+    padding-top: 80px;
+    padding-bottom: 20px;
+  }
+
+  .notes-create-container {
+    padding: 16px;
+  }
+
+  .notes-create-header {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .notes-create-title {
+    font-size: clamp(22px, 5vw, 28px);
+  }
+
+  .notes-create-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+  }
+
   .notes-create-form-container {
-    padding: 24px;
+    padding: 20px;
+  }
+
+  .notes-create-input,
+  .notes-create-textarea {
+    padding: 14px 16px;
+    font-size: 16px; /* 防止iOS自动缩放 */
+    min-height: 44px;
+  }
+
+  .notes-create-textarea {
+    min-height: 150px;
+  }
+
+  .notes-create-upload-label {
+    padding: 14px 20px;
+    font-size: 14px;
+    min-height: 44px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .notes-create-submit-btn {
+    padding: 14px 24px;
+    font-size: 15px;
+    min-height: 44px;
+    width: 100%;
+  }
+
+  .notes-create-image-preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .notes-create-actions {
+    flex-direction: column;
+  }
+
+  .notes-create-actions .btn {
+    width: 100%;
+    min-height: 44px;
   }
 }
 

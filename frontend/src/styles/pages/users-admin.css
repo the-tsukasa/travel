@@ -638,5 +638,76 @@
   .users-admin-form-row {
     grid-template-columns: 1fr;
   }
+
+  /* 移动端优化 */
+  .users-admin-stat-card {
+    padding: 20px;
+  }
+
+  .users-admin-stat-number {
+    font-size: 2rem;
+  }
+
+  .users-admin-action-buttons {
+    flex-direction: column;
+  }
+
+  .users-admin-action-btn {
+    width: 100%;
+    padding: 12px;
+    min-height: 44px;
+    font-size: 0.9rem;
+  }
+
+  .users-admin-modal {
+    padding: 10px;
+  }
+
+  .users-admin-modal-content {
+    margin: 0;
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+
+  .users-admin-modal-header,
+  .users-admin-modal-body {
+    padding: 16px;
+  }
+
+  .users-admin-modal-title {
+    font-size: 1.25rem;
+  }
+
+  .users-admin-modal-close {
+    width: 40px;
+    height: 40px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 1.5rem;
+  }
+
+  .users-admin-form-group input,
+  .users-admin-form-group select,
+  .users-admin-form-group textarea {
+    padding: 14px 16px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .users-admin-btn {
+    padding: 14px 24px;
+    min-height: 44px;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+
+  .users-admin-modal-actions {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .users-admin-detail-grid {
+    grid-template-columns: 1fr;
+  }
 }
 

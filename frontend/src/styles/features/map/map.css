@@ -93,6 +93,46 @@
   /* 图片原始尺寸 1536x1024，宽高比 3:2，object-fit: contain 会自动保持宽高比 */
 }
 
+/* 移动端优化 */
+@media (max-width: 767px) {
+  .home-map-section {
+    padding: 10px 0;
+    min-height: calc(100vh - 80px);
+  }
+  
+  .home-map-header {
+    padding: 0 16px;
+    margin-bottom: 12px;
+  }
+  
+  .home-map-title {
+    font-size: clamp(20px, 5vw, 28px);
+    margin-bottom: 8px;
+  }
+  
+  .home-map-subtitle {
+    font-size: 14px;
+  }
+  
+  .map-container {
+    width: 95%;
+    max-width: 95%;
+    min-height: 400px;
+    height: 400px;
+  }
+  
+  .map-wrapper {
+    padding: 3px;
+    min-height: calc(100vh - 200px);
+    border-radius: 16px;
+  }
+  
+  .map-image {
+    min-height: calc(100vh - 250px);
+    max-height: calc(100vh - 250px);
+  }
+}
+
 @media (min-width: 768px) {
   .home-map-section {
     padding: 20px 0;

@@ -530,3 +530,72 @@
   font-size: 14px;
 }
 
+/* ===== 移动端优化 ===== */
+@media (max-width: 768px) {
+  .section {
+    margin: 40px auto;
+    padding: 0 16px;
+  }
+  
+  .section-alt {
+    padding: 40px 16px;
+  }
+  
+  .section-header {
+    margin-bottom: 32px;
+  }
+  
+  .section-title {
+    font-size: clamp(22px, 5vw, 28px);
+    margin-bottom: 12px;
+  }
+  
+  .section-lead {
+    font-size: 14px;
+    margin-top: 16px;
+  }
+  
+  .destination-grid,
+  .package-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .destination-card-body,
+  .package-card-body {
+    padding: 16px;
+  }
+  
+  .destination-card-title,
+  .package-card-title {
+    font-size: 18px;
+  }
+  
+  .destination-card-description,
+  .package-card-description {
+    font-size: 14px;
+  }
+  
+  .review-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .review-card {
+    padding: 20px;
+  }
+  
+  .review-avatar {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .review-name {
+    font-size: 15px;
+  }
+  
+  .review-comment {
+    font-size: 14px;
+  }
+}
+

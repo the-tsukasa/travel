@@ -426,18 +426,29 @@
   }
 
   .auth-input-group {
-    padding: 12px 16px;
+    padding: 14px 16px;
+    min-height: 44px;
+  }
+
+  .auth-input {
+    font-size: 16px; /* 防止iOS自动缩放 */
   }
 
   .auth-submit-btn {
     padding: 16px;
     font-size: 15px;
     letter-spacing: 0.5px;
+    min-height: 44px;
   }
   
   .auth-submit-btn-icon {
     width: 18px;
     height: 18px;
+  }
+
+  .auth-password-toggle {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 

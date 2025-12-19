@@ -17,6 +17,7 @@ const UsersAdmin = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('desc')
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
   const [stats, setStats] = useState({
     totalUsers: 0,
     adminUsers: 0,
@@ -48,6 +49,14 @@ const UsersAdmin = () => {
   useEffect(() => {
     filterUsers()
   }, [searchTerm, users])
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const checkAdminAuth = async () => {
     const token = TokenUtil.getToken()
@@ -246,7 +255,7 @@ const UsersAdmin = () => {
       <div style={{
         background: 'white',
         borderRadius: '16px',
-        padding: '24px',
+        padding: isMobile ? '20px' : '24px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         border: '1px solid #e2e8f0',
         cursor: link ? 'pointer' : 'default',
@@ -255,13 +264,13 @@ const UsersAdmin = () => {
         overflow: 'hidden'
       }}
       onMouseEnter={(e) => {
-        if (link) {
+        if (link && !isMobile) {
           e.currentTarget.style.transform = 'translateY(-4px)'
           e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)'
         }
       }}
       onMouseLeave={(e) => {
-        if (link) {
+        if (link && !isMobile) {
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'
         }
@@ -271,18 +280,18 @@ const UsersAdmin = () => {
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          marginBottom: '16px'
+          marginBottom: isMobile ? '12px' : '16px'
         }}>
-          <span style={{ fontSize: '2rem' }}>{icon}</span>
+          <span style={{ fontSize: isMobile ? '1.5rem' : '2rem' }}>{icon}</span>
           <h3 style={{
-            fontSize: '1rem',
+            fontSize: isMobile ? '0.9rem' : '1rem',
             fontWeight: 600,
             color: '#4a5568',
             margin: 0
           }}>{title}</h3>
         </div>
         <div style={{
-          fontSize: '3rem',
+          fontSize: isMobile ? '2rem' : '3rem',
           fontWeight: 700,
           color: color,
           lineHeight: 1
@@ -300,8 +309,8 @@ const UsersAdmin = () => {
     <>
       <div style={{
         maxWidth: '1200px',
-        margin: '40px auto',
-        padding: '40px',
+        margin: isMobile ? '20px auto' : '40px auto',
+        padding: isMobile ? '16px' : '40px',
         minHeight: 'calc(100vh - 200px)',
         background: '#f7fafc'
       }}>
@@ -325,7 +334,7 @@ const UsersAdmin = () => {
 
         {/* Header */}
         <div style={{
-          marginBottom: '40px'
+          marginBottom: isMobile ? '24px' : '40px'
         }}>
           <div style={{
             display: 'flex',
@@ -333,24 +342,26 @@ const UsersAdmin = () => {
             alignItems: 'flex-start',
             marginBottom: '20px',
             flexWrap: 'wrap',
-            gap: '20px'
+            gap: '20px',
+            flexDirection: isMobile ? 'column' : 'row'
           }}>
-            <div>
+            <div style={{ flex: 1 }}>
               <h1 style={{
-                fontSize: '2.5rem',
+                fontSize: isMobile ? '1.75rem' : '2.5rem',
                 fontWeight: 700,
                 marginBottom: '10px',
                 color: '#2d3748',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px'
+                gap: '12px',
+                flexWrap: 'wrap'
               }}>
                 <span>👥</span>
                 <span>ユーザー管理</span>
               </h1>
               <p style={{
                 color: '#718096',
-                fontSize: '1.1rem'
+                fontSize: isMobile ? '0.9rem' : '1.1rem'
               }}>
                 システム内のすべてのユーザーを管理
               </p>
@@ -358,19 +369,26 @@ const UsersAdmin = () => {
             <div style={{
               display: 'flex',
               gap: '10px',
-              flexWrap: 'wrap'
+              flexWrap: 'wrap',
+              width: isMobile ? '100%' : 'auto'
             }}>
               <Link 
                 to="/admin" 
                 style={{
-                  padding: '10px 20px',
+                  padding: isMobile ? '12px 20px' : '10px 20px',
                   background: 'white',
                   border: '1px solid #e2e8f0',
                   borderRadius: '8px',
                   color: '#4a5568',
                   textDecoration: 'none',
                   fontWeight: 600,
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s ease',
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: isMobile ? '100%' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#f7fafc'
@@ -390,9 +408,9 @@ const UsersAdmin = () => {
         {/* 统计信息 */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '24px',
-          marginBottom: '40px'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: isMobile ? '16px' : '24px',
+          marginBottom: isMobile ? '24px' : '40px'
         }}>
           <StatCard
             title="総ユーザー数"
@@ -418,17 +436,18 @@ const UsersAdmin = () => {
         <div style={{
           background: 'white',
           borderRadius: '16px',
-          padding: '24px',
+          padding: isMobile ? '16px' : '24px',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           marginBottom: '24px'
         }}>
           <div style={{
             display: 'flex',
-            gap: '20px',
+            gap: isMobile ? '16px' : '20px',
             flexWrap: 'wrap',
-            alignItems: 'center'
+            alignItems: 'center',
+            flexDirection: isMobile ? 'column' : 'row'
           }}>
-            <div style={{ flex: 1, minWidth: '250px' }}>
+            <div style={{ flex: 1, width: isMobile ? '100%' : 'auto', minWidth: isMobile ? 'auto' : '250px' }}>
               <input
                 type="text"
                 placeholder="ユーザー名、メール、名前で検索..."
@@ -436,11 +455,13 @@ const UsersAdmin = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
+                  padding: isMobile ? '14px 16px' : '12px 16px',
                   border: '2px solid #e2e8f0',
                   borderRadius: '8px',
-                  fontSize: '1rem',
-                  transition: 'all 0.3s ease'
+                  fontSize: isMobile ? '16px' : '1rem',
+                  transition: 'all 0.3s ease',
+                  minHeight: '44px',
+                  boxSizing: 'border-box'
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = '#1976d2'
@@ -455,12 +476,16 @@ const UsersAdmin = () => {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '10px',
+              width: isMobile ? '100%' : 'auto',
+              flexDirection: isMobile ? 'column' : 'row'
             }}>
               <label style={{
                 fontWeight: 600,
                 color: '#4a5568',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                fontSize: isMobile ? '0.9rem' : '1rem',
+                width: isMobile ? '100%' : 'auto'
               }}>
                 並び替え：
               </label>
@@ -472,13 +497,15 @@ const UsersAdmin = () => {
                   setSortOrder(order)
                 }}
                 style={{
-                  padding: '12px 16px',
+                  padding: isMobile ? '14px 16px' : '12px 16px',
                   border: '2px solid #e2e8f0',
                   borderRadius: '8px',
-                  fontSize: '1rem',
+                  fontSize: isMobile ? '16px' : '1rem',
                   background: 'white',
                   cursor: 'pointer',
-                  minWidth: '200px'
+                  minWidth: isMobile ? '100%' : '200px',
+                  minHeight: '44px',
+                  boxSizing: 'border-box'
                 }}
               >
                 <option value="createdAt-desc">登録日（新しい順）</option>
@@ -539,7 +566,173 @@ const UsersAdmin = () => {
           }}>
             <p>ユーザーが見つかりません</p>
           </div>
+        ) : isMobile ? (
+          // 移动端卡片式布局
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            {filteredUsers.map(user => (
+              <div
+                key={user.id}
+                style={{
+                  background: 'white',
+                  borderRadius: '16px',
+                  padding: '16px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  border: '1px solid #e2e8f0'
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '16px',
+                  paddingBottom: '16px',
+                  borderBottom: '1px solid #e2e8f0'
+                }}>
+                  {user.avatarUrl && (
+                    <img 
+                      src={user.avatarUrl.startsWith('http') ? user.avatarUrl : `http://localhost:8080${user.avatarUrl}`}
+                      alt={user.username}
+                      style={{
+                        width: '50px',
+                        height: '50px',
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        border: '2px solid #e2e8f0'
+                      }}
+                      onError={(e) => {
+                        e.target.src = 'https://cdn-icons-png.flaticon.com/512/616/616408.png'
+                      }}
+                    />
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontWeight: 600,
+                      color: '#2d3748',
+                      fontSize: '1.1rem',
+                      marginBottom: '4px'
+                    }}>
+                      {user.username}
+                    </div>
+                    <div style={{
+                      fontSize: '0.85rem',
+                      color: '#718096'
+                    }}>
+                      ID: {user.id}
+                    </div>
+                  </div>
+                  <span style={{
+                    padding: '6px 12px',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    backgroundColor: user.role === 'ADMIN' 
+                      ? 'rgba(102, 126, 234, 0.15)' 
+                      : 'rgba(102, 126, 234, 0.1)',
+                    color: user.role === 'ADMIN' ? '#667eea' : '#4a5568',
+                    display: 'inline-block'
+                  }}>
+                    {user.role === 'ADMIN' ? '🛠️ 管理者' : '👤 ユーザー'}
+                  </span>
+                </div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '12px',
+                  marginBottom: '16px',
+                  fontSize: '0.9rem'
+                }}>
+                  <div>
+                    <div style={{ color: '#718096', fontSize: '0.85rem', marginBottom: '4px' }}>メール</div>
+                    <div style={{ color: '#4a5568', wordBreak: 'break-all' }}>{user.email}</div>
+                  </div>
+                  <div>
+                    <div style={{ color: '#718096', fontSize: '0.85rem', marginBottom: '4px' }}>名前</div>
+                    <div style={{ color: '#4a5568' }}>
+                      {user.firstName || user.lastName 
+                        ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
+                        : '-'}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ color: '#718096', fontSize: '0.85rem', marginBottom: '4px' }}>ノート数</div>
+                    <div style={{ color: '#4a5568' }}>{user.notesCount || 0}</div>
+                  </div>
+                  <div>
+                    <div style={{ color: '#718096', fontSize: '0.85rem', marginBottom: '4px' }}>登録日</div>
+                    <div style={{ color: '#4a5568', fontSize: '0.85rem' }}>
+                      {formatDate(user.createdAt)}
+                    </div>
+                  </div>
+                </div>
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  flexWrap: 'wrap'
+                }}>
+                  <button
+                    onClick={() => handleViewDetail(user)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#1976d2',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                      transition: 'all 0.3s ease',
+                      minHeight: '44px'
+                    }}
+                  >
+                    詳細
+                  </button>
+                  <button
+                    onClick={() => handleEditClick(user)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#48bb78',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                      transition: 'all 0.3s ease',
+                      minHeight: '44px'
+                    }}
+                  >
+                    編集
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(user)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#f56565',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                      transition: 'all 0.3s ease',
+                      minHeight: '44px'
+                    }}
+                  >
+                    削除
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
+          // 桌面端表格布局
           <div style={{
             background: 'white',
             borderRadius: '12px',
@@ -710,7 +903,7 @@ const UsersAdmin = () => {
                           <button
                             onClick={() => handleViewDetail(user)}
                             style={{
-                              padding: '8px 12px',
+                              padding: '10px 16px',
                               background: '#1976d2',
                               color: 'white',
                               border: 'none',
@@ -718,7 +911,8 @@ const UsersAdmin = () => {
                               cursor: 'pointer',
                               fontWeight: 600,
                               fontSize: '0.875rem',
-                              transition: 'all 0.3s ease'
+                              transition: 'all 0.3s ease',
+                              minHeight: '36px'
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background = '#1565c0'
@@ -734,7 +928,7 @@ const UsersAdmin = () => {
                           <button
                             onClick={() => handleEditClick(user)}
                             style={{
-                              padding: '8px 12px',
+                              padding: '10px 16px',
                               background: '#48bb78',
                               color: 'white',
                               border: 'none',
@@ -742,7 +936,8 @@ const UsersAdmin = () => {
                               cursor: 'pointer',
                               fontWeight: 600,
                               fontSize: '0.875rem',
-                              transition: 'all 0.3s ease'
+                              transition: 'all 0.3s ease',
+                              minHeight: '36px'
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background = '#38a169'
@@ -758,7 +953,7 @@ const UsersAdmin = () => {
                           <button
                             onClick={() => handleDeleteClick(user)}
                             style={{
-                              padding: '8px 12px',
+                              padding: '10px 16px',
                               background: '#f56565',
                               color: 'white',
                               border: 'none',
@@ -766,7 +961,8 @@ const UsersAdmin = () => {
                               cursor: 'pointer',
                               fontWeight: 600,
                               fontSize: '0.875rem',
-                              transition: 'all 0.3s ease'
+                              transition: 'all 0.3s ease',
+                              minHeight: '36px'
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.background = '#e53e3e'
@@ -812,12 +1008,13 @@ const UsersAdmin = () => {
           <div
             style={{
               background: 'white',
-              borderRadius: '24px',
-              maxWidth: '700px',
+              borderRadius: isMobile ? '16px' : '24px',
+              maxWidth: isMobile ? '100%' : '700px',
               width: '100%',
-              maxHeight: '90vh',
+              maxHeight: isMobile ? '95vh' : '90vh',
               overflowY: 'auto',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+              margin: isMobile ? '10px' : '0'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -825,11 +1022,15 @@ const UsersAdmin = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              padding: '24px',
-              borderBottom: '1px solid #e2e8f0'
+              padding: isMobile ? '16px' : '24px',
+              borderBottom: '1px solid #e2e8f0',
+              position: isMobile ? 'sticky' : 'static',
+              top: 0,
+              background: 'white',
+              zIndex: 10
             }}>
               <h3 style={{
-                fontSize: '1.5rem',
+                fontSize: isMobile ? '1.25rem' : '1.5rem',
                 fontWeight: 700,
                 color: '#2d3748',
                 margin: 0
@@ -841,17 +1042,19 @@ const UsersAdmin = () => {
                 style={{
                   background: 'none',
                   border: 'none',
-                  fontSize: '2rem',
+                  fontSize: isMobile ? '1.5rem' : '2rem',
                   color: '#718096',
                   cursor: 'pointer',
                   padding: '0',
-                  width: '32px',
-                  height: '32px',
+                  width: isMobile ? '40px' : '32px',
+                  height: isMobile ? '40px' : '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '8px',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: '44px',
+                  minHeight: '44px'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#f7fafc'
@@ -883,7 +1086,7 @@ const UsersAdmin = () => {
                 </h4>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
                   gap: '16px'
                 }}>
                   <div>
@@ -893,7 +1096,7 @@ const UsersAdmin = () => {
                     <strong style={{ color: '#4a5568' }}>ユーザー名:</strong> {escapeHtml(selectedUser.username)}
                   </div>
                   <div>
-                    <strong style={{ color: '#4a5568' }}>メール:</strong> {escapeHtml(selectedUser.email)}
+                    <strong style={{ color: '#4a5568' }}>メール:</strong> <span style={{ wordBreak: 'break-all' }}>{escapeHtml(selectedUser.email)}</span>
                   </div>
                   <div>
                     <strong style={{ color: '#4a5568' }}>役割:</strong> 
@@ -964,7 +1167,7 @@ const UsersAdmin = () => {
                 </h4>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
                   gap: '16px'
                 }}>
                   <div>
@@ -983,8 +1186,9 @@ const UsersAdmin = () => {
               display: 'flex',
               gap: '12px',
               justifyContent: 'flex-end',
-              padding: '24px',
-              borderTop: '1px solid #e2e8f0'
+              padding: isMobile ? '16px' : '24px',
+              borderTop: '1px solid #e2e8f0',
+              flexDirection: isMobile ? 'column' : 'row'
             }}>
               <button
                 onClick={() => {
@@ -992,15 +1196,17 @@ const UsersAdmin = () => {
                   handleEditClick(selectedUser)
                 }}
                 style={{
-                  padding: '12px 24px',
+                  padding: isMobile ? '14px 24px' : '12px 24px',
                   background: '#48bb78',
                   color: 'white',
                   border: 'none',
                   borderRadius: '12px',
                   cursor: 'pointer',
                   fontWeight: 600,
-                  fontSize: '1rem',
-                  transition: 'all 0.3s ease'
+                  fontSize: isMobile ? '0.95rem' : '1rem',
+                  transition: 'all 0.3s ease',
+                  minHeight: '44px',
+                  width: isMobile ? '100%' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#38a169'
@@ -1016,15 +1222,17 @@ const UsersAdmin = () => {
               <button
                 onClick={() => setDetailModalOpen(false)}
                 style={{
-                  padding: '12px 24px',
+                  padding: isMobile ? '14px 24px' : '12px 24px',
                   background: '#e2e8f0',
                   color: '#4a5568',
                   border: 'none',
                   borderRadius: '12px',
                   cursor: 'pointer',
                   fontWeight: 600,
-                  fontSize: '1rem',
-                  transition: 'all 0.3s ease'
+                  fontSize: isMobile ? '0.95rem' : '1rem',
+                  transition: 'all 0.3s ease',
+                  minHeight: '44px',
+                  width: isMobile ? '100%' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#cbd5e0'
@@ -1062,12 +1270,13 @@ const UsersAdmin = () => {
           <div
             style={{
               background: 'white',
-              borderRadius: '24px',
-              maxWidth: '600px',
+              borderRadius: isMobile ? '16px' : '24px',
+              maxWidth: isMobile ? '100%' : '600px',
               width: '100%',
-              maxHeight: '90vh',
+              maxHeight: isMobile ? '95vh' : '90vh',
               overflowY: 'auto',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+              margin: isMobile ? '10px' : '0'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1075,11 +1284,15 @@ const UsersAdmin = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              padding: '24px',
-              borderBottom: '1px solid #e2e8f0'
+              padding: isMobile ? '16px' : '24px',
+              borderBottom: '1px solid #e2e8f0',
+              position: isMobile ? 'sticky' : 'static',
+              top: 0,
+              background: 'white',
+              zIndex: 10
             }}>
               <h3 style={{
-                fontSize: '1.5rem',
+                fontSize: isMobile ? '1.25rem' : '1.5rem',
                 fontWeight: 700,
                 color: '#2d3748',
                 margin: 0
@@ -1091,17 +1304,19 @@ const UsersAdmin = () => {
                 style={{
                   background: 'none',
                   border: 'none',
-                  fontSize: '2rem',
+                  fontSize: isMobile ? '1.5rem' : '2rem',
                   color: '#718096',
                   cursor: 'pointer',
                   padding: '0',
-                  width: '32px',
-                  height: '32px',
+                  width: isMobile ? '40px' : '32px',
+                  height: isMobile ? '40px' : '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '8px',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: '44px',
+                  minHeight: '44px'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#f7fafc'
@@ -1116,7 +1331,7 @@ const UsersAdmin = () => {
               </button>
             </div>
             <form onSubmit={handleEditSubmit} style={{
-              padding: '24px'
+              padding: isMobile ? '16px' : '24px'
             }}>
               <div style={{
                 marginBottom: '20px'
@@ -1136,11 +1351,13 @@ const UsersAdmin = () => {
                   required
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
                     border: '2px solid #e2e8f0',
                     borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'all 0.3s ease'
+                    fontSize: isMobile ? '16px' : '1rem',
+                    transition: 'all 0.3s ease',
+                    minHeight: '44px',
+                    boxSizing: 'border-box'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#1976d2'
@@ -1170,11 +1387,13 @@ const UsersAdmin = () => {
                   required
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
                     border: '2px solid #e2e8f0',
                     borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'all 0.3s ease'
+                    fontSize: isMobile ? '16px' : '1rem',
+                    transition: 'all 0.3s ease',
+                    minHeight: '44px',
+                    boxSizing: 'border-box'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#1976d2'
@@ -1203,13 +1422,15 @@ const UsersAdmin = () => {
                   required
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
                     border: '2px solid #e2e8f0',
                     borderRadius: '8px',
-                    fontSize: '1rem',
+                    fontSize: isMobile ? '16px' : '1rem',
                     background: 'white',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    minHeight: '44px',
+                    boxSizing: 'border-box'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#1976d2'
@@ -1226,7 +1447,7 @@ const UsersAdmin = () => {
               </div>
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
                 gap: '16px',
                 marginBottom: '20px'
               }}>
@@ -1245,11 +1466,13 @@ const UsersAdmin = () => {
                     onChange={(e) => setEditForm({ ...editForm, firstName: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '12px 16px',
+                      padding: isMobile ? '14px 16px' : '12px 16px',
                       border: '2px solid #e2e8f0',
                       borderRadius: '8px',
-                      fontSize: '1rem',
-                      transition: 'all 0.3s ease'
+                      fontSize: isMobile ? '16px' : '1rem',
+                      transition: 'all 0.3s ease',
+                      minHeight: '44px',
+                      boxSizing: 'border-box'
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = '#1976d2'
@@ -1276,11 +1499,13 @@ const UsersAdmin = () => {
                     onChange={(e) => setEditForm({ ...editForm, lastName: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '12px 16px',
+                      padding: isMobile ? '14px 16px' : '12px 16px',
                       border: '2px solid #e2e8f0',
                       borderRadius: '8px',
-                      fontSize: '1rem',
-                      transition: 'all 0.3s ease'
+                      fontSize: isMobile ? '16px' : '1rem',
+                      transition: 'all 0.3s ease',
+                      minHeight: '44px',
+                      boxSizing: 'border-box'
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = '#1976d2'
@@ -1310,11 +1535,13 @@ const UsersAdmin = () => {
                   onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
                     border: '2px solid #e2e8f0',
                     borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'all 0.3s ease'
+                    fontSize: isMobile ? '16px' : '1rem',
+                    transition: 'all 0.3s ease',
+                    minHeight: '44px',
+                    boxSizing: 'border-box'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#1976d2'
@@ -1343,13 +1570,14 @@ const UsersAdmin = () => {
                   rows="3"
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
                     border: '2px solid #e2e8f0',
                     borderRadius: '8px',
-                    fontSize: '1rem',
+                    fontSize: isMobile ? '16px' : '1rem',
                     fontFamily: 'inherit',
                     resize: 'vertical',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.3s ease',
+                    boxSizing: 'border-box'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#1976d2'
@@ -1379,11 +1607,13 @@ const UsersAdmin = () => {
                   placeholder="空白のままにすると変更されません"
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: isMobile ? '14px 16px' : '12px 16px',
                     border: '2px solid #e2e8f0',
                     borderRadius: '8px',
-                    fontSize: '1rem',
-                    transition: 'all 0.3s ease'
+                    fontSize: isMobile ? '16px' : '1rem',
+                    transition: 'all 0.3s ease',
+                    minHeight: '44px',
+                    boxSizing: 'border-box'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#1976d2'
@@ -1400,21 +1630,24 @@ const UsersAdmin = () => {
                 gap: '12px',
                 justifyContent: 'flex-end',
                 paddingTop: '24px',
-                borderTop: '1px solid #e2e8f0'
+                borderTop: '1px solid #e2e8f0',
+                flexDirection: isMobile ? 'column' : 'row'
               }}>
                 <button
                   type="button"
                   onClick={() => setEditModalOpen(false)}
                   style={{
-                    padding: '12px 24px',
+                    padding: isMobile ? '14px 24px' : '12px 24px',
                     background: '#e2e8f0',
                     color: '#4a5568',
                     border: 'none',
                     borderRadius: '12px',
                     cursor: 'pointer',
                     fontWeight: 600,
-                    fontSize: '1rem',
-                    transition: 'all 0.3s ease'
+                    fontSize: isMobile ? '0.95rem' : '1rem',
+                    transition: 'all 0.3s ease',
+                    minHeight: '44px',
+                    width: isMobile ? '100%' : 'auto'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = '#cbd5e0'
@@ -1428,15 +1661,17 @@ const UsersAdmin = () => {
                 <button
                   type="submit"
                   style={{
-                    padding: '12px 24px',
+                    padding: isMobile ? '14px 24px' : '12px 24px',
                     background: '#48bb78',
                     color: 'white',
                     border: 'none',
                     borderRadius: '12px',
                     cursor: 'pointer',
                     fontWeight: 600,
-                    fontSize: '1rem',
-                    transition: 'all 0.3s ease'
+                    fontSize: isMobile ? '0.95rem' : '1rem',
+                    transition: 'all 0.3s ease',
+                    minHeight: '44px',
+                    width: isMobile ? '100%' : 'auto'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = '#38a169'
@@ -1477,10 +1712,11 @@ const UsersAdmin = () => {
           <div
             style={{
               background: 'white',
-              borderRadius: '24px',
-              maxWidth: '500px',
+              borderRadius: isMobile ? '16px' : '24px',
+              maxWidth: isMobile ? '100%' : '500px',
               width: '100%',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+              margin: isMobile ? '10px' : '0'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1488,11 +1724,11 @@ const UsersAdmin = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              padding: '24px',
+              padding: isMobile ? '16px' : '24px',
               borderBottom: '1px solid #e2e8f0'
             }}>
               <h3 style={{
-                fontSize: '1.5rem',
+                fontSize: isMobile ? '1.25rem' : '1.5rem',
                 fontWeight: 700,
                 color: '#2d3748',
                 margin: 0
@@ -1504,17 +1740,19 @@ const UsersAdmin = () => {
                 style={{
                   background: 'none',
                   border: 'none',
-                  fontSize: '2rem',
+                  fontSize: isMobile ? '1.5rem' : '2rem',
                   color: '#718096',
                   cursor: 'pointer',
                   padding: '0',
-                  width: '32px',
-                  height: '32px',
+                  width: isMobile ? '40px' : '32px',
+                  height: isMobile ? '40px' : '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '8px',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: '44px',
+                  minHeight: '44px'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#f7fafc'
@@ -1529,12 +1767,20 @@ const UsersAdmin = () => {
               </button>
             </div>
             <div style={{
-              padding: '24px'
+              padding: isMobile ? '16px' : '24px'
             }}>
-              <p style={{ color: '#4a5568', marginBottom: '12px' }}>
+              <p style={{ 
+                color: '#4a5568', 
+                marginBottom: '12px',
+                fontSize: isMobile ? '0.95rem' : '1rem'
+              }}>
                 ユーザー <strong>{escapeHtml(selectedUser.username)}</strong> を削除しますか？
               </p>
-              <p style={{ color: '#dc2626', fontWeight: '600' }}>
+              <p style={{ 
+                color: '#dc2626', 
+                fontWeight: '600',
+                fontSize: isMobile ? '0.9rem' : '1rem'
+              }}>
                 この操作は元に戻せません。ユーザーのすべてのデータが削除されます。
               </p>
             </div>
@@ -1542,21 +1788,24 @@ const UsersAdmin = () => {
               display: 'flex',
               gap: '12px',
               justifyContent: 'flex-end',
-              padding: '24px',
-              borderTop: '1px solid #e2e8f0'
+              padding: isMobile ? '16px' : '24px',
+              borderTop: '1px solid #e2e8f0',
+              flexDirection: isMobile ? 'column' : 'row'
             }}>
               <button
                 onClick={() => setDeleteModalOpen(false)}
                 style={{
-                  padding: '12px 24px',
+                  padding: isMobile ? '14px 24px' : '12px 24px',
                   background: '#e2e8f0',
                   color: '#4a5568',
                   border: 'none',
                   borderRadius: '12px',
                   cursor: 'pointer',
                   fontWeight: 600,
-                  fontSize: '1rem',
-                  transition: 'all 0.3s ease'
+                  fontSize: isMobile ? '0.95rem' : '1rem',
+                  transition: 'all 0.3s ease',
+                  minHeight: '44px',
+                  width: isMobile ? '100%' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#cbd5e0'
@@ -1570,15 +1819,17 @@ const UsersAdmin = () => {
               <button
                 onClick={handleDeleteConfirm}
                 style={{
-                  padding: '12px 24px',
+                  padding: isMobile ? '14px 24px' : '12px 24px',
                   background: '#dc2626',
                   color: 'white',
                   border: 'none',
                   borderRadius: '12px',
                   cursor: 'pointer',
                   fontWeight: 600,
-                  fontSize: '1rem',
-                  transition: 'all 0.3s ease'
+                  fontSize: isMobile ? '0.95rem' : '1rem',
+                  transition: 'all 0.3s ease',
+                  minHeight: '44px',
+                  width: isMobile ? '100%' : 'auto'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#b91c1c'

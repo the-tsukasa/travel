@@ -11,7 +11,16 @@ const Admin = () => {
     publishedNotes: 0
   })
   const [loading, setLoading] = useState(true)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     const token = TokenUtil.getToken()
@@ -92,7 +101,7 @@ const Admin = () => {
       <div style={{
         background: 'white',
         borderRadius: '16px',
-        padding: '24px',
+        padding: isMobile ? '20px' : '24px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         border: urgent ? `2px solid ${color}` : '1px solid #e2e8f0',
         cursor: link ? 'pointer' : 'default',
@@ -101,13 +110,13 @@ const Admin = () => {
         overflow: 'hidden'
       }}
       onMouseEnter={(e) => {
-        if (link) {
+        if (link && !isMobile) {
           e.currentTarget.style.transform = 'translateY(-4px)'
           e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)'
         }
       }}
       onMouseLeave={(e) => {
-        if (link) {
+        if (link && !isMobile) {
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'
         }
@@ -129,18 +138,18 @@ const Admin = () => {
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
-          marginBottom: '16px'
+          marginBottom: isMobile ? '12px' : '16px'
         }}>
-          <span style={{ fontSize: '2rem' }}>{icon}</span>
+          <span style={{ fontSize: isMobile ? '1.5rem' : '2rem' }}>{icon}</span>
           <h3 style={{
-            fontSize: '1rem',
+            fontSize: isMobile ? '0.9rem' : '1rem',
             fontWeight: 600,
             color: '#4a5568',
             margin: 0
           }}>{title}</h3>
         </div>
         <div style={{
-          fontSize: '3rem',
+          fontSize: isMobile ? '2rem' : '3rem',
           fontWeight: 700,
           color: color,
           lineHeight: 1
@@ -160,36 +169,38 @@ const Admin = () => {
       <div style={{
         background: 'white',
         borderRadius: '16px',
-        padding: '24px',
+        padding: isMobile ? '20px' : '24px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         border: urgent ? `2px solid ${color}` : '1px solid #e2e8f0',
         cursor: disabled ? 'not-allowed' : link ? 'pointer' : 'default',
         opacity: disabled ? 0.6 : 1,
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        minHeight: isMobile ? '120px' : 'auto'
       }}
       onMouseEnter={(e) => {
-        if (link && !disabled) {
+        if (link && !disabled && !isMobile) {
           e.currentTarget.style.transform = 'translateY(-4px)'
           e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)'
         }
       }}
       onMouseLeave={(e) => {
-        if (link && !disabled) {
+        if (link && !disabled && !isMobile) {
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'
         }
       }}
       >
         <h3 style={{
-          fontSize: '1.25rem',
+          fontSize: isMobile ? '1.1rem' : '1.25rem',
           fontWeight: 600,
           color: '#2d3748',
           marginBottom: '8px'
         }}>{title}</h3>
         <p style={{
           color: '#718096',
-          fontSize: '0.95rem',
-          margin: 0
+          fontSize: isMobile ? '0.9rem' : '0.95rem',
+          margin: 0,
+          lineHeight: 1.5
         }}>{description}</p>
         {urgent && (
           <div style={{
@@ -198,7 +209,7 @@ const Admin = () => {
             background: `${color}15`,
             color: color,
             borderRadius: '8px',
-            fontSize: '0.85rem',
+            fontSize: isMobile ? '0.8rem' : '0.85rem',
             fontWeight: 600,
             display: 'inline-block'
           }}>
@@ -218,11 +229,11 @@ const Admin = () => {
     return (
       <div style={{
         maxWidth: '1200px',
-        margin: '100px auto',
-        padding: '40px',
+        margin: isMobile ? '50px auto' : '100px auto',
+        padding: isMobile ? '20px' : '40px',
         textAlign: 'center'
       }}>
-        <div style={{ fontSize: '1.5rem', color: '#718096' }}>読み込み中...</div>
+        <div style={{ fontSize: isMobile ? '1.2rem' : '1.5rem', color: '#718096' }}>読み込み中...</div>
       </div>
     )
   }
@@ -230,28 +241,29 @@ const Admin = () => {
   return (
     <div style={{
       maxWidth: '1200px',
-      margin: '40px auto',
-      padding: '40px',
+      margin: isMobile ? '20px auto' : '40px auto',
+      padding: isMobile ? '16px' : '40px',
       minHeight: 'calc(100vh - 200px)'
     }}>
       <div style={{
-        marginBottom: '40px'
+        marginBottom: isMobile ? '24px' : '40px'
       }}>
         <h1 style={{
-          fontSize: '2.5rem',
+          fontSize: isMobile ? '1.75rem' : '2.5rem',
           fontWeight: 700,
           marginBottom: '10px',
           color: '#2d3748',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px'
+          gap: '12px',
+          flexWrap: 'wrap'
         }}>
           <span>🛠️</span>
           <span>管理ダッシュボード</span>
         </h1>
         <p style={{
           color: '#718096',
-          fontSize: '1.1rem'
+          fontSize: isMobile ? '0.9rem' : '1.1rem'
         }}>
           システム全体の管理と監視
         </p>
@@ -260,9 +272,9 @@ const Admin = () => {
       {/* 统计卡片 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '24px',
-        marginBottom: '40px'
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: isMobile ? '16px' : '24px',
+        marginBottom: isMobile ? '24px' : '40px'
       }}>
         <StatCard
           title="承認待ちノート"
@@ -294,20 +306,20 @@ const Admin = () => {
 
       {/* 快速操作 */}
       <div style={{
-        marginTop: '40px'
+        marginTop: isMobile ? '24px' : '40px'
       }}>
         <h2 style={{
-          fontSize: '1.5rem',
+          fontSize: isMobile ? '1.25rem' : '1.5rem',
           fontWeight: 600,
-          marginBottom: '24px',
+          marginBottom: isMobile ? '16px' : '24px',
           color: '#2d3748'
         }}>
           クイックアクション
         </h2>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '20px'
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: isMobile ? '16px' : '20px'
         }}>
           <ActionCard
             title="📋 ノート管理"
