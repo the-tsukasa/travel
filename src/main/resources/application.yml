@@ -52,17 +52,17 @@ spring:
       on-profile: production
   
   datasource:
-    # Render 支持 PostgreSQL 和 MySQL
-    # 方式1: 直接使用 DATABASE_URL（推荐，Render 会自动提供）
-    # 方式2: 使用分别的 DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD
-    # PostgreSQL 示例: jdbc:postgresql://host:5432/dbname
-    # MySQL/MariaDB 示例: jdbc:mariadb://host:3306/dbname
+    # Render 提供的 DATABASE_URL 格式可能是:
+    # - postgresql://user:password@host:port/dbname (需要转换为 jdbc:postgresql://)
+    # - jdbc:postgresql://host:port/dbname (直接使用)
+    # 如果 DATABASE_URL 以 postgresql:// 开头，需要手动转换为 jdbc:postgresql://
+    # 或者通过环境变量 DB_DRIVER 明确指定驱动
     url: ${DATABASE_URL:jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:travel_db}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
-    # Render 使用 PostgreSQL 时，driver-class-name 会自动检测
-    # 如果使用 MySQL，设置为: org.mariadb.jdbc.Driver
-    driver-class-name: ${DB_DRIVER:org.mariadb.jdbc.Driver}
+    # 明确指定驱动（Render PostgreSQL 使用 org.postgresql.Driver）
+    # 如果使用 MySQL/MariaDB，设置为: org.mariadb.jdbc.Driver
+    driver-class-name: ${DB_DRIVER:org.postgresql.Driver}
   
   jpa:
     hibernate:
@@ -73,10 +73,10 @@ spring:
     show-sql: false  # 生产环境关闭 SQL 日志
     properties:
       hibernate.format_sql: false
-      # 数据库方言会自动检测，也可以手动指定
+      # 明确指定数据库方言（Render 使用 PostgreSQL）
       # PostgreSQL: org.hibernate.dialect.PostgreSQLDialect
       # MariaDB/MySQL: org.hibernate.dialect.MariaDBDialect
-      hibernate.dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.MariaDBDialect}
+      hibernate.dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.PostgreSQLDialect}
 
 logging:
   level:
