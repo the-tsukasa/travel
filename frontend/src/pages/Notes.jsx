@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import NoteCard from '../components/notes/NoteCard'
 import api from '../services/api'
@@ -76,36 +76,9 @@ const Notes = () => {
       }
 
       const data = await response.json()
-      let notesData = data.content || data
+      const notesData = data.content || data
       
-      // 前端排序
-      if (Array.isArray(notesData)) {
-        notesData = [...notesData] // 复制数组避免修改原数组
-        if (sort === 'popular') {
-          // 人気排序：按照点赞数+收藏数从大到小
-          notesData.sort((a, b) => {
-            const aScore = (a.likesCount || 0) + (a.favoritesCount || 0)
-            const bScore = (b.likesCount || 0) + (b.favoritesCount || 0)
-            return bScore - aScore // 降序
-          })
-        } else if (sort === 'latest') {
-          // 最新排序：按照创建时间从新到旧
-          notesData.sort((a, b) => {
-            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
-            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
-            return dateB - dateA // 降序（新的在前）
-          })
-        }
-        // oldest 排序：按照创建时间从旧到新（如果需要的话）
-        // else if (sort === 'oldest') {
-        //   notesData.sort((a, b) => {
-        //     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
-        //     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
-        //     return dateA - dateB // 升序（旧的在前）
-        //   })
-        // }
-      }
-      
+      // 直接设置原始数据，排序通过useMemo在渲染时完成，避免阻塞数据设置
       setNotes(Array.isArray(notesData) ? notesData : [])
       setPagination(data)
       setCurrentPage(page)
@@ -177,6 +150,39 @@ const Notes = () => {
     loadNotes(page, searchKeyword, sortBy)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  // 使用useMemo缓存排序结果，避免每次渲染都重新排序
+  const sortedNotes = useMemo(() => {
+    if (!Array.isArray(notes) || notes.length === 0) return notes
+    
+    const sorted = [...notes] // 复制数组避免修改原数组
+    
+    if (sortBy === 'popular') {
+      // 人気排序：按照点赞数+收藏数从大到小
+      sorted.sort((a, b) => {
+        const aScore = (a.likesCount || 0) + (a.favoritesCount || 0)
+        const bScore = (b.likesCount || 0) + (b.favoritesCount || 0)
+        return bScore - aScore // 降序
+      })
+    } else if (sortBy === 'latest') {
+      // 最新排序：按照创建时间从新到旧
+      sorted.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+        return dateB - dateA // 降序（新的在前）
+      })
+    }
+    // oldest 排序：按照创建时间从旧到新（如果需要的话）
+    // else if (sortBy === 'oldest') {
+    //   sorted.sort((a, b) => {
+    //     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+    //     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+    //     return dateA - dateB // 升序（旧的在前）
+    //   })
+    // }
+    
+    return sorted
+  }, [notes, sortBy])
 
   return (
     <>
@@ -311,7 +317,7 @@ const Notes = () => {
               再試行
             </button>
           </div>
-        ) : notes.length === 0 ? (
+        ) : sortedNotes.length === 0 ? (
           <div className="notes-empty">
             <div className="notes-empty-icon">📝</div>
             <h3>まだノートがありません</h3>
@@ -339,7 +345,7 @@ const Notes = () => {
             </div>
 
             <div className="notes-grid" key={`grid-${currentPage}-${sortBy}-${searchKeyword}`}>
-              {notes.map((note, index) => (
+              {sortedNotes.map((note, index) => (
                 <div 
                   key={note.id} 
                   className="notes-grid-item"

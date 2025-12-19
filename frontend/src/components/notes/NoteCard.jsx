@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, memo } from 'react'
 import api from '../../services/api'
 import { TokenUtil } from '../../utils/auth'
 
-const NoteCard = ({ note, onUpdate }) => {
+const NoteCard = memo(({ note, onUpdate }) => {
   const navigate = useNavigate()
   const [isLiked, setIsLiked] = useState(note.isLiked || false)
   const [isFavorited, setIsFavorited] = useState(note.isFavorited || false)
@@ -112,8 +112,26 @@ const NoteCard = ({ note, onUpdate }) => {
     return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
   }
 
-  // 格式化图片URL
-  const formatImageUrl = (url) => {
+  // 使用useMemo计算图片URL，避免每次渲染都重新计算
+  const imageUrl = useMemo(() => {
+    if (!note.imageUrl) return null
+    
+    let url = note.imageUrl
+    
+    // 尝试解析 JSON 数组格式
+    try {
+      const parsed = JSON.parse(note.imageUrl)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        url = parsed[0]
+      } else if (typeof parsed === 'string') {
+        url = parsed
+      }
+    } catch {
+      // 不是 JSON，直接使用原始值
+      url = note.imageUrl
+    }
+    
+    // 格式化URL
     if (!url) return null
     
     // 如果已经是完整 URL，直接返回
@@ -121,50 +139,24 @@ const NoteCard = ({ note, onUpdate }) => {
       return url
     }
     
-    // 获取后端服务器地址（开发环境使用 localhost:8080，生产环境使用当前域名）
-    const isDev = import.meta.env.DEV
-    const backendUrl = isDev ? 'http://localhost:8080' : ''
-    
-    // 如果是 /uploads/ 开头的相对路径
+    // 如果是 /uploads/ 开头的相对路径，直接返回（Vite代理会处理）
     if (url.startsWith('/uploads/')) {
-      return isDev ? `${backendUrl}${url}` : url
+      return url
     }
     
-    // 如果是 / 开头的其他路径
+    // 如果是 / 开头的其他路径，直接返回
     if (url.startsWith('/')) {
-      return isDev ? `${backendUrl}${url}` : url
+      return url
     }
     
     // 否则添加 /uploads/ 前缀
     // 检查是否已经包含 notes/ 子目录
     if (url.startsWith('notes/')) {
-      return isDev ? `${backendUrl}/uploads/${url}` : `/uploads/${url}`
+      return `/uploads/${url}`
     }
     
-    return isDev ? `${backendUrl}/uploads/${url}` : `/uploads/${url}`
-  }
-
-  // 获取图片URL（支持多图片）
-  const getImageUrl = () => {
-    if (!note.imageUrl) return null
-    
-    let imageUrl = note.imageUrl
-    
-    // 尝试解析 JSON 数组格式
-    try {
-      const parsed = JSON.parse(note.imageUrl)
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        imageUrl = parsed[0]
-      } else if (typeof parsed === 'string') {
-        imageUrl = parsed
-      }
-    } catch {
-      // 不是 JSON，直接使用原始值
-      imageUrl = note.imageUrl
-    }
-    
-    return imageUrl
-  }
+    return `/uploads/${url}`
+  }, [note.imageUrl])
 
   // 截断文本
   const truncateText = (text, maxLength = 120) => {
@@ -176,20 +168,18 @@ const NoteCard = ({ note, onUpdate }) => {
 
   // 在组件挂载或 imageUrl 变化时处理图片 URL
   useEffect(() => {
-    const url = getImageUrl()
-    if (url) {
-      const formattedUrl = formatImageUrl(url)
+    if (imageUrl) {
       // 重置状态
       setImageLoading(true)
       setImageError(false)
       // 设置新的图片源
-      setImageSrc(formattedUrl)
+      setImageSrc(imageUrl)
     } else {
       setImageSrc(null)
       setImageLoading(false)
       setImageError(false)
     }
-  }, [note.imageUrl, note.id])
+  }, [imageUrl])
 
   return (
     <article className="note-card" onClick={handleCardClick}>
@@ -212,6 +202,8 @@ const NoteCard = ({ note, onUpdate }) => {
               console.error('图片加载失败:', imageSrc, note)
               setImageError(true)
               setImageLoading(false)
+              // 隐藏图片元素
+              e.target.style.display = 'none'
             }}
             style={{ 
               display: imageLoading ? 'none' : 'block',
@@ -259,7 +251,11 @@ const NoteCard = ({ note, onUpdate }) => {
           <div className="note-card-author-avatar">
             {note.avatarUrl ? (
               <img 
-                src={note.avatarUrl.startsWith('/') ? `http://localhost:8080${note.avatarUrl}` : note.avatarUrl}
+                src={note.avatarUrl.startsWith('http://') || note.avatarUrl.startsWith('https://') 
+                  ? note.avatarUrl 
+                  : note.avatarUrl.startsWith('/') 
+                    ? note.avatarUrl 
+                    : `/${note.avatarUrl}`}
                 alt={escapeHtml(note.username)}
                 onError={(e) => {
                   e.target.style.display = 'none'
@@ -319,6 +315,18 @@ const NoteCard = ({ note, onUpdate }) => {
       </div>
     </article>
   )
-}
+}, (prevProps, nextProps) => {
+  // 自定义比较函数，只在关键属性变化时重新渲染
+  return (
+    prevProps.note.id === nextProps.note.id &&
+    prevProps.note.imageUrl === nextProps.note.imageUrl &&
+    prevProps.note.likesCount === nextProps.note.likesCount &&
+    prevProps.note.favoritesCount === nextProps.note.favoritesCount &&
+    prevProps.note.isLiked === nextProps.note.isLiked &&
+    prevProps.note.isFavorited === nextProps.note.isFavorited
+  )
+})
+
+NoteCard.displayName = 'NoteCard'
 
 export default NoteCard
