@@ -52,23 +52,31 @@ spring:
       on-profile: production
   
   datasource:
-    # Railway 支持两种配置方式：
-    # 方式1: 直接使用 DATABASE_URL（推荐）
+    # Render 支持 PostgreSQL 和 MySQL
+    # 方式1: 直接使用 DATABASE_URL（推荐，Render 会自动提供）
     # 方式2: 使用分别的 DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD
+    # PostgreSQL 示例: jdbc:postgresql://host:5432/dbname
+    # MySQL/MariaDB 示例: jdbc:mariadb://host:3306/dbname
     url: ${DATABASE_URL:jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:travel_db}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
-    driver-class-name: org.mariadb.jdbc.Driver
+    # Render 使用 PostgreSQL 时，driver-class-name 会自动检测
+    # 如果使用 MySQL，设置为: org.mariadb.jdbc.Driver
+    driver-class-name: ${DB_DRIVER:org.mariadb.jdbc.Driver}
   
   jpa:
     hibernate:
-      # ⚠️ 生产环境必须使用 validate，不允许自动修改数据库结构
+      # ⚠️ 首次部署：使用 update 自动创建表结构
+      # 部署成功后，建议改为 validate 并手动管理数据库迁移
       # 数据库迁移应使用 Flyway 或 Liquibase
-      ddl-auto: validate
+      ddl-auto: ${DDL_AUTO:update}  # 可通过环境变量 DDL_AUTO=validate 改为验证模式
     show-sql: false  # 生产环境关闭 SQL 日志
     properties:
       hibernate.format_sql: false
-      hibernate.dialect: org.hibernate.dialect.MariaDBDialect
+      # 数据库方言会自动检测，也可以手动指定
+      # PostgreSQL: org.hibernate.dialect.PostgreSQLDialect
+      # MariaDB/MySQL: org.hibernate.dialect.MariaDBDialect
+      hibernate.dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.MariaDBDialect}
 
 logging:
   level:

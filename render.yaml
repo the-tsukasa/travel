@@ -2,7 +2,16 @@ services:
   - type: web
     name: travel-app
     env: java
-    buildCommand: ./mvnw clean package -DskipTests
+    # 构建命令：先构建前端，再构建后端
+    buildCommand: |
+      echo "🚀 开始构建..."
+      echo "📦 安装前端依赖..."
+      cd frontend && npm install && echo "✅ 前端依赖安装完成"
+      echo "🏗️ 构建前端..."
+      npm run build && echo "✅ 前端构建完成" && cd ..
+      echo "☕ 构建后端..."
+      ./mvnw clean package -DskipTests
+      echo "✅ 构建完成！"
     startCommand: java -jar target/travel-0.0.1-SNAPSHOT.jar
     envVars:
       - key: SPRING_PROFILES_ACTIVE
@@ -23,6 +32,10 @@ services:
           property: password
       - key: JWT_SECRET
         generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false  # 需要在 Render Dashboard 手动设置，格式：https://your-app.onrender.com
+      - key: UPLOAD_DIR
+        value: /tmp/uploads
     healthCheckPath: /actuator/health
 
 databases:
