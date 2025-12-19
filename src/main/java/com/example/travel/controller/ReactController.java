@@ -1,5 +1,6 @@
 package com.example.travel.controller;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -14,8 +15,10 @@ import java.nio.charset.StandardCharsets;
 /**
  * React SPA 控制器
  * 处理所有前端路由，返回 React 应用的 index.html
+ * 使用 @Order 确保优先级高于静态资源处理器
  */
 @RestController
+@Order(1)  // 确保优先级高于静态资源处理器
 public class ReactController {
 
     /**
@@ -47,6 +50,28 @@ public class ReactController {
             "/notes-detail/**"
     }, produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> reactRoutes() {
+        return getReactIndex();
+    }
+
+    /**
+     * 处理旧的 HTML 文件路径，重定向到 React 路由
+     * 这些旧的 HTML 文件已被封存到 html-archive 目录
+     */
+    @GetMapping(value = {
+            "/spot.html",
+            "/login.html",
+            "/register.html",
+            "/admin.html",
+            "/notes-admin.html",
+            "/notes-create.html",
+            "/notes-detail.html",
+            "/notes-my.html",
+            "/notes.html",
+            "/profile-edit.html",
+            "/user.html"
+    }, produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> oldHtmlRoutes() {
+        // 返回 React 应用，由 React Router 处理路由
         return getReactIndex();
     }
 

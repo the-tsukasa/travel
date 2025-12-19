@@ -163,16 +163,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 1. OPTIONS 请求全部放行（CORS 预检）
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // 2. 静态资源和 HTML 页面放行
+                        // 2. 静态资源和 React 路由放行
                         // React 构建的静态资源
                         .requestMatchers("/assets/**", "/images/**", "/react-dist/**").permitAll()
-                        // React SPA 路由
+                        // React SPA 路由（所有前端路由都由 React Router 处理）
                         .requestMatchers("/", "/home", "/spot", "/notes", "/login", "/register", 
                                 "/user", "/profile-edit", "/notifications", "/admin", 
                                 "/notes-admin", "/users-admin", "/notes-create", "/notes-my", "/notes-detail/**").permitAll()
-                        // 旧的 HTML 页面（保留兼容性）
-                        .requestMatchers("/*.html", "/js/**", "/css/**", "/static/**", "/uploads/**").permitAll()
-                        .requestMatchers("/spot.html", "/login.html", "/register.html", "/admin.html", "/notes-admin.html").permitAll()
+                        // 文件上传目录
+                        .requestMatchers("/uploads/**").permitAll()
+                        // 旧的 HTML 文件已封存到 html-archive 目录，不再提供访问
                         // 3. 认证接口放行
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         // 4. 测试接口放行
