@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { checkAuth, TokenUtil } from '../../utils/auth'
+import api from '../../services/api'
 
 const NavBar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -8,7 +9,10 @@ const NavBar = () => {
   const [userEmail, setUserEmail] = useState('')
   const [userId, setUserId] = useState(null)
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [userRole, setUserRole] = useState(null) // 新增：用户角色
   const [showDropdown, setShowDropdown] = useState(false)
+  const [pendingNotesCount, setPendingNotesCount] = useState(0) // 待审核笔记数量
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0) // 未读通知数量
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
 
@@ -45,6 +49,17 @@ const NavBar = () => {
           }
         }
         setUsername(displayName)
+        
+        // 从 token 中获取用户角色
+        const token = TokenUtil.getToken()
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            setUserRole(payload.role || null)
+          } catch (e) {
+            console.error('トークン解析エラー:', e)
+          }
+        }
       }
     }
     verifyAuth()
@@ -64,6 +79,69 @@ const NavBar = () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [showDropdown])
+
+  // 获取待审核笔记数量（仅管理员）
+  useEffect(() => {
+    const loadPendingNotesCount = async () => {
+      if (userRole === 'ADMIN' && isAuthenticated) {
+        try {
+          const response = await api.get('/admin/notes/stats')
+          if (response.data && response.data.pendingNotes !== undefined) {
+            setPendingNotesCount(response.data.pendingNotes || 0)
+          }
+        } catch (error) {
+          // 静默处理错误，避免影响导航栏显示
+          console.error('待审核笔记数量获取失败:', error)
+          setPendingNotesCount(0)
+        }
+      } else {
+        setPendingNotesCount(0)
+      }
+    }
+
+    loadPendingNotesCount()
+    
+    // 每30秒刷新一次待审核笔记数量
+    const interval = setInterval(() => {
+      if (userRole === 'ADMIN' && isAuthenticated) {
+        loadPendingNotesCount()
+      }
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [userRole, isAuthenticated])
+
+  // 获取未读通知数量
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      if (isAuthenticated) {
+        try {
+          const response = await api.get('/notifications/unread/count')
+          const count = response.data?.count || 0
+          console.log('未读通知数量:', count)
+          setUnreadNotificationCount(count)
+        } catch (error) {
+          // 静默处理错误，避免影响导航栏显示
+          console.error('未读通知数量获取失败:', error)
+          console.error('错误详情:', error.response?.data)
+          setUnreadNotificationCount(0)
+        }
+      } else {
+        setUnreadNotificationCount(0)
+      }
+    }
+
+    loadUnreadCount()
+    
+    // 每30秒刷新一次未读通知数量
+    const interval = setInterval(() => {
+      if (isAuthenticated) {
+        loadUnreadCount()
+      }
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [isAuthenticated])
 
   const handleLogout = () => {
     TokenUtil.clearToken()
@@ -86,7 +164,7 @@ const NavBar = () => {
       </Link>
       
       <div className="nav-links">
-        <Link to="/spot.html">観光スポット</Link>
+        <Link to="/spot">観光スポット</Link>
         <Link to="/notes">みんなの旅行ノート</Link>
       </div>
 
@@ -98,15 +176,46 @@ const NavBar = () => {
               onClick={() => setShowDropdown(!showDropdown)}
               aria-label="用户菜单"
             >
-              <img 
-                src={avatarUrl || defaultAvatar} 
-                alt={username}
-                className="userbar-avatar"
-                onError={(e) => {
-                  e.target.src = defaultAvatar
-                }}
-              />
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <img 
+                  src={avatarUrl || defaultAvatar} 
+                  alt={username}
+                  className="userbar-avatar"
+                  onError={(e) => {
+                    e.target.src = defaultAvatar
+                  }}
+                />
+                {unreadNotificationCount > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-4px',
+                    right: '-4px',
+                    minWidth: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0 4px',
+                    border: '2px solid white',
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                    zIndex: 10
+                  }}>
+                    {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
+                  </span>
+                )}
+              </div>
               <span className="userbar-username">{username}</span>
+              {/* 管理员标识 */}
+              {userRole === 'ADMIN' && (
+                <span className="userbar-admin-badge" title="管理者">
+                  🛠️
+                </span>
+              )}
               <svg 
                 className={`userbar-chevron ${showDropdown ? 'open' : ''}`}
                 width="12" 
@@ -136,7 +245,12 @@ const NavBar = () => {
                     }}
                   />
                   <div className="userbar-dropdown-info">
-                    <div className="userbar-dropdown-name">{username}</div>
+                    <div className="userbar-dropdown-name">
+                      {username}
+                      {userRole === 'ADMIN' && (
+                        <span className="userbar-dropdown-role-badge">管理者</span>
+                      )}
+                    </div>
                     <div className="userbar-dropdown-email">
                       {userEmail || 'ユーザー'}
                       {userId && <span> id {userId}</span>}
@@ -145,7 +259,7 @@ const NavBar = () => {
                 </div>
                 <div className="userbar-dropdown-divider"></div>
                 <Link 
-                  to="/user.html" 
+                  to="/user" 
                   className="userbar-dropdown-item"
                   onClick={() => setShowDropdown(false)}
                 >
@@ -156,7 +270,7 @@ const NavBar = () => {
                   マイページ
                 </Link>
                 <Link 
-                  to="/profile-edit.html" 
+                  to="/profile-edit" 
                   className="userbar-dropdown-item"
                   onClick={() => setShowDropdown(false)}
                 >
@@ -165,6 +279,109 @@ const NavBar = () => {
                   </svg>
                   プロフィール編集
                 </Link>
+                <Link 
+                  to="/notifications" 
+                  className="userbar-dropdown-item"
+                  onClick={() => setShowDropdown(false)}
+                  style={{ position: 'relative', paddingRight: unreadNotificationCount > 0 ? '40px' : '16px' }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 0C6.9 0 6 0.9 6 2C6 3.1 6.9 4 8 4C9.1 4 10 3.1 10 2C10 0.9 9.1 0 8 0ZM8 5C5.8 5 4 6.8 4 9V12H6V9C6 7.9 6.9 7 8 7C9.1 7 10 7.9 10 9V12H12V9C12 6.8 10.2 5 8 5Z" fill="currentColor"/>
+                  </svg>
+                  🔔 通知
+                  {unreadNotificationCount > 0 && (
+                    <span style={{
+                      position: 'absolute',
+                      top: '50%',
+                      right: '12px',
+                      transform: 'translateY(-50%)',
+                      minWidth: '20px',
+                      height: '20px',
+                      borderRadius: '10px',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 6px',
+                      boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)',
+                      lineHeight: 1,
+                      border: '2px solid white'
+                    }}>
+                      {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                    </span>
+                  )}
+                </Link>
+                
+                {/* 管理员专用菜单区域 */}
+                {userRole === 'ADMIN' && (
+                  <>
+                    <div className="userbar-dropdown-divider"></div>
+                    <div className="userbar-dropdown-section-title">管理機能</div>
+                    <Link 
+                      to="/admin" 
+                      className="userbar-dropdown-item admin-item"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 0L0 4V6C0 10.55 3.36 14.74 8 16C12.64 14.74 16 10.55 16 6V4L8 0ZM8 8.99C6.9 8.99 6 8.09 6 6.99C6 5.89 6.9 4.99 8 4.99C9.1 4.99 10 5.89 10 6.99C10 8.09 9.1 8.99 8 8.99Z" fill="currentColor"/>
+                      </svg>
+                      🛠️ 管理ダッシュボード
+                    </Link>
+                    <Link 
+                      to="/notes-admin" 
+                      className="userbar-dropdown-item admin-item"
+                      onClick={() => setShowDropdown(false)}
+                      style={{ position: 'relative', paddingRight: pendingNotesCount > 0 ? '40px' : '16px' }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M14 2H2C0.9 2 0 2.9 0 4V12C0 13.1 0.9 14 2 14H14C15.1 14 16 13.1 16 12V4C16 2.9 15.1 2 14 2ZM14 12H2V4H14V12Z" fill="currentColor"/>
+                        <path d="M4 6H12V8H4V6ZM4 9H10V11H4V9Z" fill="currentColor"/>
+                      </svg>
+                      📋 ノート 管理
+                      {pendingNotesCount > 0 && (
+                        <span 
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            right: '12px',
+                            transform: 'translateY(-50%)',
+                            minWidth: '20px',
+                            height: '20px',
+                            borderRadius: '10px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '0 6px',
+                            boxShadow: '0 2px 6px rgba(239, 68, 68, 0.4)',
+                            lineHeight: 1,
+                            border: '2px solid white'
+                          }}
+                        >
+                          {pendingNotesCount > 99 ? '99+' : pendingNotesCount}
+                        </span>
+                      )}
+                    </Link>
+                    <Link 
+                      to="/users-admin" 
+                      className="userbar-dropdown-item admin-item"
+                      onClick={() => setShowDropdown(false)}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 8C10.2091 8 12 6.20914 12 4C12 1.79086 10.2091 0 8 0C5.79086 0 4 1.79086 4 4C4 6.20914 5.79086 8 8 8Z" fill="currentColor"/>
+                        <path d="M8 9C4.667 9 2 10.567 2 12.5V16H14V12.5C14 10.567 11.333 9 8 9Z" fill="currentColor"/>
+                      </svg>
+                      👥 ユーザー管理
+                    </Link>
+                  </>
+                )}
+                
                 <div className="userbar-dropdown-divider"></div>
                 <button 
                   className="userbar-dropdown-item logout"

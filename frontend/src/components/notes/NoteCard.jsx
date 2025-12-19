@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import api from '../../services/api'
 import { TokenUtil } from '../../utils/auth'
 
@@ -11,9 +11,10 @@ const NoteCard = ({ note, onUpdate }) => {
   const [favoritesCount, setFavoritesCount] = useState(note.favoritesCount || 0)
   const [imageError, setImageError] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
+  const [imageSrc, setImageSrc] = useState(null)
 
   const handleCardClick = () => {
-    navigate(`/notes-detail.html?id=${note.id}`)
+    navigate(`/notes-detail?id=${note.id}`)
   }
 
   const handleLike = async (e) => {
@@ -111,18 +112,58 @@ const NoteCard = ({ note, onUpdate }) => {
     return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
   }
 
+  // 格式化图片URL
+  const formatImageUrl = (url) => {
+    if (!url) return null
+    
+    // 如果已经是完整 URL，直接返回
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+    
+    // 获取后端服务器地址（开发环境使用 localhost:8080，生产环境使用当前域名）
+    const isDev = import.meta.env.DEV
+    const backendUrl = isDev ? 'http://localhost:8080' : ''
+    
+    // 如果是 /uploads/ 开头的相对路径
+    if (url.startsWith('/uploads/')) {
+      return isDev ? `${backendUrl}${url}` : url
+    }
+    
+    // 如果是 / 开头的其他路径
+    if (url.startsWith('/')) {
+      return isDev ? `${backendUrl}${url}` : url
+    }
+    
+    // 否则添加 /uploads/ 前缀
+    // 检查是否已经包含 notes/ 子目录
+    if (url.startsWith('notes/')) {
+      return isDev ? `${backendUrl}/uploads/${url}` : `/uploads/${url}`
+    }
+    
+    return isDev ? `${backendUrl}/uploads/${url}` : `/uploads/${url}`
+  }
+
   // 获取图片URL（支持多图片）
   const getImageUrl = () => {
     if (!note.imageUrl) return null
+    
+    let imageUrl = note.imageUrl
+    
+    // 尝试解析 JSON 数组格式
     try {
-      const images = JSON.parse(note.imageUrl)
-      if (Array.isArray(images) && images.length > 0) {
-        return images[0]
+      const parsed = JSON.parse(note.imageUrl)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        imageUrl = parsed[0]
+      } else if (typeof parsed === 'string') {
+        imageUrl = parsed
       }
     } catch {
-      return note.imageUrl
+      // 不是 JSON，直接使用原始值
+      imageUrl = note.imageUrl
     }
-    return note.imageUrl
+    
+    return imageUrl
   }
 
   // 截断文本
@@ -133,35 +174,85 @@ const NoteCard = ({ note, onUpdate }) => {
     return plainText.substring(0, maxLength) + '...'
   }
 
-  const imageUrl = getImageUrl()
+  // 在组件挂载或 imageUrl 变化时处理图片 URL
+  useEffect(() => {
+    const url = getImageUrl()
+    if (url) {
+      const formattedUrl = formatImageUrl(url)
+      // 重置状态
+      setImageLoading(true)
+      setImageError(false)
+      // 设置新的图片源
+      setImageSrc(formattedUrl)
+    } else {
+      setImageSrc(null)
+      setImageLoading(false)
+      setImageError(false)
+    }
+  }, [note.imageUrl, note.id])
 
   return (
     <article className="note-card" onClick={handleCardClick}>
       {/* 图片区域 */}
-      {imageUrl && !imageError && (
+      {imageSrc && !imageError && (
         <div className="note-card-image-wrapper">
           {imageLoading && (
             <div className="note-card-image-skeleton"></div>
           )}
           <img 
-            src={imageUrl} 
+            src={imageSrc} 
             alt={escapeHtml(note.title)} 
             className="note-card-image"
             loading="lazy"
-            onLoad={() => setImageLoading(false)}
-            onError={() => {
+            decoding="async"
+            onLoad={() => {
+              setImageLoading(false)
+            }}
+            onError={(e) => {
+              console.error('图片加载失败:', imageSrc, note)
               setImageError(true)
               setImageLoading(false)
             }}
-            style={{ display: imageLoading ? 'none' : 'block' }}
+            style={{ 
+              display: imageLoading ? 'none' : 'block',
+              opacity: imageLoading ? 0 : 1,
+              transition: 'opacity 0.3s ease'
+            }}
           />
         </div>
       )}
 
       {/* 内容区域 */}
       <div className="note-card-content">
-        {/* 标题 */}
-        <h3 className="note-card-title" dangerouslySetInnerHTML={{ __html: escapeHtml(note.title) }} />
+        {/* 标题和状态 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          <h3 className="note-card-title" style={{ flex: 1, margin: 0 }} dangerouslySetInnerHTML={{ __html: escapeHtml(note.title) }} />
+          {/* 状态标签（仅显示非 PUBLISHED 状态） */}
+          {note.status && note.status !== 'PUBLISHED' && (
+            <span style={{
+              padding: '4px 10px',
+              borderRadius: '12px',
+              fontSize: '11px',
+              fontWeight: '500',
+              whiteSpace: 'nowrap',
+              backgroundColor: 
+                note.status === 'DRAFT' ? '#e3f2fd' :
+                note.status === 'PENDING' ? '#fff3e0' :
+                note.status === 'REJECTED' ? '#ffebee' :
+                note.status === 'PRIVATE' ? '#f3e5f5' : '#f5f5f5',
+              color: 
+                note.status === 'DRAFT' ? '#1976d2' :
+                note.status === 'PENDING' ? '#f57c00' :
+                note.status === 'REJECTED' ? '#c62828' :
+                note.status === 'PRIVATE' ? '#7b1fa2' : '#666'
+            }}>
+              {note.status === 'DRAFT' && '📝'}
+              {note.status === 'PENDING' && '⏳'}
+              {note.status === 'REJECTED' && '❌'}
+              {note.status === 'PRIVATE' && '🔒'}
+            </span>
+          )}
+        </div>
         
         {/* 用户信息 */}
         <div className="note-card-author">

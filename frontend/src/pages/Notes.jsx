@@ -266,13 +266,13 @@ const Notes = () => {
 
             {/* Actions */}
             <div className="notes-header-buttons">
-              <Link to="/notes-create.html" className="btn btn-primary btn-icon" title="ノートを投稿">
+              <Link to="/notes-create" className="btn btn-primary btn-icon" title="ノートを投稿">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
               </Link>
-              <Link to="/notes-my.html" className="btn btn-outline btn-icon" title="マイノート">
+              <Link to="/notes-my" className="btn btn-outline btn-icon" title="マイノート">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
@@ -322,7 +322,7 @@ const Notes = () => {
               }
             </p>
             {!searchKeyword && (
-              <Link to="/notes-create.html" className="btn btn-primary">
+              <Link to="/notes-create" className="btn btn-primary">
                 ノートを投稿する
               </Link>
             )}

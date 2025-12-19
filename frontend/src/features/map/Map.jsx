@@ -4,10 +4,13 @@ import L from 'leaflet'
 import { getLocationCoordinates } from '../../utils/locationMapper'
 
 // 修复 Leaflet 默认图标路径问题
+import 'leaflet/dist/leaflet.css'
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
 
-const DefaultIcon = L.icon({
+// 修复图标路径问题
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
   iconUrl: icon,
   shadowUrl: iconShadow,
   iconSize: [25, 41],
@@ -15,8 +18,6 @@ const DefaultIcon = L.icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 })
-
-L.Marker.prototype.options.icon = DefaultIcon
 
 // 自定义红色图标用于景点标记
 const createCustomIcon = (color = '#ff4d00') => {
@@ -55,6 +56,11 @@ function MapBounds({ spots }) {
   const map = useMap()
   
   useEffect(() => {
+    // 确保地图尺寸正确
+    setTimeout(() => {
+      map.invalidateSize()
+    }, 100)
+    
     if (spots && spots.length > 0) {
       const validSpots = spots
         .map(spot => {
@@ -115,7 +121,7 @@ const Map = ({ spots = [], onHotspotClick, loading = false }) => {
   }
 
   return (
-    <div className="map-container" style={{ width: '100%', height: '600px', position: 'relative' }}>
+    <div className="map-container" style={{ width: '100%', height: '600px', position: 'relative', minHeight: '600px' }}>
       {loading && (
         <div style={{
           position: 'absolute',
@@ -137,8 +143,14 @@ const Map = ({ spots = [], onHotspotClick, loading = false }) => {
       <MapContainer
         center={defaultCenter}
         zoom={defaultZoom}
-        style={{ height: '100%', width: '100%', zIndex: 1 }}
+        style={{ height: '100%', width: '100%', zIndex: 1, minHeight: '600px' }}
         scrollWheelZoom={true}
+        whenReady={(map) => {
+          // 地图准备好后，确保尺寸正确
+          setTimeout(() => {
+            map.target.invalidateSize()
+          }, 100)
+        }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -205,10 +217,15 @@ const Map = ({ spots = [], onHotspotClick, loading = false }) => {
         .map-container .leaflet-container {
           border-radius: 12px;
           overflow: hidden;
+          height: 100% !important;
+          width: 100% !important;
         }
         .custom-marker {
           background: transparent !important;
           border: none !important;
+        }
+        .leaflet-container {
+          font-family: inherit;
         }
       `}</style>
     </div>

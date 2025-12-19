@@ -16,4 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // 检查是否存在（性能优化）
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    
+    // 查找所有管理员
+    java.util.List<User> findByRole(String role);
 }

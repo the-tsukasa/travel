@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.travel.dto.CreateNotesRequest;
 import com.example.travel.dto.NotesDTO;
 import com.example.travel.entity.User;
+import com.example.travel.enums.NoteStatus;
 import com.example.travel.service.NotesService;
 import com.example.travel.util.SecurityUtils;
 
@@ -56,11 +57,30 @@ public class NotesController {
         return ResponseEntity.ok(notes);
     }
 
-    // 获取用户的笔记
+    // 获取用户的笔记（可按状态过滤）
     @GetMapping("/my")
-    public ResponseEntity<List<NotesDTO>> getUserNotes(Authentication authentication) {
+    public ResponseEntity<List<NotesDTO>> getUserNotes(
+            @RequestParam(required = false) String status,
+            Authentication authentication) {
         User user = securityUtils.getCurrentUserOrThrow(authentication);
-        List<NotesDTO> notes = notesService.getUserNotes(user);
+        NoteStatus noteStatus = null;
+        if (status != null && !status.trim().isEmpty()) {
+            try {
+                noteStatus = NoteStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+        List<NotesDTO> notes = notesService.getUserNotes(user, noteStatus);
+        return ResponseEntity.ok(notes);
+    }
+    
+    // 提交审核
+    @PostMapping("/{id}/submit")
+    public ResponseEntity<NotesDTO> submitNotes(@PathVariable Long id,
+                                                  Authentication authentication) {
+        User user = securityUtils.getCurrentUserOrThrow(authentication);
+        NotesDTO notes = notesService.submitNotes(id, user);
         return ResponseEntity.ok(notes);
     }
 

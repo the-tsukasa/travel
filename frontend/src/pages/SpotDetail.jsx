@@ -151,7 +151,7 @@ const SpotDetail = () => {
                 <button className="btn btn-primary" onClick={loadSpotDetail}>
                   再試行
                 </button>
-                <Link to="/spot.html" className="btn btn-outline">
+                <Link to="/spot" className="btn btn-outline">
                   一覧に戻る
                 </Link>
               </div>
@@ -160,7 +160,7 @@ const SpotDetail = () => {
             <>
               {/* 返回按钮 */}
               <div className="spot-detail-back">
-                <Link to="/spot.html" className="spot-detail-back-btn">
+                <Link to="/spot" className="spot-detail-back-btn">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>

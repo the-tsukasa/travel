@@ -3,6 +3,8 @@ package com.example.travel.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.travel.enums.NoteStatus;
+
 import lombok.Data;
 
 @Data
@@ -15,7 +17,37 @@ public class NotesDTO {
     private String location;
     private Integer likesCount;
     private Integer favoritesCount;
+    
+    /**
+     * 笔记状态
+     */
+    private NoteStatus status;
+    
+    /**
+     * 退回理由（当状态为 REJECTED 时）
+     */
+    private String rejectReason;
+    
+    /**
+     * 提交审核时间
+     */
+    private LocalDateTime submittedAt;
+    
+    /**
+     * 审核时间
+     */
+    private LocalDateTime reviewedAt;
+    
+    /**
+     * 审核人用户名
+     */
+    private String reviewedByUsername;
+    
+    /**
+     * 是否已批准（保留字段，用于向后兼容）
+     */
     private Boolean isApproved;
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String username; // 作者用户名

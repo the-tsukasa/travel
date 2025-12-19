@@ -154,7 +154,7 @@ const User = () => {
   }
 
   const viewNoteDetail = (id) => {
-    navigate(`/notes-detail.html?id=${id}`)
+    navigate(`/notes-detail?id=${id}`)
   }
 
   const renderNoteCard = (note, showRemove = false, onRemove = null) => {
@@ -364,7 +364,7 @@ const User = () => {
           </div>
         ))}
         <Link
-          to="/profile-edit.html"
+          to="/profile-edit"
           style={{
             background: '#fff',
             border: '1px solid #ddd',

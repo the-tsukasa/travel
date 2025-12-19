@@ -13,8 +13,11 @@ const NotesCreate = () => {
   const [previewImages, setPreviewImages] = useState([])
   const [loading, setLoading] = useState(false)
   const [loadingNote, setLoadingNote] = useState(false)
+  const [submitting, setSubmitting] = useState(false) // 提交审核中
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [status, setStatus] = useState(null) // 笔记状态：DRAFT, PENDING, REJECTED, PRIVATE
+  const [rejectReason, setRejectReason] = useState('') // 退回理由
   const navigate = useNavigate()
 
   // 检查 URL 参数中的 edit 参数
@@ -60,6 +63,14 @@ const NotesCreate = () => {
       setTitle(note.title || '')
       setContent(note.content || '')
       setLocation(note.location || '')
+      
+      // 设置状态和退回理由
+      if (note.status) {
+        setStatus(note.status)
+      }
+      if (note.rejectReason) {
+        setRejectReason(note.rejectReason)
+      }
       
       // 处理图片URL
       let imageUrls = []
@@ -213,7 +224,8 @@ const NotesCreate = () => {
     setPreviewImages(newPreviewImages)
   }
 
-  const handleSubmit = async (e) => {
+  // 保存草稿（创建或更新）
+  const handleSaveDraft = async (e) => {
     e.preventDefault()
     setError('')
     setSuccess('')
@@ -226,21 +238,15 @@ const NotesCreate = () => {
     setLoading(true)
 
     try {
-      // 规范化图片URL：后端存储时只需要文件名（去掉 /uploads/ 前缀）
       const normalizedImageUrls = uploadedImages.map(url => {
-        // 如果是完整URL，提取文件名
         if (url.startsWith('http://localhost:8080')) {
           const path = url.replace('http://localhost:8080', '')
-          // 去掉 /uploads/ 前缀，只保留文件名
           return path.replace(/^\/uploads\//, '')
         } else if (url.startsWith('/uploads/')) {
-          // 相对路径，去掉 /uploads/ 前缀，只保留文件名
           return url.replace(/^\/uploads\//, '')
         } else if (url.startsWith('http')) {
-          // 外部URL，保留完整路径
           return url
         } else {
-          // 已经是文件名格式，直接使用
           return url
         }
       })
@@ -257,27 +263,72 @@ const NotesCreate = () => {
         // 更新模式
         response = await api.put(`/notes/${noteId}`, noteData)
         if (response.status === 200) {
-          setSuccess('ノートが正常に更新されました！')
-          setTimeout(() => {
-            navigate('/notes-my.html')
-          }, 1500)
+          setStatus(response.data.status)
+          setSuccess('ノートが正常に保存されました！')
         }
       } else {
-        // 创建模式
+        // 创建模式（创建后状态为 DRAFT）
         response = await api.post('/notes', noteData)
         if (response.status === 200 || response.status === 201) {
-          setSuccess('ノートが正常に投稿されました！')
-          setTimeout(() => {
-            navigate('/notes')
-          }, 1500)
+          setNoteId(response.data.id)
+          setStatus(response.data.status)
+          setSuccess('ノートが正常に保存されました！')
         }
       }
     } catch (err) {
-      console.error('投稿エラー:', err)
-      setError(err.response?.data?.message || (noteId ? 'ノートの更新に失敗しました。' : 'ノートの投稿に失敗しました。'))
+      console.error('保存エラー:', err)
+      setError(err.response?.data?.message || 'ノートの保存に失敗しました。')
     } finally {
       setLoading(false)
     }
+  }
+
+  // 提交审核
+  const handleSubmitForReview = async () => {
+    if (!noteId) {
+      setError('まずノートを保存してください。')
+      return
+    }
+
+    setError('')
+    setSuccess('')
+    setSubmitting(true)
+
+    try {
+      const response = await api.post(`/notes/${noteId}/submit`)
+      if (response.status === 200) {
+        setStatus(response.data.status)
+        setSuccess('ノートが審査に提出されました！審査結果をお待ちください。')
+        setTimeout(() => {
+          navigate('/notes-my')
+        }, 2000)
+      }
+    } catch (err) {
+      console.error('提出エラー:', err)
+      setError(err.response?.data?.message || 'ノートの提出に失敗しました。')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // 兼容旧版本的 handleSubmit（直接提交）
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    // 如果没有 noteId，先保存再提交
+    if (!noteId) {
+      await handleSaveDraft(e)
+      // 等待保存完成后再提交
+      setTimeout(async () => {
+        if (noteId) {
+          await handleSubmitForReview()
+        }
+      }, 500)
+      return
+    }
+    
+    // 如果有 noteId，直接提交审核
+    await handleSubmitForReview()
   }
 
   // 清理预览URL
@@ -305,11 +356,54 @@ const NotesCreate = () => {
                 : 'あなたの旅の思い出を共有しよう。世界の美しさをみんなと一緒に感じよう。'
               }
             </p>
+            
+            {/* 状态显示 */}
+            {status && (
+              <div className="notes-create-status-badge" style={{
+                display: 'inline-block',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: '500',
+                marginTop: '10px',
+                backgroundColor: 
+                  status === 'DRAFT' ? '#e3f2fd' :
+                  status === 'PENDING' ? '#fff3e0' :
+                  status === 'REJECTED' ? '#ffebee' :
+                  status === 'PRIVATE' ? '#f3e5f5' : '#e8f5e9',
+                color: 
+                  status === 'DRAFT' ? '#1976d2' :
+                  status === 'PENDING' ? '#f57c00' :
+                  status === 'REJECTED' ? '#c62828' :
+                  status === 'PRIVATE' ? '#7b1fa2' : '#388e3c'
+              }}>
+                {status === 'DRAFT' && '📝 草稿'}
+                {status === 'PENDING' && '⏳ 審査中'}
+                {status === 'REJECTED' && '❌ 差し戻し'}
+                {status === 'PRIVATE' && '🔒 非公開'}
+                {status === 'PUBLISHED' && '✅ 公開中'}
+              </div>
+            )}
+            
+            {/* 退回理由显示 */}
+            {status === 'REJECTED' && rejectReason && (
+              <div className="notes-create-reject-reason" style={{
+                marginTop: '15px',
+                padding: '15px',
+                backgroundColor: '#ffebee',
+                border: '1px solid #ef5350',
+                borderRadius: '8px',
+                color: '#c62828'
+              }}>
+                <strong>📋 差し戻し理由：</strong>
+                <p style={{ margin: '8px 0 0 0', whiteSpace: 'pre-wrap' }}>{rejectReason}</p>
+              </div>
+            )}
             <div className="notes-create-actions">
               <Link to="/notes" className="btn">
                 ノートを見る
               </Link>
-              <Link to="/notes-my.html" className="btn-outline">
+              <Link to="/notes-my" className="btn-outline">
                 マイノート
               </Link>
             </div>
@@ -450,18 +544,62 @@ const NotesCreate = () => {
                 />
               </div>
 
-              <div className="notes-create-form-actions">
-                <button
-                  type="submit"
-                  className="btn notes-create-submit-btn"
-                  disabled={loading || loadingNote}
-                >
-                  {loading 
-                    ? (noteId ? '更新中...' : '投稿中...') 
-                    : (noteId ? 'ノートを更新' : 'ノートを投稿')
-                  }
-                </button>
-                <Link to="/notes" className="btn-outline" style={{ padding: '15px 30px', textDecoration: 'none' }}>
+              <div className="notes-create-form-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {/* 保存草稿按钮（DRAFT、REJECTED、PRIVATE 状态可编辑） */}
+                {(status === null || status === 'DRAFT' || status === 'REJECTED' || status === 'PRIVATE') && (
+                  <button
+                    type="button"
+                    onClick={handleSaveDraft}
+                    className="btn-outline"
+                    disabled={loading || loadingNote || submitting}
+                    style={{ padding: '15px 30px' }}
+                  >
+                    {loading ? '保存中...' : '💾 草稿として保存'}
+                  </button>
+                )}
+                
+                {/* 提交审核按钮（DRAFT、REJECTED、PRIVATE 状态可提交） */}
+                {(status === null || status === 'DRAFT' || status === 'REJECTED' || status === 'PRIVATE') && (
+                  <button
+                    type="button"
+                    onClick={handleSubmitForReview}
+                    className="btn notes-create-submit-btn"
+                    disabled={loading || loadingNote || submitting || !noteId}
+                    style={{ padding: '15px 30px' }}
+                  >
+                    {submitting ? '提出中...' : '📤 審査に提出'}
+                  </button>
+                )}
+                
+                {/* 如果已提交审核，显示提示 */}
+                {status === 'PENDING' && (
+                  <div style={{ 
+                    padding: '15px 30px', 
+                    backgroundColor: '#fff3e0', 
+                    borderRadius: '8px',
+                    color: '#f57c00',
+                    flex: '1',
+                    textAlign: 'center'
+                  }}>
+                    ⏳ このノートは審査中です。結果をお待ちください。
+                  </div>
+                )}
+                
+                {/* 如果已发布，显示提示 */}
+                {status === 'PUBLISHED' && (
+                  <div style={{ 
+                    padding: '15px 30px', 
+                    backgroundColor: '#e8f5e9', 
+                    borderRadius: '8px',
+                    color: '#388e3c',
+                    flex: '1',
+                    textAlign: 'center'
+                  }}>
+                    ✅ このノートは公開されています。
+                  </div>
+                )}
+                
+                <Link to="/notes-my" className="btn-outline" style={{ padding: '15px 30px', textDecoration: 'none' }}>
                   キャンセル
                 </Link>
               </div>

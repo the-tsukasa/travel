@@ -31,7 +31,7 @@ const Home = () => {
 
   const handleHotspotClick = (spotId) => {
     // 导航到景点详情页
-    window.location.href = `/spot-detail.html?id=${spotId}`
+    window.location.href = `/spot-detail?id=${spotId}`
   }
 
   return (

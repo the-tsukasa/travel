@@ -12,13 +12,13 @@ export const ROUTES = {
   LOGIN: '/login',
   REGISTER: '/register',
   NOTES: '/notes',
-  NOTES_DETAIL: '/notes-detail.html',
-  NOTES_CREATE: '/notes-create.html',
-  NOTES_MY: '/notes-my.html',
-  NOTES_ADMIN: '/notes-admin.html',
-  USER: '/user.html',
-  PROFILE_EDIT: '/profile-edit.html',
-  SPOT: '/spot.html',
-  ADMIN: '/admin.html'
+  NOTES_DETAIL: '/notes-detail',
+  NOTES_CREATE: '/notes-create',
+  NOTES_MY: '/notes-my',
+  NOTES_ADMIN: '/notes-admin',
+  USER: '/user',
+  PROFILE_EDIT: '/profile-edit',
+  SPOT: '/spot',
+  ADMIN: '/admin'
 }
 

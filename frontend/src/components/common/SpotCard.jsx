@@ -108,7 +108,7 @@ const SpotCard = ({ spot, onUpdate }) => {
   }
 
   const handleCardClick = () => {
-    navigate(`/spot-detail.html?id=${spot.id}`)
+    navigate(`/spot-detail?id=${spot.id}`)
   }
 
   const displayImageUrl = formatImageUrl(spot.imageUrl)

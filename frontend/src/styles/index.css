@@ -19,9 +19,12 @@
 
 /* Pages */
 @import './pages/home.css';
+@import './pages/auth.css';
 @import './pages/notes.css';
 @import './pages/notes-create.css';
 @import './pages/notes-my.css';
+@import './pages/notes-admin.css';
+@import './pages/users-admin.css';
 @import './pages/spot.css';
 @import './pages/spot-detail.css';
 

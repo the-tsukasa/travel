@@ -11,7 +11,7 @@ const Hotspot = ({ id, name, x, y, onClick }) => {
       onClick(id)
     } else {
       // 默认行为：导航到景点详情页
-      navigate(`/spot-detail.html?id=${id}`)
+      navigate(`/spot-detail?id=${id}`)
     }
   }
 

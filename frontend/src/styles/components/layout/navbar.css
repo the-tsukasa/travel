@@ -226,6 +226,50 @@
   color: #b91c1c;
 }
 
+/* ===== 管理员相关样式 ===== */
+/* 管理员标识徽章（在用户名旁边） */
+.userbar-admin-badge {
+  font-size: 14px;
+  margin-left: 4px;
+  opacity: 0.8;
+}
+
+/* 下拉菜单中的角色标识 */
+.userbar-dropdown-role-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* 管理员菜单区域标题 */
+.userbar-dropdown-section-title {
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+/* 管理员菜单项样式 */
+.userbar-dropdown-item.admin-item {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-left: 3px solid #667eea;
+  font-weight: 600;
+}
+
+.userbar-dropdown-item.admin-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-left-color: #764ba2;
+}
+
 /* 兼容旧的样式（如果其他地方还在使用） */
 .userbar {
   display: flex;
