@@ -48,3 +48,6 @@ frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 frontend/.DS_Store
+
+### React Build Output (构建产物不应提交到Git) ###
+src/main/resources/static/react-dist/
