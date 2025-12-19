@@ -8,11 +8,13 @@ import com.example.travel.repository.NotesRepository;
 import com.example.travel.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -90,9 +92,9 @@ public class AdminUserController {
      */
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + id));
+    public ResponseEntity<UserDTO> getUserById(@PathVariable @NonNull Long id) {
+        User user = Objects.requireNonNull(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + id)));
         return ResponseEntity.ok(convertToDTO(user));
     }
 
@@ -102,11 +104,11 @@ public class AdminUserController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO> updateUser(
-            @PathVariable Long id,
+            @PathVariable @NonNull Long id,
             @RequestBody UpdateUserRequest request) {
         
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + id));
+        User user = Objects.requireNonNull(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + id)));
         
         // 更新基本信息
         if (request.getUsername() != null) {
@@ -173,9 +175,9 @@ public class AdminUserController {
      */
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + id));
+    public ResponseEntity<?> deleteUser(@PathVariable @NonNull Long id) {
+        User user = Objects.requireNonNull(userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません: " + id)));
         
         // 检查是否是最后一个管理员
         if ("ADMIN".equals(user.getRole())) {
@@ -214,7 +216,8 @@ public class AdminUserController {
     /**
      * 将 User 实体转换为 UserDTO
      */
-    private UserDTO convertToDTO(User user) {
+    @NonNull
+    private UserDTO convertToDTO(@NonNull User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());

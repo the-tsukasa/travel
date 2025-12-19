@@ -1,6 +1,7 @@
 package com.example.travel.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -32,8 +33,8 @@ public class FavoritesServiceImpl implements FavoritesService {
 
     @Override
     public void addToFavorites(Long notesId, User user) {
-        Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(notesId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId)));
 
         if (favoritesRepository.existsByUserAndNotes(user, notes)) {
             throw new BusinessException("ALREADY_FAVORITED", "已经收藏过此笔记");
@@ -52,11 +53,11 @@ public class FavoritesServiceImpl implements FavoritesService {
 
     @Override
     public void removeFromFavorites(Long notesId, User user) {
-        Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(notesId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId)));
 
-        Favorites favorites = favoritesRepository.findByUserAndNotes(user, notes)
-                .orElseThrow(() -> new ResourceNotFoundException("Favorites", "user and notes", user.getUsername() + " and notes " + notesId));
+        Favorites favorites = Objects.requireNonNull(favoritesRepository.findByUserAndNotes(user, notes)
+                .orElseThrow(() -> new ResourceNotFoundException("Favorites", "user and notes", user.getUsername() + " and notes " + notesId)));
 
         favoritesRepository.delete(favorites);
 
@@ -84,8 +85,8 @@ public class FavoritesServiceImpl implements FavoritesService {
     @Override
     @Transactional(readOnly = true)
     public boolean isFavorited(Long notesId, User user) {
-        Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(notesId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId)));
         return favoritesRepository.existsByUserAndNotes(user, notes);
     }
 

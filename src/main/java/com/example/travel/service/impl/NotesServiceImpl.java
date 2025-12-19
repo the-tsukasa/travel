@@ -3,6 +3,7 @@ package com.example.travel.service.impl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -108,8 +109,8 @@ public class NotesServiceImpl implements NotesService {
     @Override
     @Transactional(readOnly = true)
     public NotesDTO getNotesById(Long id, User currentUser) {
-        Notes notes = notesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id)));
         
         // 检查权限：只有已发布的笔记或笔记作者可以查看
         boolean isPublished = notes.getStatus() == NoteStatus.PUBLISHED;
@@ -125,8 +126,8 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public NotesDTO updateNotes(Long id, CreateNotesRequest request, User user) {
-        Notes notes = notesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id)));
 
         if (notes.getUser() == null || !notes.getUser().getId().equals(user.getId())) {
             throw new BusinessException("NO_PERMISSION", "无权限修改此笔记");
@@ -175,8 +176,8 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public NotesDTO submitNotes(Long id, User user) {
-        Notes notes = notesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id)));
 
         if (notes.getUser() == null || !notes.getUser().getId().equals(user.getId())) {
             throw new BusinessException("NO_PERMISSION", "无权限提交此笔记");
@@ -241,8 +242,8 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void deleteNotes(Long id, User user) {
-        Notes notes = notesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id)));
 
         if (notes.getUser() == null || !notes.getUser().getId().equals(user.getId())) {
             throw new BusinessException("NO_PERMISSION", "无权限删除此笔记");
@@ -274,8 +275,8 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void approveNotes(Long id, User admin) {
-        Notes notes = notesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id)));
 
         NoteStatus currentStatus = notes.getStatus();
         NoteStatus targetStatus = NoteStatus.PUBLISHED;
@@ -302,8 +303,8 @@ public class NotesServiceImpl implements NotesService {
         if (userId != null) {
             try {
                 // 显式从数据库加载 User 实体
-                User noteAuthor = userRepository.findById(userId)
-                        .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+                User noteAuthor = Objects.requireNonNull(userRepository.findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId)));
                 
                 log.info("创建批准通知 - 笔记ID: {}, 笔记标题: {}, 作者ID: {}, 作者用户名: {}", 
                     notes.getId(), notes.getTitle(), noteAuthor.getId(), noteAuthor.getUsername());
@@ -330,8 +331,8 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void rejectNotes(Long id, String rejectReason, User admin) {
-        Notes notes = notesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id)));
 
         NoteStatus currentStatus = notes.getStatus();
         NoteStatus targetStatus = NoteStatus.REJECTED;
@@ -362,8 +363,8 @@ public class NotesServiceImpl implements NotesService {
         if (userId != null) {
             try {
                 // 显式从数据库加载 User 实体
-                User noteAuthor = userRepository.findById(userId)
-                        .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+                User noteAuthor = Objects.requireNonNull(userRepository.findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId)));
                 
                 log.info("创建退回通知 - 笔记ID: {}, 笔记标题: {}, 作者ID: {}, 作者用户名: {}", 
                     notes.getId(), notes.getTitle(), noteAuthor.getId(), noteAuthor.getUsername());
@@ -390,8 +391,8 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void unpublishNotes(Long id, User admin) {
-        Notes notes = notesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id)));
 
         NoteStatus currentStatus = notes.getStatus();
         NoteStatus targetStatus = NoteStatus.PRIVATE;
@@ -417,8 +418,8 @@ public class NotesServiceImpl implements NotesService {
         if (userId != null) {
             try {
                 // 显式从数据库加载 User 实体
-                User noteAuthor = userRepository.findById(userId)
-                        .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+                User noteAuthor = Objects.requireNonNull(userRepository.findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId)));
                 
                 log.info("创建下架通知 - 笔记ID: {}, 笔记标题: {}, 作者ID: {}, 作者用户名: {}", 
                     notes.getId(), notes.getTitle(), noteAuthor.getId(), noteAuthor.getUsername());
@@ -445,8 +446,8 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void deleteNotesByAdmin(Long id, User admin) {
-        Notes notes = notesRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", id)));
 
         // 删除相关的点赞和收藏记录
         likesRepository.deleteByNotes(notes);

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -70,8 +71,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateProfile(String username, UpdateProfileRequest request) {
         // 查找用户
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        User user = Objects.requireNonNull(userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username)));
 
         // 更新字段（只更新非空字段）
         if (request.getFirstName() != null) {

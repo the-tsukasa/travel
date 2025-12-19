@@ -2,6 +2,7 @@ package com.example.travel.service;
 
 import com.example.travel.entity.Spot;
 import com.example.travel.repository.SpotRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -18,15 +19,18 @@ public class SpotService {
         return repository.findAll();
     }
 
-    public Spot findById(Integer id) {
+    @SuppressWarnings("null")
+    public Spot findById(@NonNull Integer id) {
         return repository.findById(id).orElse(null);
     }
 
-    public Spot save(Spot spot) {
+    @NonNull
+    public Spot save(@NonNull Spot spot) {
         return repository.save(spot);
     }
 
-    public Spot addLike(Integer id) {
+    @SuppressWarnings("null") // id is checked for null in findById
+    public Spot addLike(@NonNull Integer id) {
         Spot spot = findById(id);
         if (spot != null) {
             spot.setLikes(spot.getLikes() + 1);
@@ -35,7 +39,8 @@ public class SpotService {
         return spot;
     }
 
-    public Spot addFavorite(Integer id) {
+    @SuppressWarnings("null") // id is checked for null in findById
+    public Spot addFavorite(@NonNull Integer id) {
         Spot spot = findById(id);
         if (spot != null) {
             spot.setFavorites(spot.getFavorites() + 1);

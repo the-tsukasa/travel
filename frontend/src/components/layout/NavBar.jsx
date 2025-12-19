@@ -118,7 +118,6 @@ const NavBar = () => {
         try {
           const response = await api.get('/notifications/unread/count')
           const count = response.data?.count || 0
-          console.log('未读通知数量:', count)
           setUnreadNotificationCount(count)
         } catch (error) {
           // 静默处理错误，避免影响导航栏显示

@@ -23,7 +23,6 @@ const Notifications = () => {
     try {
       setLoading(true)
       const response = await api.get('/notifications')
-      console.log('通知数据:', response.data)
       setNotifications(response.data || [])
     } catch (error) {
       console.error('通知加载失败:', error)

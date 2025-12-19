@@ -1,6 +1,7 @@
 package com.example.travel.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -41,11 +42,11 @@ public class LikesServiceImpl implements LikesService {
                 throw new BusinessException("INVALID_USER", "用户信息无效");
             }
             
-            Notes notes = notesRepository.findById(notesId)
+            Notes notes = Objects.requireNonNull(notesRepository.findById(notesId)
                     .orElseThrow(() -> {
                         log.warn("笔记不存在：笔记ID={}", notesId);
                         return new ResourceNotFoundException("Notes", "id", notesId);
-                    });
+                    }));
 
             // 先检查是否已点赞（避免唯一约束冲突）
             if (likesRepository.existsByUserAndNotes(user, notes)) {
@@ -91,11 +92,11 @@ public class LikesServiceImpl implements LikesService {
 
     @Override
     public void unlikeNotes(Long notesId, User user) {
-        Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(notesId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId)));
 
-        Likes likes = likesRepository.findByUserAndNotes(user, notes)
-                .orElseThrow(() -> new ResourceNotFoundException("Likes", "user and notes", user.getUsername() + " and notes " + notesId));
+        Likes likes = Objects.requireNonNull(likesRepository.findByUserAndNotes(user, notes)
+                .orElseThrow(() -> new ResourceNotFoundException("Likes", "user and notes", user.getUsername() + " and notes " + notesId)));
 
         likesRepository.delete(likes);
         log.debug("用户 {} 成功取消点赞笔记 {}", user.getUsername(), notesId);
@@ -124,8 +125,8 @@ public class LikesServiceImpl implements LikesService {
     @Override
     @Transactional(readOnly = true)
     public boolean isLiked(Long notesId, User user) {
-        Notes notes = notesRepository.findById(notesId)
-                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId));
+        Notes notes = Objects.requireNonNull(notesRepository.findById(notesId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notes", "id", notesId)));
         return likesRepository.existsByUserAndNotes(user, notes);
     }
 
