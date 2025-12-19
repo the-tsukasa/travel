@@ -1,5 +1,6 @@
 package com.example.travel.controller;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -14,8 +15,10 @@ import java.nio.charset.StandardCharsets;
 /**
  * React SPA 控制器
  * 处理所有前端路由，返回 React 应用的 index.html
+ * 使用 @Order 确保优先级高于静态资源处理器
  */
 @RestController
+@Order(1)  // 确保优先级高于静态资源处理器
 public class ReactController {
 
     /**
