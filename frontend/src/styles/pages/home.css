@@ -1,4 +1,277 @@
 /* ===== Home Page (Hero, Sections, Cards) ===== */
+.home-page {
+  padding-top: 65px;
+  min-height: calc(100vh - 80px);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+/* Header Bar */
+.home-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 8px 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.home-page-title {
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.home-title-icon {
+  font-size: 1.2em;
+  filter: drop-shadow(0 2px 4px rgba(255, 77, 0, 0.3));
+}
+
+/* Weather Widget in Header */
+.home-header-bar .weather-widget {
+  flex: 0 0 auto;
+  padding: 0;
+  margin: 0;
+  width: auto;
+}
+
+.home-header-bar .weather-widget-content {
+  gap: 6px;
+  font-size: 13px;
+}
+
+/* Featured Sections with Cards */
+.home-featured-section {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  margin-bottom: 32px;
+}
+
+.home-nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.home-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(255, 77, 0, 0.1);
+  gap: 16px;
+}
+
+.home-section-title {
+  font-size: clamp(20px, 2.5vw, 24px);
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.home-section-icon {
+  font-size: 1.2em;
+  filter: drop-shadow(0 2px 4px rgba(255, 77, 0, 0.2));
+}
+
+.home-section-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--brand);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.home-section-more:hover {
+  color: var(--brand-dark);
+  background: rgba(255, 77, 0, 0.05);
+}
+
+.home-section-more svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.home-section-more:hover svg {
+  transform: translateX(2px);
+}
+
+.home-quick-nav {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 8px 0;
+  flex-wrap: wrap;
+}
+
+.home-quick-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  color: #fff;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 77, 0, 0.2);
+}
+
+.home-quick-nav-btn:hover {
+  background: linear-gradient(135deg, var(--brand-dark), #c73500);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 77, 0, 0.3);
+}
+
+.home-quick-nav-btn:active {
+  transform: translateY(0);
+}
+
+.home-quick-nav-btn svg {
+  flex-shrink: 0;
+}
+
+/* Cards Grid */
+.home-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+/* 确保桌面端一行显示4个 */
+@media (min-width: 1200px) {
+  .home-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.home-cards-loading,
+.home-cards-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .home-page {
+    padding-top: 60px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .home-header-bar {
+    flex-wrap: wrap;
+    padding: 6px 0;
+    gap: 12px;
+  }
+
+  .home-page-title {
+    order: 1;
+    flex: 0 0 auto;
+    margin-right: auto;
+  }
+
+  .home-header-bar .weather-widget {
+    order: 2;
+    flex: 0 0 auto;
+    padding: 0;
+    margin-left: 8px;
+  }
+
+  .home-quick-nav {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .home-featured-section {
+    gap: 32px;
+    margin-bottom: 24px;
+  }
+
+  .home-nav-section {
+    gap: 12px;
+  }
+
+  .home-quick-nav-btn {
+    flex: 1;
+    min-width: 140px;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .home-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-quick-nav-btn {
+    font-size: 13px;
+    padding: 9px 14px;
+  }
+
+  .home-quick-nav-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .home-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* 确保按钮和卡片清晰分离 */
+@media (min-width: 769px) {
+  .home-nav-section {
+    gap: 16px;
+  }
+  
+  .home-nav-section .home-quick-nav-btn {
+    margin-bottom: 0;
+  }
+  
+  .home-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1200px) and (min-width: 769px) {
+  .home-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
 /* ===== ヒーローセクション ===== */
 .hero {
   position: relative;

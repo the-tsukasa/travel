@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { checkAuth, TokenUtil } from '../../utils/auth'
 import api from '../../services/api'
 
@@ -15,6 +15,17 @@ const NavBar = () => {
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0) // 未读通知数量
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  // 检测当前激活的路由
+  const isActive = (path) => {
+    if (path === '/') {
+      // 主页：只有完全匹配 '/' 时才激活
+      return location.pathname === '/'
+    }
+    // 其他页面：路径以该路径开头时激活（包括子页面）
+    return location.pathname.startsWith(path)
+  }
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -157,14 +168,39 @@ const NavBar = () => {
 
   return (
     <nav className="nav">
-      <Link to="/" className="brand">
-        <span className="brand-dot"></span>
-        TravelGo
-      </Link>
-      
       <div className="nav-links">
-        <Link to="/spot">観光スポット</Link>
-        <Link to="/notes">みんなの旅行ノート</Link>
+        <Link to="/" className={`nav-link-with-icon ${isActive('/') ? 'active' : ''}`}>
+          <svg className="nav-link-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <span className="nav-link-text-full">TravelGo</span>
+          <span className="nav-link-text-short">TOP</span>
+        </Link>
+        <Link 
+          to="/spot" 
+          className={`nav-link-with-icon ${isActive('/spot') ? 'active' : ''}`}
+        >
+          <svg className="nav-link-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span className="nav-link-text-full">観光スポット</span>
+          <span className="nav-link-text-short">スポット</span>
+        </Link>
+        <Link 
+          to="/notes" 
+          className={`nav-link-with-icon ${isActive('/notes') ? 'active' : ''}`}
+        >
+          <svg className="nav-link-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+          <span className="nav-link-text-full">みんなの旅行ノート</span>
+          <span className="nav-link-text-short">ノート</span>
+        </Link>
       </div>
 
       <div className="nav-cta">
@@ -267,6 +303,17 @@ const NavBar = () => {
                     <path d="M8 9C4.667 9 2 10.567 2 12.5V16H14V12.5C14 10.567 11.333 9 8 9Z" fill="currentColor"/>
                   </svg>
                   マイページ
+                </Link>
+                <Link 
+                  to="/notes-my" 
+                  className="userbar-dropdown-item"
+                  onClick={() => setShowDropdown(false)}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M14 2H2C0.9 2 0 2.9 0 4V12C0 13.1 0.9 14 2 14H14C15.1 14 16 13.1 16 12V4C16 2.9 15.1 2 14 2ZM14 12H2V4H14V12Z" fill="currentColor"/>
+                    <path d="M4 6H12V8H4V6ZM4 9H10V11H4V9Z" fill="currentColor"/>
+                  </svg>
+                  📝 マイノート
                 </Link>
                 <Link 
                   to="/profile-edit" 

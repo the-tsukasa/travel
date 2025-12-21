@@ -1,7 +1,7 @@
 /* ===== Notes Page ===== */
 /* ===== Notes Page ===== */
 .notes-page {
-  padding-top: 100px;
+  padding-top: 65px; /* 缩短间距：从 100px 减少到 65px */
   min-height: calc(100vh - 80px);
   max-width: 1400px;
   margin: 0 auto;
@@ -71,9 +71,23 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  padding: 16px 0;
+  padding: 8px 0; /* 与 spot 页面保持一致 */
   gap: 16px;
   flex-wrap: wrap;
+}
+
+/* Weather Widget in Header */
+.notes-header-bar .weather-widget {
+  flex: 0 0 auto;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  order: 2;
+}
+
+.notes-header-bar .weather-widget-content {
+  gap: 6px;
+  font-size: 13px;
 }
 
 .notes-page-title {
@@ -102,13 +116,14 @@
   flex: 1;
   justify-content: flex-end;
   flex-wrap: wrap;
+  order: 3;
 }
 
 /* Compact Search */
 .notes-search-compact {
   flex: 1;
   min-width: 200px;
-  max-width: 400px;
+  max-width: 500px;
 }
 
 .notes-search-wrapper-compact {
@@ -236,6 +251,46 @@
 
 .btn-icon svg {
   flex-shrink: 0;
+}
+
+/* Floating Create Button (右下角悬浮) */
+.notes-floating-create-btn {
+  position: fixed;
+  bottom: 100px; /* ScrollToTop 按钮上方 */
+  right: 30px;
+  width: 50px; /* 与 ScrollToTop 按钮一致 */
+  height: 50px; /* 与 ScrollToTop 按钮一致 */
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(255, 77, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100; /* 高于内容，低于用户下拉栏(1000) */
+  text-decoration: none;
+}
+
+.notes-floating-create-btn:hover {
+  background: linear-gradient(135deg, var(--brand-dark), #c73500);
+  box-shadow: 0 8px 24px rgba(255, 77, 0, 0.5);
+  transform: translateY(-4px) scale(1.05);
+}
+
+.notes-floating-create-btn:active {
+  transform: translateY(-2px) scale(0.95);
+}
+
+.notes-floating-create-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.notes-floating-create-btn:hover svg {
+  transform: translateY(-2px);
 }
 
 /* Results Info */
@@ -498,10 +553,29 @@
   }
 
   .notes-header-bar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px 0;
+    flex-wrap: wrap;
+    padding: 6px 0;
     gap: 12px;
+  }
+
+  .notes-page-title {
+    order: 1;
+    flex: 0 0 auto;
+    margin-right: auto;
+  }
+
+  .notes-header-bar .weather-widget {
+    order: 2;
+    flex: 0 0 auto;
+    padding: 0;
+    margin-left: 8px;
+  }
+
+  .notes-header-controls {
+    order: 3;
+    width: 100%;
+    justify-content: stretch;
+    margin-top: 8px;
   }
 
   .notes-page-title {
@@ -524,6 +598,27 @@
 
   .notes-header-buttons {
     justify-content: center;
+  }
+
+  .notes-floating-create-btn {
+    bottom: 80px; /* ScrollToTop 按钮上方 */
+    right: 20px;
+    width: 44px; /* 与 ScrollToTop 按钮一致 */
+    height: 44px; /* 与 ScrollToTop 按钮一致 */
+  }
+}
+
+@media (max-width: 480px) {
+  .notes-floating-create-btn {
+    bottom: 70px; /* ScrollToTop 按钮上方 */
+    right: 16px;
+    width: 40px; /* 与 ScrollToTop 按钮一致 */
+    height: 40px; /* 与 ScrollToTop 按钮一致 */
+  }
+
+  .notes-floating-create-btn svg {
+    width: 18px;
+    height: 18px;
   }
 
   .notes-pagination {

@@ -2,7 +2,7 @@
 .notes-my-page {
   background: var(--bg);
   min-height: calc(100vh - 80px);
-  padding-top: 100px;
+  padding-top: 65px; /* 缩短间距：从 100px 减少到 65px */
   padding-bottom: 40px;
 }
 

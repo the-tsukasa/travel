@@ -40,10 +40,30 @@ public class SpotService {
     }
 
     @SuppressWarnings("null") // id is checked for null in findById
+    public Spot removeLike(@NonNull Integer id) {
+        Spot spot = findById(id);
+        if (spot != null && spot.getLikes() > 0) {
+            spot.setLikes(spot.getLikes() - 1);
+            repository.save(spot);
+        }
+        return spot;
+    }
+
+    @SuppressWarnings("null") // id is checked for null in findById
     public Spot addFavorite(@NonNull Integer id) {
         Spot spot = findById(id);
         if (spot != null) {
             spot.setFavorites(spot.getFavorites() + 1);
+            repository.save(spot);
+        }
+        return spot;
+    }
+
+    @SuppressWarnings("null") // id is checked for null in findById
+    public Spot removeFavorite(@NonNull Integer id) {
+        Spot spot = findById(id);
+        if (spot != null && spot.getFavorites() > 0) {
+            spot.setFavorites(spot.getFavorites() - 1);
             repository.save(spot);
         }
         return spot;

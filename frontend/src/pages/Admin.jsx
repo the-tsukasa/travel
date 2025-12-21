@@ -336,10 +336,9 @@ const Admin = () => {
           />
           <ActionCard
             title="📊 統計レポート"
-            description="システム使用状況の分析（開発中）"
-            link="#"
+            description="システム使用状況の分析と統計情報"
+            link="/statistics-report"
             color="#388e3c"
-            disabled
           />
         </div>
       </div>

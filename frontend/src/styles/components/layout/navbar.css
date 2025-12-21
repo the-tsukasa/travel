@@ -8,11 +8,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
+  padding: 10px 24px;
   background: rgba(255,255,255,0.8);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .brand {
@@ -35,24 +36,89 @@
   display: flex;
   gap: 24px;
   align-items: center;
+  flex: 1;
 }
 
-.nav-links a {
+.nav-links a,
+.nav-link-with-icon {
   color: var(--text);
   font-weight: 500;
-  opacity: 0.8;
-  transition: opacity 0.2s, color 0.2s;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  padding: 4px 12px;
+  border-radius: 8px;
+  position: relative;
 }
 
-.nav-links a:hover {
-  color: var(--brand-dark);
+.nav-link-icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s, color 0.2s;
+  color: var(--text);
+}
+
+.nav-links a:hover:not(.active),
+.nav-link-with-icon:hover:not(.active) {
+  opacity: 0.9;
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.03); /* 悬停时轻微背景 */
+}
+
+.nav-links a:hover:not(.active) .nav-link-icon,
+.nav-link-with-icon:hover:not(.active) .nav-link-icon {
+  opacity: 0.9;
+}
+
+/* 激活状态样式 - 胶囊选中态 */
+.nav-link-with-icon.active {
+  color: #fff; /* 激活时文字为白色 */
   opacity: 1;
+  position: relative;
+  font-weight: 500; /* 保持正常字重 */
+  background: linear-gradient(135deg, var(--brand), var(--brand-dark)); /* 胶囊背景：品牌色渐变 */
+  border-radius: 20px; /* 胶囊形状：大圆角 */
+  padding: 2px 16px; /* 压缩高度：从 4px 减少到 2px */
+  margin: -2px -16px; /* 抵消 padding，保持对齐 */
+  box-shadow: 0 2px 8px rgba(255, 77, 0, 0.25); /* 轻微阴影增强立体感 */
+}
+
+.nav-link-with-icon.active .nav-link-icon {
+  opacity: 1;
+  color: #fff; /* 图标为白色 */
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.nav-link-with-icon.active .nav-link-text-full,
+.nav-link-with-icon.active .nav-link-text-short {
+  font-weight: 500; /* 正常字重，不加粗 */
+  color: #fff; /* 文字为白色 */
+}
+
+/* 激活状态的悬停效果 */
+.nav-link-with-icon.active:hover {
+  background: linear-gradient(135deg, var(--brand-dark), #c73500); /* 激活时悬停背景更深 */
+  box-shadow: 0 3px 12px rgba(255, 77, 0, 0.35); /* 悬停时阴影更深 */
+  transform: translateY(-1px); /* 轻微上移 */
+}
+
+/* 响应式文字显示 */
+.nav-link-text-short {
+  display: none;
+}
+
+.nav-link-text-full {
+  display: inline;
 }
 
 .nav-cta {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 /* ===== ユーザー表示バー ===== */
@@ -63,10 +129,10 @@
 .userbar-toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px; /* 减少右侧留白：从 10px 减少到 8px */
   background: rgba(255, 77, 0, 0.08);
   border: 1px solid rgba(255, 77, 0, 0.25);
-  padding: 6px 14px 6px 6px;
+  padding: 4px 8px 4px 4px; /* 减少右侧 padding：从 12px 减少到 8px */
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -79,18 +145,18 @@
 }
 
 .userbar-avatar {
-  width: 32px;
+  width: 32px; /* 放大头像：从 28px 增加到 32px */
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 77, 0, 0.2);
+  border: 1px solid rgba(255, 77, 0, 0.2); /* 单线边框：从 2px 减少到 1px */
   background: #fff;
 }
 
 .userbar-username {
   font-weight: 600;
   color: var(--brand-dark);
-  font-size: 14px;
+  font-size: 13px;
   white-space: nowrap;
 }
 
@@ -287,3 +353,110 @@
   background: #e5e7eb;
 }
 
+/* 平板和移动端：显示简短文字 */
+@media (max-width: 768px) {
+  .nav-links {
+    gap: 12px;
+  }
+  
+  .nav-link-text-full {
+    display: none;
+  }
+  
+  .nav-link-text-short {
+    display: inline;
+  }
+  
+  /* 窄屏幕下调整激活状态的 padding */
+  .nav-link-with-icon {
+    padding: 4px 10px;
+  }
+  
+  .nav-link-with-icon.active {
+    padding: 2px 12px; /* 压缩高度：从 4px 减少到 2px */
+    margin: -2px -12px;
+    border-radius: 18px; /* 窄屏幕下稍小的圆角 */
+  }
+  
+  /* 缩小用户信息区域 */
+  .userbar-toggle {
+    padding: 3px 6px 3px 3px; /* 减少右侧 padding */
+    gap: 0;
+  }
+  
+  .userbar-avatar {
+    width: 30px; /* 窄屏幕下稍小但仍比之前大 */
+    height: 30px;
+  }
+  
+  .userbar-username {
+    display: none; /* 窄屏幕下隐藏用户名 */
+  }
+  
+  .userbar-chevron {
+    display: none; /* 窄屏幕下隐藏下拉箭头 */
+  }
+  
+  .userbar-admin-badge {
+    display: none; /* 窄屏幕下隐藏管理员标识 */
+  }
+}
+
+/* 超小屏幕：进一步优化 */
+@media (max-width: 480px) {
+  .nav {
+    padding: 8px 16px;
+  }
+  
+  .nav-links {
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    margin: 0 4px;
+  }
+  
+  .nav-links a,
+  .nav-link-with-icon {
+    font-size: 14px;
+    white-space: nowrap;
+    padding: 5px 8px;
+    gap: 4px;
+  }
+  
+  .nav-link-with-icon.active {
+    padding: 2px 10px; /* 压缩高度：从 4px 减少到 2px */
+    margin: -2px -10px;
+    border-radius: 16px; /* 超小屏幕下更小的圆角 */
+  }
+  
+  /* 进一步缩小用户信息区域 */
+  .userbar-toggle {
+    padding: 3px 5px 3px 3px; /* 减少右侧 padding */
+    gap: 0;
+    min-width: auto;
+  }
+  
+  .userbar-avatar {
+    width: 28px; /* 超小屏幕保持较小尺寸 */
+    height: 28px;
+    border-width: 1px; /* 单线边框 */
+  }
+  
+  .userbar-username {
+    display: none; /* 超小屏幕下也隐藏用户名 */
+  }
+  
+  .userbar-chevron {
+    display: none; /* 超小屏幕下也隐藏下拉箭头 */
+  }
+  
+  .userbar-admin-badge {
+    display: none; /* 超小屏幕下也隐藏管理员标识 */
+  }
+  
+  /* 导航图标在超小屏幕优化 */
+  .nav-link-icon {
+    width: 16px;
+    height: 16px;
+  }
+}

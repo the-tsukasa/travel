@@ -136,7 +136,7 @@ const NotesDetail = () => {
 
   if (loading) {
     return (
-      <div style={{ paddingTop: '100px', textAlign: 'center', minHeight: 'calc(100vh - 80px)' }}>
+      <div style={{ paddingTop: '65px', textAlign: 'center', minHeight: 'calc(100vh - 80px)' }}>
         <p>ノートを読み込み中...</p>
       </div>
     )
@@ -144,7 +144,7 @@ const NotesDetail = () => {
 
   if (error || !note) {
     return (
-      <div style={{ paddingTop: '100px', minHeight: 'calc(100vh - 80px)' }}>
+      <div style={{ paddingTop: '65px', minHeight: 'calc(100vh - 80px)' }}>
         <div className="container" style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
           <div style={{
             background: '#fed7d7',
@@ -177,7 +177,7 @@ const NotesDetail = () => {
 
   return (
     <>
-      <div style={{ paddingTop: '100px', minHeight: 'calc(100vh - 80px)' }}>
+      <div style={{ paddingTop: '65px', minHeight: 'calc(100vh - 80px)' }}>
         <div className="container" style={{ maxWidth: '900px', margin: '0 auto', padding: '20px' }}>
           <Link 
             to="/notes" 

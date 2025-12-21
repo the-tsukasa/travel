@@ -3,7 +3,7 @@
 .users-admin-page {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: calc(100vh - 80px);
-  padding-top: 100px;
+  padding-top: 65px; /* 缩短间距：从 100px 减少到 65px */
   padding-bottom: 40px;
 }
 

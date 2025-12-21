@@ -250,10 +250,405 @@
   border-color: #ffd700;
 }
 
+.note-card-action-btn {
+  position: relative;
+  overflow: visible;
+}
+
 .note-card-action-btn span {
   font-weight: 600;
   min-width: 20px;
   text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* 动画效果 */
+.note-card-action-btn.animating {
+  animation: buttonBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.note-card-like-btn.animating.active {
+  animation: buttonBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+             likeGlow 0.6s ease-out;
+}
+
+.note-card-favorite-btn.animating.active {
+  animation: buttonBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+             favoriteGlow 0.6s ease-out;
+}
+
+.note-card-action-btn.animating svg.icon-bounce {
+  animation: iconPulse 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.note-card-like-btn.animating svg.icon-bounce {
+  filter: drop-shadow(0 0 8px rgba(255, 107, 107, 0.6));
+}
+
+.note-card-favorite-btn.animating svg.icon-bounce {
+  filter: drop-shadow(0 0 8px rgba(255, 217, 61, 0.6));
+}
+
+.note-card-action-btn.animating span.count-pop {
+  animation: countPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* 涟漪效果 */
+.button-ripple {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.note-card-like-btn.animating .button-ripple {
+  background: rgba(255, 107, 107, 0.3);
+  animation: ripple 0.6s ease-out;
+}
+
+.note-card-favorite-btn.animating .button-ripple {
+  background: rgba(255, 217, 61, 0.3);
+  animation: ripple 0.6s ease-out;
+}
+
+/* 粒子效果 */
+.particle-effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.particle {
+  position: absolute;
+  font-size: 16px;
+  opacity: 0;
+  animation: particleFloat 0.8s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+.particle-heart {
+  color: #ff6b6b;
+}
+
+.particle-star {
+  color: #ffd93d;
+}
+
+@keyframes buttonBounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes likeGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(255, 107, 107, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.5),
+                0 0 40px rgba(255, 107, 107, 0.3);
+  }
+}
+
+@keyframes favoriteGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(255, 217, 61, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 217, 61, 0.5),
+                0 0 40px rgba(255, 217, 61, 0.3);
+  }
+}
+
+@keyframes iconPulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  }
+  30% {
+    transform: scale(1.4) rotate(-15deg);
+  }
+  60% {
+    transform: scale(1.15) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+  }
+}
+
+@keyframes countPop {
+  0% {
+    transform: scale(1) translateY(0);
+    color: inherit;
+    text-shadow: none;
+  }
+  30% {
+    transform: scale(1.5) translateY(-12px);
+    font-weight: 800;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  60% {
+    transform: scale(1.2) translateY(-6px);
+    font-weight: 700;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+  }
+}
+
+@keyframes particleFloat {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(var(--tx, 0), var(--ty, -30px)) scale(1.2) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx, 0), var(--ty, -60px)) scale(0.8) rotate(360deg);
+  }
+}
+
+/* 破碎动画 - 向下掉落 */
+@keyframes particleBreak {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  30% {
+    opacity: 0.9;
+    transform: translate(var(--tx, 0), var(--ty, 20px)) scale(0.8) rotate(45deg);
+  }
+  60% {
+    opacity: 0.6;
+    transform: translate(var(--tx, 0), var(--ty, 40px)) scale(0.6) rotate(90deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--tx, 0), var(--ty, 60px)) scale(0.3) rotate(180deg);
+  }
+}
+
+.particle-heart-broken {
+  color: #999;
+  animation: particleBreak 0.8s ease-in forwards;
+}
+
+.particle-star-broken {
+  color: #999;
+  animation: particleBreak 0.8s ease-in forwards;
+}
+
+/* 破碎按钮样式 */
+.note-card-action-btn.breaking {
+  animation: buttonBreak 0.8s ease-out;
+  filter: grayscale(30%) brightness(0.9);
+}
+
+@keyframes buttonBreak {
+  0% {
+    transform: scale(1);
+    filter: grayscale(0%) brightness(1);
+  }
+  20% {
+    transform: scale(0.85) rotate(-2deg);
+    filter: grayscale(30%) brightness(0.9);
+  }
+  40% {
+    transform: scale(0.9) rotate(2deg);
+    filter: grayscale(30%) brightness(0.9);
+  }
+  60% {
+    transform: scale(0.88) rotate(-1deg);
+    filter: grayscale(30%) brightness(0.9);
+  }
+  100% {
+    transform: scale(1);
+    filter: grayscale(0%) brightness(1);
+  }
+}
+
+/* 图标破碎动画 */
+.note-card-action-btn.animating svg.icon-break {
+  animation: iconBreak 0.8s ease-out;
+  filter: grayscale(50%) brightness(0.8);
+}
+
+@keyframes iconBreak {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: grayscale(0%) brightness(1);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(0.7) rotate(-15deg);
+    filter: grayscale(50%) brightness(0.8);
+    opacity: 0.8;
+  }
+  60% {
+    transform: scale(0.85) rotate(10deg);
+    filter: grayscale(50%) brightness(0.8);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: grayscale(0%) brightness(1);
+    opacity: 1;
+  }
+}
+
+/* 数字掉落动画 */
+.note-card-action-btn.animating span.count-drop {
+  animation: countDrop 0.8s ease-out;
+}
+
+@keyframes countDrop {
+  0% {
+    transform: scale(1) translateY(0);
+    color: inherit;
+    text-shadow: none;
+  }
+  30% {
+    transform: scale(0.8) translateY(8px);
+    color: #999;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  60% {
+    transform: scale(0.9) translateY(4px);
+    color: #999;
+    font-weight: 500;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    color: inherit;
+    text-shadow: none;
+  }
+}
+
+/* 为每个粒子设置不同的位置 - 向上飞散（点赞/收藏） */
+.particle-heart:nth-child(1),
+.particle-star:nth-child(1) {
+  --tx: -30px;
+  --ty: -40px;
+}
+
+.particle-heart:nth-child(2),
+.particle-star:nth-child(2) {
+  --tx: 30px;
+  --ty: -40px;
+}
+
+.particle-heart:nth-child(3),
+.particle-star:nth-child(3) {
+  --tx: -20px;
+  --ty: -50px;
+}
+
+.particle-heart:nth-child(4),
+.particle-star:nth-child(4) {
+  --tx: 20px;
+  --ty: -50px;
+}
+
+.particle-heart:nth-child(5),
+.particle-star:nth-child(5) {
+  --tx: 0px;
+  --ty: -60px;
+}
+
+.particle-heart:nth-child(6),
+.particle-star:nth-child(6) {
+  --tx: 0px;
+  --ty: -30px;
+}
+
+/* 破碎粒子位置 - 向下掉落（取消） */
+.particle-heart-broken:nth-child(1),
+.particle-star-broken:nth-child(1) {
+  --tx: -25px;
+  --ty: 30px;
+}
+
+.particle-heart-broken:nth-child(2),
+.particle-star-broken:nth-child(2) {
+  --tx: 25px;
+  --ty: 30px;
+}
+
+.particle-heart-broken:nth-child(3),
+.particle-star-broken:nth-child(3) {
+  --tx: -15px;
+  --ty: 40px;
+}
+
+.particle-heart-broken:nth-child(4),
+.particle-star-broken:nth-child(4) {
+  --tx: 15px;
+  --ty: 40px;
+}
+
+.particle-heart-broken:nth-child(5),
+.particle-star-broken:nth-child(5) {
+  --tx: -35px;
+  --ty: 35px;
+}
+
+.particle-heart-broken:nth-child(6),
+.particle-star-broken:nth-child(6) {
+  --tx: 35px;
+  --ty: 35px;
+}
+
+.particle-heart-broken:nth-child(7),
+.particle-star-broken:nth-child(7) {
+  --tx: 0px;
+  --ty: 45px;
+}
+
+.particle-heart-broken:nth-child(8),
+.particle-star-broken:nth-child(8) {
+  --tx: 0px;
+  --ty: 25px;
 }
 
 /* 响应式 */

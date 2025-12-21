@@ -1,0 +1,142 @@
+/* ===== 搜索和排序通用组件 ===== */
+.search-and-sort {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Search */
+.search-and-sort-search {
+  flex: 1;
+  min-width: 200px;
+  max-width: 500px;
+}
+
+.search-and-sort-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-and-sort-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.search-and-sort-input {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.search-and-sort-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.search-and-sort-input::placeholder {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.search-and-sort-clear {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  z-index: 1;
+}
+
+.search-and-sort-clear:hover {
+  background: #f1f5f9;
+  color: var(--text);
+}
+
+/* Sort Buttons */
+.search-and-sort-buttons {
+  display: flex;
+  gap: 6px;
+  background: #f8fafc;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.search-and-sort-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.search-and-sort-btn:hover {
+  background: #fff;
+  color: var(--text);
+}
+
+.search-and-sort-btn.active {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 77, 0, 0.2);
+}
+
+.search-and-sort-btn:active {
+  transform: scale(0.95);
+}
+
+.search-and-sort-btn svg {
+  flex-shrink: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .search-and-sort {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-and-sort-search {
+    max-width: 100%;
+  }
+
+  .search-and-sort-buttons {
+    display: flex;
+    width: 100%;
+  }
+
+  .search-and-sort-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+  }
+}
+

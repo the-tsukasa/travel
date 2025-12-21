@@ -15,6 +15,7 @@ import Spot from './pages/Spot'
 import SpotDetail from './pages/SpotDetail'
 import Admin from './pages/Admin'
 import Notifications from './pages/Notifications'
+import StatisticsReport from './pages/StatisticsReport'
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/spot-detail" element={<SpotDetail />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/notifications" element={<Notifications />} />
+          <Route path="/statistics-report" element={<StatisticsReport />} />
           {/* 兼容旧链接，重定向到新路径 */}
           <Route path="/notes-detail.html" element={<NotesDetail />} />
           <Route path="/notes-create.html" element={<NotesCreate />} />

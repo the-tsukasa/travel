@@ -180,7 +180,7 @@ const Register = () => {
       {/* 右侧背景区域 */}
       <div className="auth-right">
         <img 
-          src="https://images.unsplash.com/photo-1609501670471-13b10f9d2ff2?q=80&w=1600&auto=format&fit=crop" 
+          src="/images/login_register.png" 
           alt="Travel background"
           className="auth-right-image"
         />

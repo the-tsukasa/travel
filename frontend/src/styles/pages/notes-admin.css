@@ -3,7 +3,7 @@
 .notes-admin-page {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: calc(100vh - 80px);
-  padding-top: 100px;
+  padding-top: 65px; /* 缩短间距：从 100px 减少到 65px */
   padding-bottom: 40px;
 }
 
@@ -514,7 +514,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 100px;
+  padding-top: 65px; /* 缩短间距：从 100px 减少到 65px */
   min-height: 50vh;
   gap: 20px;
 }

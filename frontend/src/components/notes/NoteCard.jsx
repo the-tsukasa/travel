@@ -12,6 +12,18 @@ const NoteCard = memo(({ note, onUpdate }) => {
   const [imageError, setImageError] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
   const [imageSrc, setImageSrc] = useState(null)
+  const [likeAnimating, setLikeAnimating] = useState(false)
+  const [favoriteAnimating, setFavoriteAnimating] = useState(false)
+  const [isLiking, setIsLiking] = useState(false) // true = 点赞, false = 取消
+  const [isFavoriting, setIsFavoriting] = useState(false) // true = 收藏, false = 取消
+
+  // 同步 note 数据更新（当从后端获取新数据时）
+  useEffect(() => {
+    setIsLiked(note.isLiked || false)
+    setIsFavorited(note.isFavorited || false)
+    setLikesCount(note.likesCount || 0)
+    setFavoritesCount(note.favoritesCount || 0)
+  }, [note.isLiked, note.isFavorited, note.likesCount, note.favoritesCount])
 
   const handleCardClick = () => {
     navigate(`/notes-detail?id=${note.id}`)
@@ -28,27 +40,40 @@ const NoteCard = memo(({ note, onUpdate }) => {
       return
     }
 
+    const wasLiked = isLiked
     try {
-      if (isLiked) {
+      if (wasLiked) {
         await api.delete(`/likes/${note.id}`)
       } else {
         await api.post(`/likes/${note.id}`)
       }
       
-      setIsLiked(!isLiked)
-      setLikesCount(prev => isLiked ? prev - 1 : prev + 1)
+      // 更新状态
+      const newLikedState = !wasLiked
+      setIsLiked(newLikedState)
+      setLikesCount(prev => wasLiked ? Math.max(0, prev - 1) : prev + 1)
       
-      if (onUpdate) {
-        onUpdate()
-      }
+      // 设置动画类型（点赞或取消）
+      setIsLiking(newLikedState)
+      
+      // 触发动画
+      setLikeAnimating(true)
+      setTimeout(() => setLikeAnimating(false), 800)
+      
+      // 不调用 onUpdate()，避免刷新所有卡片
     } catch (error) {
       console.error('いいね操作エラー:', error)
+      // 如果操作失败，恢复原状态
+      setIsLiked(wasLiked)
+      
       if (error.response?.status === 401) {
         if (confirm('ログインが必要です。ログインページに移動しますか？')) {
           navigate('/login')
         }
       } else {
-        alert('操作に失敗しました。')
+        // 检查是否是网络错误或服务器错误
+        const errorMessage = error.response?.data?.message || error.message || '操作に失敗しました。'
+        alert(errorMessage)
       }
     }
   }
@@ -64,27 +89,40 @@ const NoteCard = memo(({ note, onUpdate }) => {
       return
     }
 
+    const wasFavorited = isFavorited
     try {
-      if (isFavorited) {
+      if (wasFavorited) {
         await api.delete(`/favorites/${note.id}`)
       } else {
         await api.post(`/favorites/${note.id}`)
       }
       
-      setIsFavorited(!isFavorited)
-      setFavoritesCount(prev => isFavorited ? prev - 1 : prev + 1)
+      // 更新状态
+      const newFavoritedState = !wasFavorited
+      setIsFavorited(newFavoritedState)
+      setFavoritesCount(prev => wasFavorited ? Math.max(0, prev - 1) : prev + 1)
       
-      if (onUpdate) {
-        onUpdate()
-      }
+      // 设置动画类型（收藏或取消）
+      setIsFavoriting(newFavoritedState)
+      
+      // 触发动画
+      setFavoriteAnimating(true)
+      setTimeout(() => setFavoriteAnimating(false), 800)
+      
+      // 不调用 onUpdate()，避免刷新所有卡片
     } catch (error) {
       console.error('お気に入り操作エラー:', error)
+      // 如果操作失败，恢复原状态
+      setIsFavorited(wasFavorited)
+      
       if (error.response?.status === 401) {
         if (confirm('ログインが必要です。ログインページに移動しますか？')) {
           navigate('/login')
         }
       } else {
-        alert('操作に失敗しました。')
+        // 检查是否是网络错误或服务器错误
+        const errorMessage = error.response?.data?.message || error.message || '操作に失敗しました。'
+        alert(errorMessage)
       }
     }
   }
@@ -291,24 +329,72 @@ const NoteCard = memo(({ note, onUpdate }) => {
         <div className="note-card-footer" onClick={(e) => e.stopPropagation()}>
           <div className="note-card-actions">
             <button
-              className={`note-card-action-btn note-card-like-btn ${isLiked ? 'active' : ''}`}
+              className={`note-card-action-btn note-card-like-btn ${isLiked ? 'active' : ''} ${likeAnimating ? 'animating' : ''} ${likeAnimating && !isLiking ? 'breaking' : ''}`}
               onClick={handleLike}
               aria-label={`いいね ${likesCount}`}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              {likeAnimating && (
+                <div className="particle-effect">
+                  {isLiking ? (
+                    // 点赞：心形向上飞散
+                    [...Array(6)].map((_, i) => (
+                      <div key={i} className="particle particle-heart" style={{ '--delay': `${i * 0.1}s` }}>❤️</div>
+                    ))
+                  ) : (
+                    // 取消：心形破碎向下掉落
+                    [...Array(8)].map((_, i) => (
+                      <div key={i} className="particle particle-heart-broken" style={{ '--delay': `${i * 0.08}s` }}>💔</div>
+                    ))
+                  )}
+                </div>
+              )}
+              <div className="button-ripple"></div>
+              <svg 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill={isLiked ? 'currentColor' : 'none'} 
+                stroke="currentColor" 
+                strokeWidth="2"
+                className={likeAnimating ? (isLiking ? 'icon-bounce' : 'icon-break') : ''}
+              >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
-              <span>{likesCount}</span>
+              <span className={likeAnimating ? (isLiking ? 'count-pop' : 'count-drop') : ''}>{likesCount}</span>
             </button>
             <button
-              className={`note-card-action-btn note-card-favorite-btn ${isFavorited ? 'active' : ''}`}
+              className={`note-card-action-btn note-card-favorite-btn ${isFavorited ? 'active' : ''} ${favoriteAnimating ? 'animating' : ''} ${favoriteAnimating && !isFavoriting ? 'breaking' : ''}`}
               onClick={handleFavorite}
               aria-label={`お気に入り ${favoritesCount}`}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill={isFavorited ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              {favoriteAnimating && (
+                <div className="particle-effect">
+                  {isFavoriting ? (
+                    // 收藏：星星向上飞散
+                    [...Array(6)].map((_, i) => (
+                      <div key={i} className="particle particle-star" style={{ '--delay': `${i * 0.1}s` }}>⭐</div>
+                    ))
+                  ) : (
+                    // 取消：星星破碎向下掉落
+                    [...Array(8)].map((_, i) => (
+                      <div key={i} className="particle particle-star-broken" style={{ '--delay': `${i * 0.08}s` }}>💫</div>
+                    ))
+                  )}
+                </div>
+              )}
+              <div className="button-ripple"></div>
+              <svg 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill={isFavorited ? 'currentColor' : 'none'} 
+                stroke="currentColor" 
+                strokeWidth="2"
+                className={favoriteAnimating ? (isFavoriting ? 'icon-bounce' : 'icon-break') : ''}
+              >
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
-              <span>{favoritesCount}</span>
+              <span className={favoriteAnimating ? (isFavoriting ? 'count-pop' : 'count-drop') : ''}>{favoritesCount}</span>
             </button>
           </div>
         </div>

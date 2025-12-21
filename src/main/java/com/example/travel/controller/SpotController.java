@@ -35,9 +35,19 @@ public class SpotController {
         return service.addLike(id);
     }
 
+    @DeleteMapping("/{id}/like")
+    public Spot unlike(@PathVariable Integer id) {
+        return service.removeLike(id);
+    }
+
     @PostMapping("/{id}/favorite")
     public Spot favorite(@PathVariable Integer id) {
         return service.addFavorite(id);
+    }
+
+    @DeleteMapping("/{id}/favorite")
+    public Spot unfavorite(@PathVariable Integer id) {
+        return service.removeFavorite(id);
     }
 
     @PostMapping

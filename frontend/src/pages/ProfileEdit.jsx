@@ -139,7 +139,7 @@ const ProfileEdit = () => {
 
   if (loading) {
     return (
-      <div style={{ paddingTop: '100px', textAlign: 'center' }}>
+      <div style={{ paddingTop: '65px', textAlign: 'center' }}>
         <p>読み込み中...</p>
       </div>
     )
@@ -150,7 +150,7 @@ const ProfileEdit = () => {
       <div style={{
         background: 'var(--bg)',
         minHeight: 'calc(100vh - 80px)',
-        paddingTop: '100px',
+        paddingTop: '65px',
         paddingBottom: '40px'
       }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 20px' }}>

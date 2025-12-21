@@ -1,0 +1,140 @@
+/* ===== Weather Widget ===== */
+.weather-widget {
+  width: 100%;
+  background: transparent; /* 在 header 中时背景透明 */
+  padding: 6px 20px;
+  margin-bottom: 0;
+}
+
+/* 当在 header 外部时，保持背景色 */
+.spot-page > .weather-widget,
+.notes-page > .weather-widget {
+  background: var(--bg, #fff9f3);
+}
+
+.weather-widget-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.weather-location {
+  color: var(--muted);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.weather-location-icon {
+  color: var(--muted);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.weather-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.weather-temps {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.weather-temp-max {
+  color: #f87171; /* 淡化的红色 */
+  font-weight: 600;
+}
+
+.weather-temp-separator {
+  color: var(--muted);
+  margin: 0 1px;
+  font-weight: 400;
+  opacity: 0.6;
+}
+
+.weather-temp-min {
+  color: #60a5fa; /* 淡化的蓝色 */
+  font-weight: 600;
+}
+
+.weather-daynight {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.weather-loading,
+.weather-error {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .spot-header-bar .weather-widget {
+    padding: 0;
+  }
+
+  .spot-header-bar .weather-widget-content {
+    font-size: 12px;
+    gap: 5px;
+    justify-content: flex-start;
+  }
+
+  .weather-widget {
+    padding: 5px 16px;
+  }
+
+  .weather-widget-content {
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .weather-icon {
+    font-size: 16px;
+  }
+
+  .weather-daynight {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .weather-widget {
+    padding: 4px 12px;
+  }
+
+  .weather-widget-content {
+    font-size: 12px;
+    gap: 5px;
+  }
+
+  .weather-location {
+    font-size: 12px;
+  }
+
+  .weather-icon {
+    font-size: 15px;
+  }
+
+  .weather-daynight {
+    font-size: 13px;
+  }
+}
+

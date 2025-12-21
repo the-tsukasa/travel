@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import api from '../services/api'
 import { TokenUtil } from '../utils/auth'
 import Footer from '../components/layout/Footer'
+import ScrollToTop from '../components/common/ScrollToTop'
+import '../styles/pages/user.css'
 
 const User = () => {
   const [activeTab, setActiveTab] = useState('notes')
@@ -162,55 +164,20 @@ const User = () => {
     const shortContent = content.length > 80 ? content.slice(0, 80) + '…' : content
 
     return (
-      <div key={note.id} className="card" style={{
-        background: '#fff',
-        borderRadius: '16px',
-        boxShadow: '0 4px 18px rgba(0,0,0,0.1)',
-        overflow: 'hidden',
-        transition: 'all 0.25s ease',
-        cursor: 'pointer'
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)'
-        e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,0.15)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = '0 4px 18px rgba(0,0,0,0.1)'
-      }}
-      onClick={() => viewNoteDetail(note.id)}>
+      <div key={note.id} className="user-page-note-card" onClick={() => viewNoteDetail(note.id)}>
         <img 
           src={note.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image'} 
           alt={note.title || ''}
-          style={{
-            width: '100%',
-            height: '180px',
-            objectFit: 'cover'
-          }}
         />
-        <div style={{ padding: '16px' }}>
-          <h3 style={{ fontSize: '17px', margin: '6px 0' }}>{note.title || '無題'}</h3>
-          <p style={{ fontSize: '14px', color: '#777', marginBottom: '16px' }}>{shortContent}</p>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="user-page-note-card-content">
+          <h3 className="user-page-note-card-title">{note.title || '無題'}</h3>
+          <p className="user-page-note-card-text">{shortContent}</p>
+          <div className="user-page-note-card-footer">
             <button
-              className="read-btn"
+              className="user-page-read-btn"
               onClick={(e) => {
                 e.stopPropagation()
                 viewNoteDetail(note.id)
-              }}
-              style={{
-                background: 'var(--brand)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '50%',
-                width: '60px',
-                height: '60px',
-                textAlign: 'center',
-                lineHeight: '60px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                cursor: 'pointer'
               }}
             >
               read<br/>more
@@ -221,18 +188,7 @@ const User = () => {
                   e.stopPropagation()
                   onRemove(note.id)
                 }}
-                style={{
-                  background: '#ff6b6b',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '8px 16px',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  transition: 'background 0.3s'
-                }}
-                onMouseEnter={(e) => e.target.style.background = '#ff5252'}
-                onMouseLeave={(e) => e.target.style.background = '#ff6b6b'}
+                className="user-page-remove-btn"
               >
                 💔 {activeTab === 'favorites' ? '解除' : 'いいね解除'}
               </button>
@@ -245,7 +201,7 @@ const User = () => {
 
   if (loading) {
     return (
-      <div style={{ paddingTop: '100px', textAlign: 'center' }}>
+      <div style={{ paddingTop: '65px', textAlign: 'center' }}>
         <p>読み込み中...</p>
       </div>
     )
@@ -266,46 +222,18 @@ const User = () => {
   return (
     <>
       {/* Header Section */}
-      <section style={{
-        background: 'var(--brand)',
-        color: '#fff',
-        textAlign: 'center',
-        padding: '60px 20px 100px',
-        position: 'relative'
-      }}>
+      <section className="user-page-header">
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <img
             src={avatarUrl}
             alt="avatar"
-            style={{
-              width: '100px',
-              height: '100px',
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: '4px solid #fff',
-              marginBottom: '12px',
-              background: '#fff'
-            }}
+            className="user-page-avatar"
           />
           <label
             htmlFor="avatarUpload"
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              background: 'var(--brand)',
-              color: 'white',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-            }}
+            className="user-page-avatar-upload-btn"
           >
-            <span style={{ fontSize: '18px' }}>📷</span>
+            <span>📷</span>
           </label>
           <input
             type="file"
@@ -315,83 +243,33 @@ const User = () => {
             onChange={handleAvatarUpload}
           />
         </div>
-        <div style={{ fontSize: '22px', fontWeight: 700, marginBottom: '4px' }}>{displayName}</div>
-        <div style={{ fontSize: '14px', color: '#fefefe', opacity: 0.9 }}>
+        <div className="user-page-name">{displayName}</div>
+        <div className="user-page-info">
           ID: {userInfo.id || '---'} ｜ 所在地：{userInfo.location || '日本'}
         </div>
-        <div style={{ fontSize: '14px', color: '#fefefe', opacity: 0.9, marginTop: '4px' }}>
+        <div className="user-page-info" style={{ marginTop: '4px' }}>
           Travel in Japan
         </div>
-        <div style={{ fontSize: '14px', color: '#fefefe', opacity: 0.9, marginTop: '4px' }}>
+        <div className="user-page-stats">
           {userInfo.notesCount || 0}ノート　{formatNumber(userInfo.likesCount || 0)}いいね　{formatNumber(userInfo.favoritesCount || 0)}お気に入り
         </div>
       </section>
 
       {/* Tabs */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '20px',
-        position: 'relative',
-        top: '-40px'
-      }}>
+      <div className="user-page-tabs">
         {['notes', 'favorites', 'likes'].map(tab => (
           <div
             key={tab}
             onClick={() => setActiveTab(tab)}
-            style={{
-              background: activeTab === tab ? 'var(--brand)' : '#fff',
-              color: activeTab === tab ? '#fff' : '#333',
-              border: activeTab === tab ? 'none' : '1px solid #ddd',
-              borderRadius: '16px',
-              boxShadow: '0 4px 18px rgba(0,0,0,0.1)',
-              padding: '12px 40px',
-              fontSize: '18px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== tab) {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
+            className={`user-page-tab ${activeTab === tab ? 'active' : ''}`}
           >
             {tab === 'notes' ? 'Notes' : tab === 'favorites' ? 'Favorites' : 'Likes'}
           </div>
         ))}
-        <Link
-          to="/profile-edit"
-          style={{
-            background: '#fff',
-            border: '1px solid #ddd',
-            borderRadius: '16px',
-            boxShadow: '0 4px 18px rgba(0,0,0,0.1)',
-            padding: '12px 40px',
-            fontSize: '18px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            textDecoration: 'none',
-            color: '#333'
-          }}
-        >
-          Account
-        </Link>
       </div>
 
       {/* Content */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '30px',
-        maxWidth: '1100px',
-        margin: '60px auto',
-        padding: '0 20px'
-      }}>
+      <div className="user-page-content">
         {activeTab === 'notes' && (
           userNotes.length === 0 ? (
             <p style={{ textAlign: 'center', color: 'gray', gridColumn: '1 / -1' }}>
@@ -423,31 +301,8 @@ const User = () => {
         )}
       </div>
 
-      {/* Logout */}
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <button
-          onClick={() => {
-            TokenUtil.clearToken()
-            navigate('/login')
-          }}
-          style={{
-            background: 'var(--brand)',
-            border: 'none',
-            color: '#fff',
-            borderRadius: '999px',
-            padding: '10px 24px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            transition: 'background 0.3s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = 'var(--brand-dark)'}
-          onMouseLeave={(e) => e.target.style.background = 'var(--brand)'}
-        >
-          ログアウト
-        </button>
-      </div>
-
       <Footer />
+      <ScrollToTop />
     </>
   )
 }

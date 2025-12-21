@@ -1,6 +1,6 @@
 html, body {
   margin: 0;
-  padding: 40px 0 0 0;
+  padding: 0; /* 移除 body 的 padding，各页面自行控制间距 */
   font-family: "Hiragino Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   color: var(--text);
   background: var(--bg);

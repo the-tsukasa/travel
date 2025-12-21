@@ -3,6 +3,7 @@
 .home-map-section {
   width: 100%;
   padding: 15px 0;
+  padding-top: 0; /* 由 home-page 统一管理顶部间距 */
   background: var(--bg);
   min-height: calc(100vh - 100px);
   display: flex;
@@ -97,6 +98,7 @@
 @media (max-width: 767px) {
   .home-map-section {
     padding: 10px 0;
+    padding-top: 60px; /* 为固定导航栏留出空间（移动端稍小） */
     min-height: calc(100vh - 80px);
   }
   
@@ -136,6 +138,7 @@
 @media (min-width: 768px) {
   .home-map-section {
     padding: 20px 0;
+    padding-top: 65px; /* 为固定导航栏留出空间 */
   }
   
   .map-container {
@@ -157,6 +160,7 @@
 @media (min-width: 1200px) {
   .home-map-section {
     padding: 25px 0;
+    padding-top: 65px; /* 为固定导航栏留出空间 */
   }
   
   .map-container {
@@ -178,6 +182,7 @@
 @media (min-width: 1600px) {
   .home-map-section {
     padding: 30px 0;
+    padding-top: 65px; /* 为固定导航栏留出空间 */
   }
   
   .map-container {
@@ -359,6 +364,7 @@
 @media (max-width: 768px) {
   .home-map-section {
     padding: 10px 5px;
+    padding-top: 60px; /* 为固定导航栏留出空间（移动端稍小） */
     min-height: calc(100vh - 80px);
   }
   
@@ -418,6 +424,7 @@
 @media (max-width: 480px) {
   .home-map-section {
     padding: 30px 12px;
+    padding-top: 60px; /* 为固定导航栏留出空间（移动端稍小） */
   }
 
   .hotspot-marker {

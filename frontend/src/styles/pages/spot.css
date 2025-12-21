@@ -1,6 +1,6 @@
 /* ===== Spot Page ===== */
 .spot-page {
-  padding-top: 100px;
+  padding-top: 65px;
   min-height: calc(100vh - 80px);
   max-width: 1400px;
   margin: 0 auto;
@@ -14,9 +14,23 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  padding: 16px 0;
+  padding: 8px 0; /* 减少上下内边距 */
   gap: 16px;
   flex-wrap: wrap;
+}
+
+/* Weather Widget in Header */
+.spot-header-bar .weather-widget {
+  flex: 0 0 auto;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  order: 2;
+}
+
+.spot-header-bar .weather-widget-content {
+  gap: 6px;
+  font-size: 13px;
 }
 
 .spot-page-title {
@@ -45,6 +59,57 @@
   flex: 1;
   justify-content: flex-end;
   flex-wrap: wrap;
+  order: 3;
+}
+
+/* Weather Widget in Header */
+.spot-header-bar .weather-widget {
+  flex: 0 0 auto;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  order: 2;
+}
+
+.spot-header-bar .weather-widget-content {
+  gap: 6px;
+  font-size: 13px;
+}
+
+/* 窄屏幕布局调整 */
+@media (max-width: 768px) {
+  .spot-header-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .spot-page-title {
+    order: 1;
+    flex: 0 0 auto;
+  }
+
+  .spot-header-bar .weather-widget {
+    order: 2;
+    flex: 0 0 auto;
+    padding: 0;
+  }
+
+  .spot-header-controls {
+    order: 3;
+    width: 100%;
+    justify-content: stretch;
+  }
+}
+
+@media (max-width: 480px) {
+  .spot-header-bar {
+    gap: 10px;
+  }
+
+  .spot-header-bar .weather-widget-content {
+    font-size: 12px;
+    gap: 5px;
+  }
 }
 
 /* Search */
@@ -165,6 +230,7 @@
   align-items: center;
   gap: 8px;
   animation: fadeIn 0.3s ease-out;
+  text-align: left; /* 靠左对齐 */
 }
 
 .spot-results-info::before {
@@ -328,30 +394,117 @@
   line-height: 1.6;
 }
 
+/* Notes CTA Banner - 页面底部 */
+.spot-notes-cta {
+  margin-top: 40px;
+  margin-bottom: 0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(255, 77, 0, 0.05) 0%, rgba(224, 62, 0, 0.03) 100%);
+  border: 1px solid rgba(255, 77, 0, 0.1);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.spot-notes-cta:hover {
+  background: linear-gradient(135deg, rgba(255, 77, 0, 0.08) 0%, rgba(224, 62, 0, 0.05) 100%);
+  border-color: rgba(255, 77, 0, 0.15);
+}
+
+.spot-notes-cta-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.spot-notes-cta-text {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+  min-width: 200px;
+}
+
+.spot-notes-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--brand);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.spot-notes-cta-link:hover {
+  background: rgba(255, 77, 0, 0.1);
+  color: var(--brand-dark);
+}
+
+.spot-notes-cta-link svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .spot-notes-cta {
+    padding: 10px 12px;
+  }
+
+  .spot-notes-cta-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .spot-notes-cta-text {
+    text-align: center;
+    min-width: unset;
+  }
+
+  .spot-notes-cta-link {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .spot-page {
-    padding-top: 80px;
+    padding-top: 60px;
     padding-left: 15px;
     padding-right: 15px;
   }
 
   .spot-header-bar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px 0;
+    flex-wrap: wrap;
+    padding: 6px 0; /* 减少移动端内边距 */
     gap: 12px;
   }
 
   .spot-page-title {
     font-size: 22px;
     justify-content: flex-start;
+    flex: 0 0 auto;
+  }
+
+  .spot-header-bar .weather-widget {
+    flex: 0 0 auto;
+    margin-left: 8px;
   }
 
   .spot-header-controls {
+    width: 100%;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
+    margin-top: 8px;
   }
 
   .spot-search-wrapper {
