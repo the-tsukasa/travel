@@ -1,9 +1,56 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect, useMemo, memo } from 'react'
+import { useState, useEffect, useMemo, memo, useRef, useCallback } from 'react'
 import api from '../../services/api'
 import { TokenUtil } from '../../utils/auth'
 
-const NoteCard = memo(({ note, onUpdate }) => {
+// 工具函数移到组件外部，避免每次渲染都重新创建
+// 使用更高效的方法转义 HTML，避免创建 DOM 元素
+const escapeHtml = (text) => {
+  if (!text) return ''
+  // 使用完整的 HTML 实体映射，确保安全性
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+    '/': '&#x2F;'
+  }
+  return String(text).replace(/[&<>"'\/]/g, m => map[m])
+}
+
+// 格式化日期 - 移到外部，可以缓存当前时间
+let cachedNow = Date.now()
+let cachedNowDate = new Date(cachedNow)
+// 每分钟更新一次缓存时间
+setInterval(() => {
+  cachedNow = Date.now()
+  cachedNowDate = new Date(cachedNow)
+}, 60000)
+
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  const diff = cachedNow - date.getTime()
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  
+  if (days === 0) return '今日'
+  if (days === 1) return '昨日'
+  if (days < 7) return `${days}日前`
+  if (days < 30) return `${Math.floor(days / 7)}週間前`
+  if (days < 365) return `${Math.floor(days / 30)}ヶ月前`
+  return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+// 状态标签样式映射 - 移到外部避免重复创建
+const statusStyles = {
+  DRAFT: { bg: '#e3f2fd', color: '#1976d2', icon: '📝' },
+  PENDING: { bg: '#fff3e0', color: '#f57c00', icon: '⏳' },
+  REJECTED: { bg: '#ffebee', color: '#c62828', icon: '❌' },
+  PRIVATE: { bg: '#f3e5f5', color: '#7b1fa2', icon: '🔒' }
+}
+
+const NoteCard = memo(({ note, onUpdate, priority = false }) => {
   const navigate = useNavigate()
   const [isLiked, setIsLiked] = useState(note.isLiked || false)
   const [isFavorited, setIsFavorited] = useState(note.isFavorited || false)
@@ -12,10 +59,16 @@ const NoteCard = memo(({ note, onUpdate }) => {
   const [imageError, setImageError] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
   const [imageSrc, setImageSrc] = useState(null)
+  const [shouldLoadImage, setShouldLoadImage] = useState(priority) // 是否应该加载图片
+  const [imageLoaded, setImageLoaded] = useState(false) // 图片是否已加载完成
   const [likeAnimating, setLikeAnimating] = useState(false)
   const [favoriteAnimating, setFavoriteAnimating] = useState(false)
   const [isLiking, setIsLiking] = useState(false) // true = 点赞, false = 取消
   const [isFavoriting, setIsFavoriting] = useState(false) // true = 收藏, false = 取消
+  const imageRef = useRef(null)
+  const observerRef = useRef(null)
+  const likeTimeoutRef = useRef(null) // 用于清理点赞动画的 setTimeout
+  const favoriteTimeoutRef = useRef(null) // 用于清理收藏动画的 setTimeout
 
   // 同步 note 数据更新（当从后端获取新数据时）
   useEffect(() => {
@@ -25,9 +78,9 @@ const NoteCard = memo(({ note, onUpdate }) => {
     setFavoritesCount(note.favoritesCount || 0)
   }, [note.isLiked, note.isFavorited, note.likesCount, note.favoritesCount])
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
     navigate(`/notes-detail?id=${note.id}`)
-  }
+  }, [navigate, note.id])
 
   const handleLike = async (e) => {
     e.stopPropagation()
@@ -58,7 +111,14 @@ const NoteCard = memo(({ note, onUpdate }) => {
       
       // 触发动画
       setLikeAnimating(true)
-      setTimeout(() => setLikeAnimating(false), 800)
+      // 清理之前的 timeout
+      if (likeTimeoutRef.current) {
+        clearTimeout(likeTimeoutRef.current)
+      }
+      likeTimeoutRef.current = setTimeout(() => {
+        setLikeAnimating(false)
+        likeTimeoutRef.current = null
+      }, 800)
       
       // 不调用 onUpdate()，避免刷新所有卡片
     } catch (error) {
@@ -107,7 +167,14 @@ const NoteCard = memo(({ note, onUpdate }) => {
       
       // 触发动画
       setFavoriteAnimating(true)
-      setTimeout(() => setFavoriteAnimating(false), 800)
+      // 清理之前的 timeout
+      if (favoriteTimeoutRef.current) {
+        clearTimeout(favoriteTimeoutRef.current)
+      }
+      favoriteTimeoutRef.current = setTimeout(() => {
+        setFavoriteAnimating(false)
+        favoriteTimeoutRef.current = null
+      }, 800)
       
       // 不调用 onUpdate()，避免刷新所有卡片
     } catch (error) {
@@ -127,28 +194,17 @@ const NoteCard = memo(({ note, onUpdate }) => {
     }
   }
 
-  const escapeHtml = (text) => {
-    if (!text) return ''
-    const div = document.createElement('div')
-    div.textContent = text
-    return div.innerHTML
-  }
-
-  // 格式化日期
-  const formatDate = (dateString) => {
-    if (!dateString) return ''
-    const date = new Date(dateString)
-    const now = new Date()
-    const diff = now - date
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    
-    if (days === 0) return '今日'
-    if (days === 1) return '昨日'
-    if (days < 7) return `${days}日前`
-    if (days < 30) return `${Math.floor(days / 7)}週間前`
-    if (days < 365) return `${Math.floor(days / 30)}ヶ月前`
-    return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
-  }
+  // 清理 timeout 的 effect
+  useEffect(() => {
+    return () => {
+      if (likeTimeoutRef.current) {
+        clearTimeout(likeTimeoutRef.current)
+      }
+      if (favoriteTimeoutRef.current) {
+        clearTimeout(favoriteTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // 使用useMemo计算图片URL，避免每次渲染都重新计算
   const imageUrl = useMemo(() => {
@@ -196,59 +252,157 @@ const NoteCard = memo(({ note, onUpdate }) => {
     return `/uploads/${url}`
   }, [note.imageUrl])
 
-  // 截断文本
-  const truncateText = (text, maxLength = 120) => {
-    if (!text) return ''
-    const plainText = text.replace(/<[^>]*>/g, '')
-    if (plainText.length <= maxLength) return text
-    return plainText.substring(0, maxLength) + '...'
-  }
-
-  // 在组件挂载或 imageUrl 变化时处理图片 URL
+  // 使用 Intersection Observer 实现精确的懒加载
   useEffect(() => {
-    if (imageUrl) {
+    // 如果优先级高（首屏）或已经应该加载，直接设置
+    if (priority) {
+      setShouldLoadImage(true)
+      return
+    }
+
+    // 如果没有图片URL，不需要观察
+    if (!imageUrl || !imageRef.current) {
+      return
+    }
+
+    // 如果已经应该加载，不需要创建 observer
+    if (shouldLoadImage) {
+      return
+    }
+
+    // 创建 Intersection Observer
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          // 当图片进入视口时开始加载
+          if (entry.isIntersecting) {
+            setShouldLoadImage(true)
+            // 加载后立即停止观察并断开连接
+            if (observerRef.current) {
+              observerRef.current.disconnect()
+              observerRef.current = null
+            }
+          }
+        })
+      },
+      {
+        // 提前 100px 开始加载（预加载）
+        rootMargin: '100px',
+        threshold: 0.01
+      }
+    )
+
+    observerRef.current = observer
+    const currentRef = imageRef.current
+    observer.observe(currentRef)
+
+    // 清理函数
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+        observerRef.current = null
+      }
+    }
+  }, [imageUrl, priority, shouldLoadImage])
+
+  // 使用 useMemo 缓存截断文本
+  const truncatedContent = useMemo(() => {
+    if (!note.content) return ''
+    const plainText = note.content.replace(/<[^>]*>/g, '')
+    if (plainText.length <= 120) return note.content
+    return plainText.substring(0, 120) + '...'
+  }, [note.content])
+
+  // 使用 useMemo 缓存状态标签样式
+  const statusStyle = useMemo(() => {
+    if (!note.status || note.status === 'PUBLISHED') return null
+    const style = statusStyles[note.status]
+    if (!style) return null
+    return {
+      padding: '4px 10px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      fontWeight: '500',
+      whiteSpace: 'nowrap',
+      backgroundColor: style.bg,
+      color: style.color
+    }
+  }, [note.status])
+
+  // 使用 useMemo 缓存头像 URL
+  const avatarSrc = useMemo(() => {
+    if (!note.avatarUrl) return null
+    if (note.avatarUrl.startsWith('http://') || note.avatarUrl.startsWith('https://')) {
+      return note.avatarUrl
+    }
+    if (note.avatarUrl.startsWith('/')) {
+      return note.avatarUrl
+    }
+    return `/${note.avatarUrl}`
+  }, [note.avatarUrl])
+
+  // 使用 useMemo 缓存格式化后的日期
+  const formattedDate = useMemo(() => formatDate(note.createdAt), [note.createdAt])
+
+  // 使用 useMemo 缓存转义后的标题和用户名
+  const escapedTitle = useMemo(() => escapeHtml(note.title), [note.title])
+  const escapedUsername = useMemo(() => escapeHtml(note.username || 'ユーザー'), [note.username])
+
+  // 在 shouldLoadImage 为 true 时设置图片源
+  useEffect(() => {
+    if (shouldLoadImage && imageUrl) {
       // 重置状态
       setImageLoading(true)
       setImageError(false)
+      setImageLoaded(false)
       // 设置新的图片源
       setImageSrc(imageUrl)
-    } else {
+    } else if (!imageUrl) {
       setImageSrc(null)
       setImageLoading(false)
       setImageError(false)
+      setImageLoaded(false)
     }
-  }, [imageUrl])
+  }, [shouldLoadImage, imageUrl])
 
   return (
     <article className="note-card" onClick={handleCardClick}>
       {/* 图片区域 */}
-      {imageSrc && !imageError && (
-        <div className="note-card-image-wrapper">
-          {imageLoading && (
+      {imageUrl && (
+        <div 
+          className={`note-card-image-wrapper ${imageLoaded ? 'image-loaded' : ''}`}
+          ref={imageRef}
+        >
+          {(!shouldLoadImage || imageLoading) && (
             <div className="note-card-image-skeleton"></div>
           )}
-          <img 
-            src={imageSrc} 
-            alt={escapeHtml(note.title)} 
-            className="note-card-image"
-            loading="lazy"
-            decoding="async"
-            onLoad={() => {
-              setImageLoading(false)
-            }}
-            onError={(e) => {
-              console.error('图片加载失败:', imageSrc, note)
-              setImageError(true)
-              setImageLoading(false)
-              // 隐藏图片元素
-              e.target.style.display = 'none'
-            }}
-            style={{ 
-              display: imageLoading ? 'none' : 'block',
-              opacity: imageLoading ? 0 : 1,
-              transition: 'opacity 0.3s ease'
-            }}
-          />
+          {shouldLoadImage && imageSrc && !imageError && (
+            <img 
+              src={imageSrc} 
+              alt={escapedTitle} 
+              className="note-card-image"
+              loading={priority ? 'eager' : 'lazy'}
+              decoding="async"
+              fetchpriority={priority ? 'high' : 'auto'}
+              onLoad={() => {
+                setImageLoading(false)
+                setImageLoaded(true)
+              }}
+              onError={(e) => {
+                console.error('图片加载失败:', imageSrc, note)
+                setImageError(true)
+                setImageLoading(false)
+                setImageLoaded(false)
+                // 隐藏图片元素
+                e.target.style.display = 'none'
+              }}
+              style={{ 
+                display: imageLoading ? 'none' : 'block',
+                opacity: imageLoaded ? 1 : 0,
+                transition: 'opacity 0.4s ease-in-out'
+              }}
+            />
+          )}
         </div>
       )}
 
@@ -256,30 +410,11 @@ const NoteCard = memo(({ note, onUpdate }) => {
       <div className="note-card-content">
         {/* 标题和状态 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-          <h3 className="note-card-title" style={{ flex: 1, margin: 0 }} dangerouslySetInnerHTML={{ __html: escapeHtml(note.title) }} />
+          <h3 className="note-card-title" style={{ flex: 1, margin: 0 }} dangerouslySetInnerHTML={{ __html: escapedTitle }} />
           {/* 状态标签（仅显示非 PUBLISHED 状态） */}
-          {note.status && note.status !== 'PUBLISHED' && (
-            <span style={{
-              padding: '4px 10px',
-              borderRadius: '12px',
-              fontSize: '11px',
-              fontWeight: '500',
-              whiteSpace: 'nowrap',
-              backgroundColor: 
-                note.status === 'DRAFT' ? '#e3f2fd' :
-                note.status === 'PENDING' ? '#fff3e0' :
-                note.status === 'REJECTED' ? '#ffebee' :
-                note.status === 'PRIVATE' ? '#f3e5f5' : '#f5f5f5',
-              color: 
-                note.status === 'DRAFT' ? '#1976d2' :
-                note.status === 'PENDING' ? '#f57c00' :
-                note.status === 'REJECTED' ? '#c62828' :
-                note.status === 'PRIVATE' ? '#7b1fa2' : '#666'
-            }}>
-              {note.status === 'DRAFT' && '📝'}
-              {note.status === 'PENDING' && '⏳'}
-              {note.status === 'REJECTED' && '❌'}
-              {note.status === 'PRIVATE' && '🔒'}
+          {statusStyle && (
+            <span style={statusStyle}>
+              {statusStyles[note.status]?.icon}
             </span>
           )}
         </div>
@@ -287,14 +422,10 @@ const NoteCard = memo(({ note, onUpdate }) => {
         {/* 用户信息 */}
         <div className="note-card-author">
           <div className="note-card-author-avatar">
-            {note.avatarUrl ? (
+            {avatarSrc ? (
               <img 
-                src={note.avatarUrl.startsWith('http://') || note.avatarUrl.startsWith('https://') 
-                  ? note.avatarUrl 
-                  : note.avatarUrl.startsWith('/') 
-                    ? note.avatarUrl 
-                    : `/${note.avatarUrl}`}
-                alt={escapeHtml(note.username)}
+                src={avatarSrc}
+                alt={escapedTitle}
                 onError={(e) => {
                   e.target.style.display = 'none'
                   e.target.nextSibling.style.display = 'block'
@@ -306,13 +437,13 @@ const NoteCard = memo(({ note, onUpdate }) => {
             </div>
           </div>
           <div className="note-card-author-info">
-            <span className="note-card-author-name">{escapeHtml(note.username || 'ユーザー')}</span>
-            <span className="note-card-date">{formatDate(note.createdAt)}</span>
+            <span className="note-card-author-name">{escapedUsername}</span>
+            <span className="note-card-date">{formattedDate}</span>
           </div>
         </div>
 
         {/* 内容预览 */}
-        <div className="note-card-body" dangerouslySetInnerHTML={{ __html: truncateText(note.content) }} />
+        <div className="note-card-body" dangerouslySetInnerHTML={{ __html: truncatedContent }} />
 
         {/* 位置信息 */}
         {note.location && (
@@ -321,7 +452,7 @@ const NoteCard = memo(({ note, onUpdate }) => {
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
               <circle cx="12" cy="10" r="3"></circle>
             </svg>
-            <span>{escapeHtml(note.location)}</span>
+            <span>{note.location}</span>
           </div>
         )}
 
@@ -409,7 +540,8 @@ const NoteCard = memo(({ note, onUpdate }) => {
     prevProps.note.likesCount === nextProps.note.likesCount &&
     prevProps.note.favoritesCount === nextProps.note.favoritesCount &&
     prevProps.note.isLiked === nextProps.note.isLiked &&
-    prevProps.note.isFavorited === nextProps.note.isFavorited
+    prevProps.note.isFavorited === nextProps.note.isFavorited &&
+    prevProps.priority === nextProps.priority
   )
 })
 

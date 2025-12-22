@@ -236,7 +236,8 @@ const Notes = () => {
                 >
                   <NoteCard 
                     note={note} 
-                    onUpdate={() => loadNotes(currentPage, searchKeyword, sortBy)} 
+                    onUpdate={() => loadNotes(currentPage, searchKeyword, sortBy)}
+                    priority={index < 6} // 前6个卡片（首屏）优先加载图片
                   />
                 </div>
               ))}

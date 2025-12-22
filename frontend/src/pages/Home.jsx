@@ -172,8 +172,13 @@ const Home = () => {
               {notesLoading ? (
                 <div className="home-cards-loading">読み込み中...</div>
               ) : featuredNotes.length > 0 ? (
-                featuredNotes.map((note) => (
-                  <NoteCard key={note.id} note={note} onUpdate={loadFeaturedNotes} />
+                featuredNotes.map((note, index) => (
+                  <NoteCard 
+                    key={note.id} 
+                    note={note} 
+                    onUpdate={loadFeaturedNotes}
+                    priority={index < 6} // 前6个卡片（首屏）优先加载图片
+                  />
                 ))
               ) : (
                 <div className="home-cards-empty">ノートがありません</div>
