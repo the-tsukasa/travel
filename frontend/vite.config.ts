@@ -22,5 +22,16 @@ export default defineConfig({
   build: {
     outDir: '../src/main/resources/static/react-dist',
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          maps: ['leaflet', 'react-leaflet'],
+          utils: ['axios']
+        }
+      }
+    }
   },
 })
