@@ -1,23 +1,61 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, MouseEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../services/api'
 import { TokenUtil } from '../utils/auth'
+import type { UserDTO } from '../types'
+
+interface UserStats {
+  totalUsers: number
+  adminUsers: number
+  regularUsers: number
+}
+
+interface NotesStats {
+  totalNotes: number
+  pendingNotes: number
+  publishedNotes: number
+  draftNotes: number
+  rejectedNotes: number
+  privateNotes: number
+}
+
+interface InteractionStats {
+  totalLikes: number
+  totalFavorites: number
+  totalInteractions: number
+}
+
+interface StatCardProps {
+  title: string
+  value: number
+  icon: string
+  color: string
+  subtitle?: string
+  percentage?: number
+}
+
+interface ProgressBarProps {
+  label: string
+  value: number
+  max: number
+  color: string
+}
 
 const StatisticsReport = () => {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string>('')
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768)
   const navigate = useNavigate()
 
   // 用户统计
-  const [userStats, setUserStats] = useState({
+  const [userStats, setUserStats] = useState<UserStats>({
     totalUsers: 0,
     adminUsers: 0,
     regularUsers: 0
   })
 
   // 笔记统计
-  const [notesStats, setNotesStats] = useState({
+  const [notesStats, setNotesStats] = useState<NotesStats>({
     totalNotes: 0,
     pendingNotes: 0,
     publishedNotes: 0,
@@ -27,7 +65,7 @@ const StatisticsReport = () => {
   })
 
   // 互动统计（从用户数据中计算）
-  const [interactionStats, setInteractionStats] = useState({
+  const [interactionStats, setInteractionStats] = useState<InteractionStats>({
     totalLikes: 0,
     totalFavorites: 0,
     totalInteractions: 0
@@ -51,7 +89,7 @@ const StatisticsReport = () => {
     }
   }, [loading])
 
-  const checkAdminAuth = async () => {
+  const checkAdminAuth = async (): Promise<void> => {
     const token = TokenUtil.getToken()
     if (!token) {
       alert('まずログインしてください。')
@@ -60,7 +98,7 @@ const StatisticsReport = () => {
     }
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
+      const payload = JSON.parse(atob(token.split('.')[1])) as { role?: string }
       if (payload.role !== 'ADMIN') {
         alert('アクセス権がありません。管理者のみがこのページを利用できます。')
         navigate('/notes')
@@ -74,22 +112,22 @@ const StatisticsReport = () => {
     }
   }
 
-  const loadAllStats = async () => {
+  const loadAllStats = async (): Promise<void> => {
     try {
       setLoading(true)
       setError('')
 
       // 加载用户统计
-      const userStatsRes = await api.get('/admin/users/stats')
-      setUserStats(userStatsRes.data || {})
+      const userStatsRes = await api.get<UserStats>('/admin/users/stats')
+      setUserStats(userStatsRes.data || { totalUsers: 0, adminUsers: 0, regularUsers: 0 })
 
       // 加载笔记统计
-      const notesStatsRes = await api.get('/admin/notes/stats')
-      setNotesStats(notesStatsRes.data || {})
+      const notesStatsRes = await api.get<NotesStats>('/admin/notes/stats')
+      setNotesStats(notesStatsRes.data || { totalNotes: 0, pendingNotes: 0, publishedNotes: 0, draftNotes: 0, rejectedNotes: 0, privateNotes: 0 })
 
       // 加载所有用户以计算互动统计
       try {
-        const usersRes = await api.get('/admin/users')
+        const usersRes = await api.get<UserDTO[]>('/admin/users')
         const users = usersRes.data || []
         let totalLikes = 0
         let totalFavorites = 0
@@ -117,7 +155,7 @@ const StatisticsReport = () => {
   }
 
   // 统计卡片组件
-  const StatCard = ({ title, value, icon, color, subtitle, percentage }) => {
+  const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, subtitle, percentage }) => {
     return (
       <div style={{
         background: 'white',
@@ -129,13 +167,13 @@ const StatisticsReport = () => {
         position: 'relative',
         overflow: 'hidden'
       }}
-      onMouseEnter={(e) => {
+      onMouseEnter={(e: MouseEvent<HTMLDivElement>) => {
         if (!isMobile) {
           e.currentTarget.style.transform = 'translateY(-4px)'
           e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)'
         }
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={(e: MouseEvent<HTMLDivElement>) => {
         if (!isMobile) {
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'
@@ -185,7 +223,7 @@ const StatisticsReport = () => {
   }
 
   // 进度条组件
-  const ProgressBar = ({ label, value, max, color }) => {
+  const ProgressBar: React.FC<ProgressBarProps> = ({ label, value, max, color }) => {
     const percentage = max > 0 ? (value / max) * 100 : 0
     return (
       <div style={{ marginBottom: '16px' }}>
@@ -348,10 +386,10 @@ const StatisticsReport = () => {
                   gap: '8px',
                   width: isMobile ? '100%' : 'auto'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#1565c0'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#1976d2'
                 }}
               >
@@ -375,11 +413,11 @@ const StatisticsReport = () => {
                   justifyContent: 'center',
                   width: isMobile ? '100%' : 'auto'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLAnchorElement>) => {
                   e.currentTarget.style.background = '#f7fafc'
                   e.currentTarget.style.borderColor = '#cbd5e0'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLAnchorElement>) => {
                   e.currentTarget.style.background = 'white'
                   e.currentTarget.style.borderColor = '#e2e8f0'
                 }}
@@ -645,11 +683,11 @@ const StatisticsReport = () => {
                 transition: 'all 0.3s ease',
                 display: 'inline-block'
               }}
-              onMouseEnter={(e) => {
+              onMouseEnter={(e: MouseEvent<HTMLAnchorElement>) => {
                 e.currentTarget.style.background = '#1565c0'
                 e.currentTarget.style.transform = 'translateY(-2px)'
               }}
-              onMouseLeave={(e) => {
+              onMouseLeave={(e: MouseEvent<HTMLAnchorElement>) => {
                 e.currentTarget.style.background = '#1976d2'
                 e.currentTarget.style.transform = 'translateY(0)'
               }}
@@ -669,11 +707,11 @@ const StatisticsReport = () => {
                 transition: 'all 0.3s ease',
                 display: 'inline-block'
               }}
-              onMouseEnter={(e) => {
+              onMouseEnter={(e: MouseEvent<HTMLAnchorElement>) => {
                 e.currentTarget.style.background = '#6a1b9a'
                 e.currentTarget.style.transform = 'translateY(-2px)'
               }}
-              onMouseLeave={(e) => {
+              onMouseLeave={(e: MouseEvent<HTMLAnchorElement>) => {
                 e.currentTarget.style.background = '#7b1fa2'
                 e.currentTarget.style.transform = 'translateY(0)'
               }}

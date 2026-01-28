@@ -1,29 +1,56 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ChangeEvent, MouseEvent, FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../services/api'
 import { TokenUtil } from '../utils/auth'
+import type { UserDTO } from '../types'
 import '../styles/pages/users-admin.css'
 
+interface UserStats {
+  totalUsers: number
+  adminUsers: number
+  regularUsers: number
+}
+
+interface EditForm {
+  username: string
+  email: string
+  role: 'USER' | 'ADMIN'
+  firstName: string
+  lastName: string
+  location: string
+  bio: string
+  address: string
+  password: string
+}
+
+interface StatCardProps {
+  title: string
+  value: number
+  icon: string
+  color: string
+  link?: string
+}
+
 const UsersAdmin = () => {
-  const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [editModalOpen, setEditModalOpen] = useState(false)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [userInfo, setUserInfo] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState('createdAt')
-  const [sortOrder, setSortOrder] = useState('desc')
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
-  const [stats, setStats] = useState({
+  const [users, setUsers] = useState<UserDTO[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<UserDTO[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string>('')
+  const [detailModalOpen, setDetailModalOpen] = useState<boolean>(false)
+  const [editModalOpen, setEditModalOpen] = useState<boolean>(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
+  const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null)
+  const [userInfo, setUserInfo] = useState<UserDTO | null>(null)
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [sortBy, setSortBy] = useState<string>('createdAt')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768)
+  const [stats, setStats] = useState<UserStats>({
     totalUsers: 0,
     adminUsers: 0,
     regularUsers: 0
   })
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<EditForm>({
     username: '',
     email: '',
     role: 'USER',
@@ -34,7 +61,7 @@ const UsersAdmin = () => {
     address: '',
     password: ''
   })
-  const [successMessage, setSuccessMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState<string>('')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -58,7 +85,7 @@ const UsersAdmin = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const checkAdminAuth = async () => {
+  const checkAdminAuth = async (): Promise<void> => {
     const token = TokenUtil.getToken()
     if (!token) {
       alert('まずログインしてください。')
@@ -67,14 +94,14 @@ const UsersAdmin = () => {
     }
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
+      const payload = JSON.parse(atob(token.split('.')[1])) as { role?: string }
       if (payload.role !== 'ADMIN') {
         alert('アクセス権がありません。管理者のみがこのページを利用できます。')
         navigate('/notes')
         return
       }
 
-      const response = await api.get('/user/me')
+      const response = await api.get<UserDTO>('/user/me')
       setUserInfo(response.data)
     } catch (error) {
       console.error('認証エラー:', error)
@@ -84,13 +111,13 @@ const UsersAdmin = () => {
     }
   }
 
-  const loadUsers = async () => {
+  const loadUsers = async (): Promise<void> => {
     try {
       setLoading(true)
       setError('')
-      const response = await api.get(`/admin/users?sortBy=${sortBy}&sortOrder=${sortOrder}`)
+      const response = await api.get<UserDTO[]>(`/admin/users?sortBy=${sortBy}&sortOrder=${sortOrder}`)
       setUsers(response.data || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error('ユーザー読み込みエラー:', error)
       if (error.response?.status === 403) {
         setError('アクセス権がありません。')
@@ -103,16 +130,16 @@ const UsersAdmin = () => {
     }
   }
 
-  const loadStats = async () => {
+  const loadStats = async (): Promise<void> => {
     try {
-      const response = await api.get('/admin/users/stats')
+      const response = await api.get<UserStats>('/admin/users/stats')
       setStats(response.data)
     } catch (error) {
       console.error('統計データの読み込みエラー:', error)
     }
   }
 
-  const filterUsers = () => {
+  const filterUsers = (): void => {
     let filtered = [...users]
 
     // 搜索过滤
@@ -130,17 +157,17 @@ const UsersAdmin = () => {
     setFilteredUsers(filtered)
   }
 
-  const handleViewDetail = (user) => {
+  const handleViewDetail = (user: UserDTO): void => {
     setSelectedUser(user)
     setDetailModalOpen(true)
   }
 
-  const handleEditClick = (user) => {
+  const handleEditClick = (user: UserDTO): void => {
     setSelectedUser(user)
     setEditForm({
       username: user.username || '',
       email: user.email || '',
-      role: user.role || 'USER',
+      role: (user.role === 'ADMIN' ? 'ADMIN' : 'USER') as 'USER' | 'ADMIN',
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       location: user.location || '',
@@ -151,12 +178,12 @@ const UsersAdmin = () => {
     setEditModalOpen(true)
   }
 
-  const handleEditSubmit = async (e) => {
+  const handleEditSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
     if (!selectedUser) return
 
     try {
-      const updateData = { ...editForm }
+      const updateData: Partial<EditForm> = { ...editForm }
       // 如果密码为空，不发送密码字段
       if (!updateData.password || updateData.password.trim() === '') {
         delete updateData.password
@@ -170,18 +197,18 @@ const UsersAdmin = () => {
       
       // 3秒后清除成功消息
       setTimeout(() => setSuccessMessage(''), 3000)
-    } catch (error) {
+    } catch (error: any) {
       console.error('更新エラー:', error)
       alert(error.response?.data?.message || 'ユーザー情報の更新に失敗しました。')
     }
   }
 
-  const handleDeleteClick = (user) => {
+  const handleDeleteClick = (user: UserDTO): void => {
     setSelectedUser(user)
     setDeleteModalOpen(true)
   }
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = async (): Promise<void> => {
     if (!selectedUser) return
 
     try {
@@ -194,19 +221,19 @@ const UsersAdmin = () => {
       
       // 3秒后清除成功消息
       setTimeout(() => setSuccessMessage(''), 3000)
-    } catch (error) {
+    } catch (error: any) {
       console.error('削除エラー:', error)
       alert(error.response?.data?.message || 'ユーザーの削除に失敗しました。')
       setDeleteModalOpen(false)
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     TokenUtil.clearToken()
     navigate('/login')
   }
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString?: string): string => {
     if (!dateString) return '-'
     const date = new Date(dateString)
     return date.toLocaleDateString('ja-JP', {
@@ -218,7 +245,7 @@ const UsersAdmin = () => {
     })
   }
 
-  const escapeHtml = (text) => {
+  const escapeHtml = (text?: string): string => {
     if (!text) return ''
     const div = document.createElement('div')
     div.textContent = text
@@ -250,7 +277,7 @@ const UsersAdmin = () => {
   }
 
   // 统计卡片组件（与 Admin 页面一致）
-  const StatCard = ({ title, value, icon, color, link }) => {
+  const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, link }) => {
     const content = (
       <div style={{
         background: 'white',
@@ -263,13 +290,13 @@ const UsersAdmin = () => {
         position: 'relative',
         overflow: 'hidden'
       }}
-      onMouseEnter={(e) => {
+      onMouseEnter={(e: MouseEvent<HTMLDivElement>) => {
         if (link && !isMobile) {
           e.currentTarget.style.transform = 'translateY(-4px)'
           e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)'
         }
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={(e: MouseEvent<HTMLDivElement>) => {
         if (link && !isMobile) {
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)'

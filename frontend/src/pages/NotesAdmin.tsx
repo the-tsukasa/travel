@@ -1,31 +1,56 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ChangeEvent, MouseEvent, FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import api from '../services/api'
 import { TokenUtil } from '../utils/auth'
+import type { NotesDTO, UserDTO, NoteStatus } from '../types'
 import '../styles/pages/notes-admin.css'
 
+type TabType = 'pending' | 'all'
+type StatusFilterType = 'ALL' | NoteStatus
+type SortByType = 'date-desc' | 'date-asc' | 'title-asc' | 'title-desc'
+
+interface NotesStats {
+  totalNotes: number
+  pendingNotes: number
+  publishedNotes: number
+  draftNotes: number
+  rejectedNotes: number
+  privateNotes: number
+}
+
+interface StatCardProps {
+  title: string
+  value: number
+  icon: string
+  color: string
+  link?: string
+  urgent?: boolean
+  onClick?: () => void
+  isActive?: boolean
+}
+
 const NotesAdmin = () => {
-  const [pendingNotes, setPendingNotes] = useState([])
-  const [allNotes, setAllNotes] = useState([])
-  const [filteredNotes, setFilteredNotes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [rejectModalOpen, setRejectModalOpen] = useState(false)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [noteToReject, setNoteToReject] = useState(null)
-  const [noteToDelete, setNoteToDelete] = useState(null)
-  const [rejectReason, setRejectReason] = useState('') // 退回理由
-  const [selectedNote, setSelectedNote] = useState(null)
-  const [currentTab, setCurrentTab] = useState('pending')
-  const [statusFilter, setStatusFilter] = useState('ALL') // ALL, PENDING, PUBLISHED, DRAFT, REJECTED, PRIVATE
-  const [userInfo, setUserInfo] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortBy, setSortBy] = useState('date-desc') // date-desc, date-asc, title-asc, title-desc
-  const [selectedNotes, setSelectedNotes] = useState(new Set())
-  const [processing, setProcessing] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
-  const [stats, setStats] = useState({
+  const [pendingNotes, setPendingNotes] = useState<NotesDTO[]>([])
+  const [allNotes, setAllNotes] = useState<NotesDTO[]>([])
+  const [filteredNotes, setFilteredNotes] = useState<NotesDTO[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string>('')
+  const [rejectModalOpen, setRejectModalOpen] = useState<boolean>(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
+  const [detailModalOpen, setDetailModalOpen] = useState<boolean>(false)
+  const [noteToReject, setNoteToReject] = useState<number | null>(null)
+  const [noteToDelete, setNoteToDelete] = useState<number | null>(null)
+  const [rejectReason, setRejectReason] = useState<string>('')
+  const [selectedNote, setSelectedNote] = useState<NotesDTO | null>(null)
+  const [currentTab, setCurrentTab] = useState<TabType>('pending')
+  const [statusFilter, setStatusFilter] = useState<StatusFilterType>('ALL')
+  const [userInfo, setUserInfo] = useState<UserDTO | null>(null)
+  const [searchTerm, setSearchTerm] = useState<string>('')
+  const [sortBy, setSortBy] = useState<SortByType>('date-desc')
+  const [selectedNotes, setSelectedNotes] = useState<Set<number>>(new Set())
+  const [processing, setProcessing] = useState<boolean>(false)
+  const [successMessage, setSuccessMessage] = useState<string>('')
+  const [stats, setStats] = useState<NotesStats>({
     totalNotes: 0,
     pendingNotes: 0,
     publishedNotes: 0,
@@ -55,7 +80,7 @@ const NotesAdmin = () => {
     filterAndSortNotes()
   }, [searchTerm, pendingNotes, allNotes, sortBy, statusFilter, currentTab])
 
-  const checkAdminAuth = async () => {
+  const checkAdminAuth = async (): Promise<void> => {
     const token = TokenUtil.getToken()
     if (!token) {
       alert('まずログインしてください。')
@@ -71,7 +96,7 @@ const NotesAdmin = () => {
         return
       }
 
-      const response = await api.get('/user/me')
+      const response = await api.get<UserDTO>('/user/me')
       setUserInfo(response.data)
       setLoading(false)
     } catch (error) {
@@ -82,13 +107,13 @@ const NotesAdmin = () => {
     }
   }
 
-  const loadPendingNotes = async () => {
+  const loadPendingNotes = async (): Promise<void> => {
     try {
       setLoading(true)
       setError('')
-      const response = await api.get('/admin/notes/pending')
+      const response = await api.get<NotesDTO[]>('/admin/notes/pending')
       setPendingNotes(response.data || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error('ノート読み込みエラー:', error)
       if (error.response?.status === 403) {
         setError('アクセス権がありません。')
@@ -101,14 +126,13 @@ const NotesAdmin = () => {
     }
   }
 
-  const loadAllNotes = async () => {
+  const loadAllNotes = async (): Promise<void> => {
     try {
       setLoading(true)
       setError('')
-      // 获取所有状态的笔记
-      const response = await api.get('/admin/notes')
+      const response = await api.get<NotesDTO[]>('/admin/notes')
       setAllNotes(response.data || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error('全ノート読み込みエラー:', error)
       if (error.response?.status === 403) {
         setError('アクセス権がありません。')
@@ -121,9 +145,9 @@ const NotesAdmin = () => {
     }
   }
 
-  const loadStats = async () => {
+  const loadStats = async (): Promise<void> => {
     try {
-      const response = await api.get('/admin/notes/stats')
+      const response = await api.get<NotesStats>('/admin/notes/stats')
       if (response.data) {
         setStats({
           totalNotes: response.data.totalNotes || 0,
@@ -139,17 +163,14 @@ const NotesAdmin = () => {
     }
   }
 
-  const filterAndSortNotes = () => {
-    // 根据当前标签选择数据源
+  const filterAndSortNotes = (): void => {
     let sourceNotes = currentTab === 'pending' ? pendingNotes : allNotes
     let filtered = [...sourceNotes]
 
-    // 状态过滤（仅在全ノート标签中）
     if (currentTab === 'all' && statusFilter !== 'ALL') {
       filtered = filtered.filter(note => note.status === statusFilter)
     }
 
-    // 搜索过滤
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(note => 
@@ -160,13 +181,12 @@ const NotesAdmin = () => {
       )
     }
 
-    // 排序
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'date-desc':
-          return new Date(b.createdAt) - new Date(a.createdAt)
+          return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
         case 'date-asc':
-          return new Date(a.createdAt) - new Date(b.createdAt)
+          return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
         case 'title-asc':
           return (a.title || '').localeCompare(b.title || '')
         case 'title-desc':
@@ -179,12 +199,12 @@ const NotesAdmin = () => {
     setFilteredNotes(filtered)
   }
 
-  const showSuccessMessage = (message) => {
+  const showSuccessMessage = (message: string): void => {
     setSuccessMessage(message)
     setTimeout(() => setSuccessMessage(''), 3000)
   }
 
-  const handleApprove = async (noteId) => {
+  const handleApprove = async (noteId: number): Promise<void> => {
     if (!confirm('このノートを承認しますか？')) return
 
     try {
@@ -206,7 +226,7 @@ const NotesAdmin = () => {
     }
   }
 
-  const handleBatchApprove = async () => {
+  const handleBatchApprove = async (): Promise<void> => {
     if (selectedNotes.size === 0) {
       alert('承認するノートを選択してください。')
       return
@@ -236,16 +256,15 @@ const NotesAdmin = () => {
     }
   }
 
-  const handleBatchReject = () => {
+  const handleBatchReject = (): void => {
     if (selectedNotes.size === 0) {
       alert('差し戻すノートを選択してください。')
       return
     }
-    // 批量拒绝需要为每个笔记输入理由，这里先提示
     alert('一括差し戻し機能は準備中です。個別に差し戻してください。')
   }
 
-  const handleBatchDelete = async () => {
+  const handleBatchDelete = async (): Promise<void> => {
     if (selectedNotes.size === 0) {
       alert('削除するノートを選択してください。')
       return
@@ -275,13 +294,13 @@ const NotesAdmin = () => {
     }
   }
 
-  const handleRejectClick = (noteId) => {
+  const handleRejectClick = (noteId: number): void => {
     setNoteToReject(noteId)
     setRejectReason('')
     setRejectModalOpen(true)
   }
 
-  const handleRejectConfirm = async () => {
+  const handleRejectConfirm = async (): Promise<void> => {
     if (!noteToReject) return
     
     if (!rejectReason.trim()) {
@@ -305,7 +324,7 @@ const NotesAdmin = () => {
       }
       loadStats()
       setSelectedNotes(new Set())
-    } catch (error) {
+    } catch (error: any) {
       console.error('差し戻しエラー:', error)
       alert(error.response?.data?.message || '❌ 差し戻し処理に失敗しました。')
     } finally {
@@ -313,8 +332,7 @@ const NotesAdmin = () => {
     }
   }
   
-  // 下架笔记
-  const handleUnpublish = async (noteId) => {
+  const handleUnpublish = async (noteId: number): Promise<void> => {
     if (!confirm('このノートを非公開にしますか？')) return
 
     try {
@@ -328,7 +346,7 @@ const NotesAdmin = () => {
       }
       loadStats()
       setSelectedNotes(new Set())
-    } catch (error) {
+    } catch (error: any) {
       console.error('非公開エラー:', error)
       alert(error.response?.data?.message || '❌ 非公開処理に失敗しました。')
     } finally {
@@ -336,13 +354,12 @@ const NotesAdmin = () => {
     }
   }
 
-  // 删除笔记
-  const handleDeleteClick = (noteId) => {
+  const handleDeleteClick = (noteId: number): void => {
     setNoteToDelete(noteId)
     setDeleteModalOpen(true)
   }
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = async (): Promise<void> => {
     if (!noteToDelete) return
 
     if (!confirm('このノートを削除しますか？この操作は元に戻せません。')) return
@@ -360,7 +377,7 @@ const NotesAdmin = () => {
       }
       loadStats()
       setSelectedNotes(new Set())
-    } catch (error) {
+    } catch (error: any) {
       console.error('削除エラー:', error)
       alert(error.response?.data?.message || '❌ 削除処理に失敗しました。')
       setDeleteModalOpen(false)
@@ -369,12 +386,12 @@ const NotesAdmin = () => {
     }
   }
 
-  const handleViewDetail = (note) => {
+  const handleViewDetail = (note: NotesDTO): void => {
     setSelectedNote(note)
     setDetailModalOpen(true)
   }
 
-  const handleSelectNote = (noteId) => {
+  const handleSelectNote = (noteId: number): void => {
     const newSelected = new Set(selectedNotes)
     if (newSelected.has(noteId)) {
       newSelected.delete(noteId)
@@ -384,7 +401,7 @@ const NotesAdmin = () => {
     setSelectedNotes(newSelected)
   }
 
-  const handleSelectAll = () => {
+  const handleSelectAll = (): void => {
     if (selectedNotes.size === filteredNotes.length && filteredNotes.length > 0) {
       setSelectedNotes(new Set())
     } else {
@@ -392,44 +409,44 @@ const NotesAdmin = () => {
     }
   }
 
-  const getStatusLabel = (status) => {
-    const labels = {
+  const getStatusLabel = (status?: NoteStatus): string => {
+    const labels: Record<NoteStatus, string> = {
       'DRAFT': '📝 草稿',
       'PENDING': '⏳ 審査中',
       'PUBLISHED': '✅ 公開済み',
       'REJECTED': '❌ 差し戻し',
       'PRIVATE': '🔒 非公開'
     }
-    return labels[status] || status
+    return status ? labels[status] || status : ''
   }
 
-  const getStatusColor = (status) => {
-    const colors = {
+  const getStatusColor = (status?: NoteStatus): string => {
+    const colors: Record<NoteStatus, string> = {
       'DRAFT': '#1976d2',
       'PENDING': '#f57c00',
       'PUBLISHED': '#388e3c',
       'REJECTED': '#c62828',
       'PRIVATE': '#7b1fa2'
     }
-    return colors[status] || '#666'
+    return status ? colors[status] || '#666' : '#666'
   }
 
-  const formatImageUrl = (imageUrl) => {
+  const formatImageUrl = (imageUrl: string): string | null => {
     if (!imageUrl) return null
     if (imageUrl.startsWith('http')) return imageUrl
     if (imageUrl.startsWith('/')) return `http://localhost:8080${imageUrl}`
     return `http://localhost:8080/uploads/${imageUrl}`
   }
 
-  const getImageUrls = (note) => {
+  const getImageUrls = (note: NotesDTO): string[] => {
     if (note.imageUrls && Array.isArray(note.imageUrls) && note.imageUrls.length > 0) {
-      return note.imageUrls.map(formatImageUrl).filter(Boolean)
+      return note.imageUrls.map(formatImageUrl).filter((url): url is string => url !== null)
     }
     if (note.imageUrl) {
       try {
         const parsed = JSON.parse(note.imageUrl)
         if (Array.isArray(parsed)) {
-          return parsed.map(formatImageUrl).filter(Boolean)
+          return parsed.map(formatImageUrl).filter((url): url is string => url !== null)
         }
       } catch {
         // 不是JSON，作为单个图片处理
@@ -440,20 +457,15 @@ const NotesAdmin = () => {
     return []
   }
 
-  const handleLogout = () => {
-    TokenUtil.clearToken()
-    localStorage.removeItem('username')
-    navigate('/login')
-  }
-
-  const escapeHtml = (text) => {
+  const escapeHtml = (text?: string): string => {
     if (!text) return ''
     const div = document.createElement('div')
     div.textContent = text
     return div.innerHTML
   }
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return '-'
     const date = new Date(dateString)
     return date.toLocaleDateString('ja-JP', {
       year: 'numeric',
@@ -475,8 +487,7 @@ const NotesAdmin = () => {
 
   const displayNotes = filteredNotes
 
-  // 统计卡片组件（与 Admin 页面一致）
-  const StatCard = ({ title, value, icon, color, link, urgent, onClick, isActive }) => {
+  const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, link, urgent, onClick, isActive }) => {
     const isClickable = link || onClick
     const content = (
       <div style={{
@@ -491,13 +502,13 @@ const NotesAdmin = () => {
         overflow: 'hidden'
       }}
       onClick={onClick}
-      onMouseEnter={(e) => {
+      onMouseEnter={(e: MouseEvent<HTMLDivElement>) => {
         if (isClickable) {
           e.currentTarget.style.transform = 'translateY(-4px)'
           e.currentTarget.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.15)'
         }
       }}
-      onMouseLeave={(e) => {
+      onMouseLeave={(e: MouseEvent<HTMLDivElement>) => {
         if (isClickable) {
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = isActive ? `0 4px 12px ${color}40` : '0 4px 6px rgba(0, 0, 0, 0.1)'
@@ -626,11 +637,11 @@ const NotesAdmin = () => {
                   fontWeight: 600,
                   transition: 'all 0.3s ease'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLAnchorElement>) => {
                   e.currentTarget.style.background = '#f7fafc'
                   e.currentTarget.style.borderColor = '#cbd5e0'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLAnchorElement>) => {
                   e.currentTarget.style.background = 'white'
                   e.currentTarget.style.borderColor = '#e2e8f0'
                 }}
@@ -798,7 +809,7 @@ const NotesAdmin = () => {
                     type="text"
                     placeholder="🔍 タイトル、投稿者、内容、場所で検索..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -807,11 +818,11 @@ const NotesAdmin = () => {
                       fontSize: '1rem',
                       transition: 'all 0.3s ease'
                     }}
-                    onFocus={(e) => {
+                    onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
                       e.target.style.borderColor = '#1976d2'
                       e.target.style.boxShadow = '0 0 0 3px rgba(25, 118, 210, 0.1)'
                     }}
-                    onBlur={(e) => {
+                    onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                       e.target.style.borderColor = '#e2e8f0'
                       e.target.style.boxShadow = 'none'
                     }}
@@ -831,7 +842,7 @@ const NotesAdmin = () => {
                   </label>
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as SortByType)}
                     style={{
                       padding: '12px 16px',
                       border: '2px solid #e2e8f0',
@@ -984,12 +995,12 @@ const NotesAdmin = () => {
                               transition: 'background 0.2s ease',
                               background: selectedNotes.has(note.id) ? '#e6f3ff' : 'white'
                             }}
-                            onMouseEnter={(e) => {
+                            onMouseEnter={(e: MouseEvent<HTMLTableRowElement>) => {
                               if (!selectedNotes.has(note.id)) {
                                 e.currentTarget.style.background = '#f7fafc'
                               }
                             }}
-                            onMouseLeave={(e) => {
+                            onMouseLeave={(e: MouseEvent<HTMLTableRowElement>) => {
                               if (!selectedNotes.has(note.id)) {
                                 e.currentTarget.style.background = 'white'
                               }
@@ -1057,13 +1068,13 @@ const NotesAdmin = () => {
                                     transition: 'all 0.3s ease',
                                     opacity: processing ? 0.6 : 1
                                   }}
-                                  onMouseEnter={(e) => {
+                                  onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                                     if (!processing) {
                                       e.currentTarget.style.background = '#38a169'
                                       e.currentTarget.style.transform = 'translateY(-2px)'
                                     }
                                   }}
-                                  onMouseLeave={(e) => {
+                                  onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                                     if (!processing) {
                                       e.currentTarget.style.background = '#48bb78'
                                       e.currentTarget.style.transform = 'translateY(0)'
@@ -1088,13 +1099,13 @@ const NotesAdmin = () => {
                                     transition: 'all 0.3s ease',
                                     opacity: processing ? 0.6 : 1
                                   }}
-                                  onMouseEnter={(e) => {
+                                  onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                                     if (!processing) {
                                       e.currentTarget.style.background = '#e53e3e'
                                       e.currentTarget.style.transform = 'translateY(-2px)'
                                     }
                                   }}
-                                  onMouseLeave={(e) => {
+                                  onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                                     if (!processing) {
                                       e.currentTarget.style.background = '#f56565'
                                       e.currentTarget.style.transform = 'translateY(0)'
@@ -1117,11 +1128,11 @@ const NotesAdmin = () => {
                                     fontSize: '0.875rem',
                                     transition: 'all 0.3s ease'
                                   }}
-                                  onMouseEnter={(e) => {
+                                  onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                                     e.currentTarget.style.background = '#1565c0'
                                     e.currentTarget.style.transform = 'translateY(-2px)'
                                   }}
-                                  onMouseLeave={(e) => {
+                                  onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                                     e.currentTarget.style.background = '#1976d2'
                                     e.currentTarget.style.transform = 'translateY(0)'
                                   }}
@@ -1140,9 +1151,10 @@ const NotesAdmin = () => {
             </div>
           )}
 
-          {/* All Notes Tab */}
+          {/* All Notes Tab - 由于文件太大，这里只显示关键部分，完整代码在后续部分 */}
           {currentTab === 'all' && (
             <div>
+              {/* 类似的代码结构，但包含状态过滤 */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -1213,7 +1225,7 @@ const NotesAdmin = () => {
                 }}>
                   状態フィルター：
                 </label>
-                {['ALL', 'PENDING', 'PUBLISHED', 'DRAFT', 'REJECTED', 'PRIVATE'].map(status => (
+                {(['ALL', 'PENDING', 'PUBLISHED', 'DRAFT', 'REJECTED', 'PRIVATE'] as StatusFilterType[]).map(status => (
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
@@ -1221,32 +1233,32 @@ const NotesAdmin = () => {
                       padding: '8px 16px',
                       borderRadius: '20px',
                       border: '1px solid #e2e8f0',
-                      backgroundColor: statusFilter === status ? getStatusColor(status) : 'white',
+                      backgroundColor: statusFilter === status ? getStatusColor(status as NoteStatus) : 'white',
                       color: statusFilter === status ? '#fff' : '#4a5568',
                       cursor: 'pointer',
                       fontSize: '14px',
                       fontWeight: statusFilter === status ? '600' : '500',
                       transition: 'all 0.3s ease'
                     }}
-                    onMouseEnter={(e) => {
+                    onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                       if (statusFilter !== status) {
-                        e.currentTarget.style.borderColor = getStatusColor(status)
-                        e.currentTarget.style.background = `${getStatusColor(status)}10`
+                        e.currentTarget.style.borderColor = getStatusColor(status as NoteStatus)
+                        e.currentTarget.style.background = `${getStatusColor(status as NoteStatus)}10`
                       }
                     }}
-                    onMouseLeave={(e) => {
+                    onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                       if (statusFilter !== status) {
                         e.currentTarget.style.borderColor = '#e2e8f0'
                         e.currentTarget.style.background = 'white'
                       }
                     }}
                   >
-                    {getStatusLabel(status)}
+                    {status === 'ALL' ? 'すべて' : getStatusLabel(status as NoteStatus)}
                   </button>
                 ))}
               </div>
 
-              {/* Search and Sort Section */}
+              {/* Search and Sort Section - 与 pending tab 相同 */}
               <div style={{
                 display: 'flex',
                 gap: '20px',
@@ -1259,7 +1271,7 @@ const NotesAdmin = () => {
                     type="text"
                     placeholder="🔍 タイトル、投稿者、内容、場所で検索..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                     style={{
                       width: '100%',
                       padding: '12px 16px',
@@ -1268,11 +1280,11 @@ const NotesAdmin = () => {
                       fontSize: '1rem',
                       transition: 'all 0.3s ease'
                     }}
-                    onFocus={(e) => {
+                    onFocus={(e: React.FocusEvent<HTMLInputElement>) => {
                       e.target.style.borderColor = '#1976d2'
                       e.target.style.boxShadow = '0 0 0 3px rgba(25, 118, 210, 0.1)'
                     }}
-                    onBlur={(e) => {
+                    onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                       e.target.style.borderColor = '#e2e8f0'
                       e.target.style.boxShadow = 'none'
                     }}
@@ -1292,7 +1304,7 @@ const NotesAdmin = () => {
                   </label>
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as SortByType)}
                     style={{
                       padding: '12px 16px',
                       border: '2px solid #e2e8f0',
@@ -1311,7 +1323,7 @@ const NotesAdmin = () => {
                 </div>
               </div>
 
-              {/* Content */}
+              {/* Content - 与 pending tab 类似，但包含状态列 */}
               {loading ? (
                 <div style={{
                   padding: '60px',
@@ -1456,12 +1468,12 @@ const NotesAdmin = () => {
                               transition: 'background 0.2s ease',
                               background: selectedNotes.has(note.id) ? '#e6f3ff' : 'white'
                             }}
-                            onMouseEnter={(e) => {
+                            onMouseEnter={(e: MouseEvent<HTMLTableRowElement>) => {
                               if (!selectedNotes.has(note.id)) {
                                 e.currentTarget.style.background = '#f7fafc'
                               }
                             }}
-                            onMouseLeave={(e) => {
+                            onMouseLeave={(e: MouseEvent<HTMLTableRowElement>) => {
                               if (!selectedNotes.has(note.id)) {
                                 e.currentTarget.style.background = 'white'
                               }
@@ -1673,7 +1685,7 @@ const NotesAdmin = () => {
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
               animation: 'slideUp 0.3s ease-out'
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
           >
             <div style={{
               display: 'flex',
@@ -1710,11 +1722,11 @@ const NotesAdmin = () => {
                   borderRadius: '8px',
                   transition: 'all 0.2s ease'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#f7fafc'
                   e.currentTarget.style.color = '#2d3748'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = 'none'
                   e.currentTarget.style.color = '#718096'
                 }}
@@ -1844,8 +1856,8 @@ const NotesAdmin = () => {
                             borderRadius: '8px',
                             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
                           }}
-                          onError={(e) => {
-                            e.target.style.display = 'none'
+                          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                            e.currentTarget.style.display = 'none'
                           }}
                         />
                       ))}
@@ -1979,7 +1991,6 @@ const NotesAdmin = () => {
               padding: '24px',
               borderTop: '1px solid #e2e8f0'
             }}>
-              {/* PENDING 状态：显示批准和退回按钮 */}
               {selectedNote?.status === 'PENDING' && (
                 <>
                   <button
@@ -2027,7 +2038,6 @@ const NotesAdmin = () => {
                 </>
               )}
               
-              {/* PUBLISHED 状态：显示下架按钮 */}
               {selectedNote?.status === 'PUBLISHED' && (
                 <button
                   onClick={() => {
@@ -2052,7 +2062,6 @@ const NotesAdmin = () => {
                 </button>
               )}
               
-              {/* 删除按钮（所有状态都可以删除） */}
               <button
                 onClick={() => {
                   setDetailModalOpen(false)
@@ -2091,10 +2100,10 @@ const NotesAdmin = () => {
                   fontSize: '1rem',
                   transition: 'all 0.3s ease'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#cbd5e0'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#e2e8f0'
                 }}
               >
@@ -2135,7 +2144,7 @@ const NotesAdmin = () => {
               width: '100%',
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
           >
             <div style={{
               display: 'flex',
@@ -2172,11 +2181,11 @@ const NotesAdmin = () => {
                   borderRadius: '8px',
                   transition: 'all 0.2s ease'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#f7fafc'
                   e.currentTarget.style.color = '#2d3748'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = 'none'
                   e.currentTarget.style.color = '#718096'
                 }}
@@ -2217,10 +2226,10 @@ const NotesAdmin = () => {
                   fontSize: '1rem',
                   transition: 'all 0.3s ease'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#cbd5e0'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#e2e8f0'
                 }}
               >
@@ -2279,7 +2288,7 @@ const NotesAdmin = () => {
               width: '100%',
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: MouseEvent<HTMLDivElement>) => e.stopPropagation()}
           >
             <div style={{
               display: 'flex',
@@ -2317,11 +2326,11 @@ const NotesAdmin = () => {
                   borderRadius: '8px',
                   transition: 'all 0.2s ease'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#f7fafc'
                   e.currentTarget.style.color = '#2d3748'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = 'none'
                   e.currentTarget.style.color = '#718096'
                 }}
@@ -2345,7 +2354,7 @@ const NotesAdmin = () => {
               </label>
               <textarea
                 value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setRejectReason(e.target.value)}
                 placeholder="例：内容が不適切です。画像を追加してください。など..."
                 rows={4}
                 style={{
@@ -2360,11 +2369,11 @@ const NotesAdmin = () => {
                   boxSizing: 'border-box',
                   transition: 'all 0.3s ease'
                 }}
-                onFocus={(e) => {
+                onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => {
                   e.target.style.borderColor = '#1976d2'
                   e.target.style.boxShadow = '0 0 0 3px rgba(25, 118, 210, 0.1)'
                 }}
-                onBlur={(e) => {
+                onBlur={(e: React.FocusEvent<HTMLTextAreaElement>) => {
                   e.target.style.borderColor = '#e2e8f0'
                   e.target.style.boxShadow = 'none'
                 }}
@@ -2398,10 +2407,10 @@ const NotesAdmin = () => {
                   fontSize: '1rem',
                   transition: 'all 0.3s ease'
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#cbd5e0'
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
                   e.currentTarget.style.background = '#e2e8f0'
                 }}
               >
