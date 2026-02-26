@@ -177,6 +177,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                         // 4. 测试接口放行
                         .requestMatchers("/hello").permitAll()
+                        // 4.1 健康检查端点放行（Render/Railway/Fly 部署探针）
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         // 5. Notes 接口 - 放行的 GET 请求（注意顺序：具体路径在前）
                         .requestMatchers(HttpMethod.GET, "/api/notes").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/notes/search").permitAll()

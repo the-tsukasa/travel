@@ -42,6 +42,15 @@ logging:
     com.example.travel.util.JwtUtil: DEBUG
     org.springframework.security: DEBUG
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
 # 文件上传配置
 file:
   upload-dir: ${UPLOAD_DIR:uploads}
