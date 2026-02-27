@@ -1,2 +1,0 @@
-web: sh -c 'JAR=$(find target -name "travel*.jar" -type f | head -1) && if [ -z "$JAR" ]; then echo "错误: 未找到 JAR 文件"; ls -la target/; exit 1; else echo "找到 JAR: $JAR"; java -jar "$JAR"; fi'
-
